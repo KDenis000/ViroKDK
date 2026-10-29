@@ -21,7 +21,6 @@
   <header class="flex justify-between items-center p-4 border-b border-gray-800 bg-black z-20">
     <h1 class="text-2xl font-bold tracking-wider text-red-500">ViroKDK</h1>
     <div class="flex items-center space-x-3">
-      <!-- Upload Button (Shown when logged in) -->
       <button id="upload-nav-btn" onclick="openUploadModal()" class="hidden bg-gray-800 hover:bg-gray-700 text-white px-3 py-1.5 rounded-full text-sm font-semibold transition flex items-center space-x-1.5">
         <i class="fa-solid fa-plus text-red-500"></i>
         <span>Post Video</span>
@@ -48,22 +47,17 @@
       <button onclick="closeUploadModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
         <i class="fa-solid fa-xmark text-xl"></i>
       </button>
-
       <h2 class="text-2xl font-bold mb-4 text-center">Upload a Video</h2>
-
       <form id="upload-form" onsubmit="handleVideoUpload(event)" class="space-y-4">
         <div>
           <label class="block text-xs font-semibold mb-1 text-gray-400">SELECT MP4 FILE</label>
           <input type="file" id="upload-file" accept="video/mp4,video/*" required class="w-full bg-gray-800 border border-gray-700 rounded-lg p-2.5 text-xs text-white focus:outline-none"/>
         </div>
-
         <div>
           <label class="block text-xs font-semibold mb-1 text-gray-400">CAPTION</label>
           <input type="text" id="upload-caption" placeholder="Write a caption..." class="w-full bg-gray-800 border border-gray-700 rounded-lg p-2.5 text-white text-sm focus:outline-none focus:border-red-500"/>
         </div>
-
         <p id="upload-message" class="text-sm text-center font-medium hidden"></p>
-
         <button type="submit" id="upload-submit-btn" class="w-full bg-red-500 hover:bg-red-600 font-bold py-2.5 rounded-lg transition flex justify-center items-center space-x-2">
           <span>Upload & Share</span>
         </button>
@@ -77,32 +71,25 @@
       <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
         <i class="fa-solid fa-xmark text-xl"></i>
       </button>
-
       <h2 id="modal-title" class="text-2xl font-bold mb-4 text-center">Log In to ViroKDK</h2>
-
       <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4">
         <div id="username-container" class="hidden">
           <label class="block text-xs font-semibold mb-1 text-gray-400">USERNAME</label>
           <input type="text" id="auth-username" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-red-500" placeholder="e.g. kdk_creator"/>
         </div>
-
         <div>
           <label class="block text-xs font-semibold mb-1 text-gray-400">EMAIL</label>
           <input type="email" id="auth-email" required class="w-full bg-gray-800 border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-red-500" placeholder="you@example.com"/>
         </div>
-
         <div>
           <label class="block text-xs font-semibold mb-1 text-gray-400">PASSWORD</label>
           <input type="password" id="auth-password" required minlength="6" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-red-500" placeholder="••••••••"/>
         </div>
-
         <p id="auth-message" class="text-sm text-center font-medium hidden"></p>
-
         <button type="submit" id="auth-submit-btn" class="w-full bg-red-500 hover:bg-red-600 font-bold py-2.5 rounded-lg transition">
           Log In
         </button>
       </form>
-
       <div class="mt-4 text-center text-sm text-gray-400">
         <span id="toggle-text">Don't have an account?</span>
         <button onclick="toggleAuthMode()" id="toggle-btn" class="text-red-500 font-semibold underline ml-1">
@@ -113,14 +100,12 @@
   </div>
 
   <script>
-    // Supabase Initialization
     const SUPABASE_URL = 'https://wjpvqoluqwghxujtyrch.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_y5WtvnM9PB0kIFWyztrJFw_CphEf0Vd';
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let isSignUp = false;
 
-    // Modals Controls
     function openAuthModal() { document.getElementById('auth-modal').classList.remove('hidden'); }
     function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
     function openUploadModal() { document.getElementById('upload-modal').classList.remove('hidden'); }
@@ -135,7 +120,6 @@
       document.getElementById('username-container').classList.toggle('hidden', !isSignUp);
     }
 
-    // Auth Handling
     async function handleAuth(e) {
       e.preventDefault();
       const email = document.getElementById('auth-email').value;
@@ -160,7 +144,6 @@
       }
     }
 
-    // Check User Session
     async function checkUserSession() {
       const { data: { session } } = await supabase.auth.getSession();
       const authHeader = document.getElementById('auth-header');
@@ -184,7 +167,6 @@
       checkUserSession();
     }
 
-    // Handle Video Upload
     async function handleVideoUpload(e) {
       e.preventDefault();
       const fileInput = document.getElementById('upload-file');
@@ -247,7 +229,6 @@
       }
     }
 
-    // Load & Render Feed
     async function loadVideos() {
       const feed = document.getElementById('video-feed');
       
@@ -294,7 +275,6 @@
       `).join('');
     }
 
-    // Initial Load
     checkUserSession();
     loadVideos();
   </script>
