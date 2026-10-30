@@ -101,11 +101,10 @@
   </div>
 
   <script>
-    // Safe initialization preventing duplicate declarations
+    // Clean initialization using 'db' to prevent name collisions
     const SUPABASE_URL = 'https://wjpvqoluqwghxujtyrch.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_y5WtvnM9PB0kIFWyztrJFw_CphEf0Vd';
-    window._supabaseInstance = window._supabaseInstance || window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    const supabase = window._supabaseInstance;
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let isSignUp = false;
 
@@ -134,8 +133,8 @@
       msg.innerText = 'Processing...';
 
       let result = isSignUp 
-        ? await supabase.auth.signUp({ email, password, options: { data: { username } } })
-        : await supabase.auth.signInWithPassword({ email, password });
+        ? await db.auth.signUp({ email, password, options: { data: { username } } })
+        : await db.auth.signInWithPassword({ email, password });
 
       if (result.error) {
         msg.classList.add('text-red-500');
@@ -148,7 +147,7 @@
     }
 
     async function checkUserSession() {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await db.auth.getSession();
       const authHeader = document.getElementById('auth-header');
       const uploadBtn = document.getElementById('upload-nav-btn');
 
@@ -166,7 +165,7 @@
     }
 
     async function handleLogout() {
-      await supabase.auth.signOut();
+      await db.auth.signOut();
       checkUserSession();
     }
 
@@ -180,7 +179,7 @@
       const file = fileInput.files[0];
       if (!file) return;
 
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await db.auth.getSession();
       if (!session) {
         alert('Please log in first to upload videos!');
         return;
@@ -193,7 +192,7 @@
       const fileExt = file.name.split('.').pop();
       const filePath = `${session.user.id}/${Date.now()}.${fileExt}`;
 
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError } = await db.storage
         .from('videos')
         .upload(filePath, file);
 
@@ -204,13 +203,13 @@
         return;
       }
 
-      const { data: publicUrlData } = supabase.storage
+      const { data: publicUrlData } = db.storage
         .from('videos')
         .getPublicUrl(filePath);
 
       const videoUrl = publicUrlData.publicUrl;
 
-      const { error: dbError } = await supabase
+      const { error: dbError } = await db
         .from('videos')
         .insert([{ user_id: session.user.id, caption: captionInput.value, video_url: videoUrl }]);
 
@@ -236,7 +235,7 @@
       const feed = document.getElementById('video-feed');
       
       try {
-        const { data: videos, error } = await supabase
+        const { data: videos, error } = await db
           .from('videos')
           .select('*')
           .order('created_at', { ascending: false });
