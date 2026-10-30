@@ -229,14 +229,71 @@
       }
     }
 
-    async function loadVideos() {
+   async function loadVideos() {
       const feed = document.getElementById('video-feed');
       
-      const { data: videos, error } = await supabase
-        .from('videos')
-        .select('*')
-        .order('created_at', { ascending: false });
+      try {
+        const { data: videos, error } = await supabase
+          .from('videos')
+          .select('*')
+          .order('created_at', { ascending: false });
 
+        if (error) {
+          console.error("Supabase error:", error);
+          feed.innerHTML = `
+            <div class="h-full flex flex-col justify-center items-center text-red-500 p-4 text-center">
+              <i class="fa-solid fa-triangle-exclamation text-4xl mb-2"></i>
+              <p class="font-bold">Database Error</p>
+              <p class="text-xs text-gray-400 mt-1">${error.message}</p>
+            </div>`;
+          return;
+        }
+
+        if (!videos || videos.length === 0) {
+          feed.innerHTML = `
+            <div class="h-full flex flex-col justify-center items-center text-gray-500 p-4">
+              <i class="fa-solid fa-film text-6xl mb-3"></i>
+              <p class="font-medium text-lg">No videos yet!</p>
+              <p class="text-sm text-gray-600">Be the first creator to upload a video to ViroKDK.</p>
+            </div>`;
+          return;
+        }
+
+        feed.innerHTML = videos.map(video => `
+          <div class="h-full w-full snap-start flex justify-center items-center relative bg-black">
+            <video src="${video.video_url}" class="h-full w-auto max-w-full object-cover" loop onclick="this.paused ? this.play() : this.pause()"></video>
+            
+            <div class="absolute bottom-6 left-4 right-16 z-10 text-white drop-shadow-md">
+              <p class="font-bold text-lg">@creator</p>
+              <p class="text-sm mt-1">${video.caption || ''}</p>
+            </div>
+
+            <div class="absolute right-4 bottom-12 flex flex-col items-center space-y-6 z-10">
+              <button class="flex flex-col items-center group">
+                <div class="w-12 h-12 rounded-full bg-gray-900 bg-opacity-60 flex justify-center items-center group-hover:bg-red-500 transition">
+                  <i class="fa-solid fa-heart text-xl"></i>
+                </div>
+                <span class="text-xs mt-1">0</span>
+              </button>
+
+              <button class="flex flex-col items-center group">
+                <div class="w-12 h-12 rounded-full bg-gray-900 bg-opacity-60 flex justify-center items-center group-hover:bg-blue-500 transition">
+                  <i class="fa-solid fa-comment text-xl"></i>
+                </div>
+                <span class="text-xs mt-1">0</span>
+              </button>
+            </div>
+          </div>
+        `).join('');
+
+      } catch (err) {
+        console.error("Network or script error:", err);
+        feed.innerHTML = `
+          <div class="h-full flex flex-col justify-center items-center text-red-500 p-4 text-center">
+            <p>Failed to load videos. Check console.</p>
+          </div>`;
+      }
+    }
       if (error || !videos || videos.length === 0) {
         feed.innerHTML = `
           <div class="h-full flex flex-col justify-center items-center text-gray-500 p-4">
