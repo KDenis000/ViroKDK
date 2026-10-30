@@ -11,7 +11,6 @@
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <style>
-    /* Fallback styles in case CDN is blocked */
     body { background-color: #000; color: #fff; margin: 0; font-family: sans-serif; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -102,9 +101,11 @@
   </div>
 
   <script>
+    // Safe initialization preventing duplicate declarations
     const SUPABASE_URL = 'https://wjpvqoluqwghxujtyrch.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_y5WtvnM9PB0kIFWyztrJFw_CphEf0Vd';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    window._supabaseInstance = window._supabaseInstance || window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const supabase = window._supabaseInstance;
 
     let isSignUp = false;
 
