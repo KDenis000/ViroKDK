@@ -142,34 +142,64 @@
     </div>
   </div>
 
-  <!-- UPLOAD VIDEO MODAL -->
-  <div id="upload-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-white/10 rounded-3xl w-full max-w-lg p-6 relative shadow-2xl space-y-5">
-      <div class="flex justify-between items-center border-b border-white/10 pb-3">
-        <h3 class="text-lg font-bold text-white flex items-center space-x-2">
-          <i data-lucide="upload-cloud" class="w-5 h-5 text-[#FE2C55]"></i>
-          <span>Upload Video</span>
-        </h3>
-        <button onclick="closeUploadModal()" class="p-1 rounded-full hover:bg-white/10 text-gray-400 hover:text-white">
-          <i data-lucide="x" class="w-5 h-5"></i>
+  <!-- TIKTOK STUDIO STYLE UPLOAD MODAL -->
+  <div id="upload-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-white/10 rounded-3xl w-full max-w-3xl p-6 relative shadow-2xl space-y-6">
+      
+      <!-- Close button -->
+      <button onclick="closeUploadModal()" class="absolute top-4 right-4 p-2 rounded-full bg-white/10 text-gray-400 hover:text-white transition">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <!-- Creator Banner -->
+      <div class="bg-gradient-to-r from-purple-900/40 via-indigo-900/40 to-rose-900/40 border border-purple-500/30 rounded-2xl p-4 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-400">
+            <i data-lucide="sparkles" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h4 class="font-bold text-sm text-white">1 long video, multiple viral clips</h4>
+            <p class="text-xs text-gray-300 mt-0.5">Turn your long videos into shareable clips instantly with smart tools.</p>
+          </div>
+        </div>
+        <button onclick="showToast('Smart Split feature coming soon!')" class="bg-white text-black font-bold text-xs px-4 py-2 rounded-xl hover:bg-gray-200 transition whitespace-nowrap">
+          Try now →
         </button>
       </div>
 
+      <!-- Tabs (Videos / Photos) -->
+      <div class="flex space-x-6 border-b border-white/10 pb-2 text-sm font-semibold">
+        <button class="text-[#FE2C55] border-b-2 border-[#FE2C55] pb-1">Videos</button>
+        <button class="text-gray-400 hover:text-white transition pb-1">Photos</button>
+      </div>
+
+      <!-- Upload Form -->
       <form id="upload-form" onsubmit="handleVideoUpload(event)" class="space-y-4">
-        <div class="border-2 border-dashed border-white/20 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#25F4EE] transition bg-white/5" onclick="document.getElementById('upload-file').click()">
-          <i data-lucide="film" class="w-10 h-10 text-gray-400 mb-2"></i>
-          <p class="text-sm font-semibold text-white" id="file-label-text">Select MP4 Video File</p>
+        
+        <!-- Drag & Drop Studio Zone -->
+        <div class="border-2 border-dashed border-white/20 rounded-2xl p-10 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#FE2C55] transition bg-slate-950/50" onclick="document.getElementById('upload-file').click()">
+          <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-3 text-gray-400">
+            <i data-lucide="upload-cloud" class="w-8 h-8 text-[#FE2C55]"></i>
+          </div>
+          <p class="text-base font-bold text-white" id="file-label-text">Select video to upload</p>
+          <p class="text-xs text-gray-400 mt-1">Or drag and drop it here</p>
           <input type="file" id="upload-file" accept="video/mp4,video/*" required class="hidden" onchange="document.getElementById('file-label-text').innerText = this.files[0]?.name">
         </div>
+
+        <!-- Caption input -->
         <div>
-          <label class="text-xs font-semibold text-gray-300 mb-1 block">Caption</label>
+          <label class="text-xs font-semibold text-gray-300 mb-1 block">Caption & Hashtags</label>
           <input type="text" id="upload-caption" placeholder="Write a catchy caption... #virokdk" class="w-full bg-slate-800 text-sm text-white rounded-xl p-3 border border-white/10 focus:outline-none focus:ring-2 focus:ring-[#FE2C55]">
         </div>
+
         <p id="upload-message" class="text-xs text-center font-semibold hidden"></p>
-        <button type="submit" id="upload-submit-btn" class="w-full py-3 bg-gradient-to-r from-[#FE2C55] to-[#25F4EE] text-black font-extrabold rounded-xl shadow-lg hover:opacity-90 transition">
-          Publish Video
+
+        <!-- Studio Action Button -->
+        <button type="submit" id="upload-submit-btn" class="w-full py-3.5 bg-[#FE2C55] hover:bg-red-600 text-white font-extrabold rounded-xl shadow-lg transition">
+          Select video & Publish
         </button>
       </form>
+
     </div>
   </div>
 
@@ -333,7 +363,7 @@
       const fileInput = document.getElementById('upload-file');
       const captionInput = document.getElementById('upload-caption');
       const msg = document.getElementById('upload-message');
-      const btn = document.getElementById('upload-[#FE2C55]');
+      const btn = document.getElementById('upload-submit-btn');
 
       const file = fileInput.files[0];
       if (!file) return;
@@ -342,7 +372,7 @@
       if (!session) { openAuthModal(); return; }
 
       msg.classList.remove('hidden', 'text-red-400', 'text-green-400');
-      msg.innerText = 'Uploading video...';
+      msg.innerText = 'Uploading video to ViroKDK...';
       btn.disabled = true;
 
       const fileExt = file.name.split('.').pop();
