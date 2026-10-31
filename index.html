@@ -206,7 +206,24 @@
   </div>
 
   <!-- PROFILE VIEW CONTAINER -->
-  <div id="profile-container" class="fixed inset-0 z-40 bg-slate-950 hidden overflow-y-auto"></div>
+  <div id="profile-container" class="fixed inset-0 z-40 bg-slate-950 hidden flex flex-col justify-between">
+    <div id="profile-scroll-area" class="flex-1 overflow-y-auto"></div>
+    <!-- Profile Navigation Bar -->
+    <div class="glass-panel border-t border-white/10 p-3 flex justify-around items-center z-50">
+      <button onclick="closeProfilePage()" class="flex flex-col items-center text-gray-400 hover:text-white">
+        <i data-lucide="home" class="w-5 h-5"></i>
+        <span class="text-[10px] mt-0.5">Home Feed</span>
+      </button>
+      <button onclick="openUploadModal()" class="flex flex-col items-center text-gray-400 hover:text-white">
+        <i data-lucide="plus-square" class="w-5 h-5"></i>
+        <span class="text-[10px] mt-0.5">Upload</span>
+      </button>
+      <button onclick="closeProfilePage()" class="flex flex-col items-center text-[#25F4EE]">
+        <i data-lucide="user" class="w-5 h-5"></i>
+        <span class="text-[10px] mt-0.5">Profile</span>
+      </button>
+    </div>
+  </div>
 
   <!-- TOAST NOTIFICATION -->
   <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-slate-800 text-white text-xs font-semibold px-4 py-2.5 rounded-full border border-white/20 shadow-xl opacity-0 pointer-events-none transition-all duration-300">
@@ -238,6 +255,7 @@
       });
     }
     function closeUploadModal() { document.getElementById('upload-modal').classList.add('hidden'); }
+    function closeProfilePage() { document.getElementById('profile-container').classList.add('hidden'); }
 
     function toggleAuthMode() {
       isSignUp = !isSignUp;
@@ -315,7 +333,7 @@
       const fileInput = document.getElementById('upload-file');
       const captionInput = document.getElementById('upload-caption');
       const msg = document.getElementById('upload-message');
-      const btn = document.getElementById('upload-submit-btn');
+      const btn = document.getElementById('upload-[#FE2C55]');
 
       const file = fileInput.files[0];
       if (!file) return;
@@ -440,10 +458,19 @@
       viewProfile(targetUserId);
     }
 
+    function playProfileVideo(vEl) {
+      if (vEl.paused) {
+        vEl.play();
+      } else {
+        vEl.pause();
+      }
+    }
+
     async function viewProfile(userId, fallbackUsername = 'creator') {
       const container = document.getElementById('profile-container');
+      const scrollArea = document.getElementById('profile-scroll-area');
       container.classList.remove('hidden');
-      container.innerHTML = `<div class="h-full flex justify-center items-center"><i data-lucide="loader-2" class="w-8 h-8 animate-spin text-[#FE2C55]"></i></div>`;
+      scrollArea.innerHTML = `<div class="h-full flex justify-center items-center p-12"><i data-lucide="loader-2" class="w-8 h-8 animate-spin text-[#FE2C55]"></i></div>`;
       lucide.createIcons();
 
       const { data: { session } } = await db.auth.getSession();
@@ -460,10 +487,10 @@
 
       const username = videos?.[0]?.username || fallbackUsername;
 
-      container.innerHTML = `
+      scrollArea.innerHTML = `
         <div class="max-w-xl mx-auto p-6 min-h-full">
           <div class="flex justify-between items-center mb-6">
-            <button onclick="document.getElementById('profile-container').classList.add('hidden')" class="p-2 rounded-full bg-white/10 hover:bg-white/20 transition">
+            <button onclick="closeProfilePage()" class="p-2 rounded-full bg-white/10 hover:bg-white/20 transition">
               <i data-lucide="arrow-left" class="w-5 h-5"></i>
             </button>
             <span class="font-bold text-sm">@${username}</span>
@@ -488,10 +515,13 @@
             <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Uploaded Videos</h3>
             <div class="grid grid-cols-3 gap-2">
               ${videos && videos.length > 0 ? videos.map(v => `
-                <div class="aspect-[9/16] bg-slate-900 rounded-xl overflow-hidden relative group">
-                  <video src="${v.video_url}" class="w-full h-full object-cover"></video>
+                <div class="aspect-[9/16] bg-slate-900 rounded-xl overflow-hidden relative cursor-pointer group" onclick="playProfileVideo(this.querySelector('video'))">
+                  <video src="${v.video_url}" class="w-full h-full object-cover" loop playsinline></video>
+                  <div class="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                    <i data-lucide="play" class="w-6 h-6 text-white"></i>
+                  </div>
                 </div>
-              `).join('') : '<p class="col-span-3 text-center text-gray-500 py-12 text-xs">No videos yet.</p>'}
+              `).join('') : '<p class="col-span-3 text-center text-gray-500 py-12 text-xs">No videos uploaded yet.</p>'}
             </div>
           </div>
         </div>
@@ -506,7 +536,6 @@
       viewProfile(session.user.id, username);
     }
 
-    // SEARCH LOGIC
     function handleSearch(query) {
       const q = query.toLowerCase().trim();
       if (!q) {
