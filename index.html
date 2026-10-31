@@ -22,34 +22,12 @@
       user-select: none;
     }
 
-    /* Hide scrollbars */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-    /* Snap Scrolling Container */
     .snap-y-mandatory { scroll-snap-type: y mandatory; }
     .snap-start-always { scroll-snap-align: start; scroll-snap-stop: always; }
 
-    /* Vinyl Disc Rotation */
-    @keyframes spin-slow {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-    .animate-spin-disc { animation: spin-slow 4s linear infinite; }
-
-    /* Floating Heart Animation */
-    @keyframes floatUp {
-      0% { opacity: 1; transform: translateY(0) scale(0.8) rotate(0deg); }
-      50% { transform: translateY(-60px) scale(1.2) rotate(-15deg); }
-      100% { opacity: 0; transform: translateY(-120px) scale(1.5) rotate(15deg); }
-    }
-    .heart-float {
-      position: absolute;
-      pointer-events: none;
-      animation: floatUp 0.9s ease-out forwards;
-    }
-
-    /* Glassmorphism Panels */
     .glass-panel {
       background: rgba(18, 24, 38, 0.85);
       backdrop-filter: blur(16px);
@@ -61,15 +39,22 @@
 <body class="h-screen w-screen flex flex-col md:flex-row bg-slate-950 text-white overflow-hidden">
 
   <!-- TOP HEADER (Mobile) -->
-  <header class="fixed top-0 left-0 right-0 z-40 flex justify-between items-center px-4 py-3 md:hidden glass-panel border-b border-white/10">
-    <div class="flex items-center space-x-2 cursor-pointer" onclick="loadVideos()">
-      <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-black text-black text-xs tracking-tighter">
-        KDK
+  <header class="fixed top-0 left-0 right-0 z-40 flex flex-col gap-2 p-3 md:hidden glass-panel border-b border-white/10">
+    <div class="flex justify-between items-center">
+      <div class="flex items-center space-x-2 cursor-pointer" onclick="clearSearchAndReload()">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-black text-black text-xs tracking-tighter">
+          KDK
+        </div>
+        <span class="font-extrabold text-lg tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-white via-cyan-200 to-rose-400">ViroKDK</span>
       </div>
-      <span class="font-extrabold text-lg tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-white via-cyan-200 to-rose-400">ViroKDK</span>
+      <div id="mobile-auth-btn">
+        <button onclick="openAuthModal()" class="bg-[#FE2C55] px-3 py-1 rounded-full text-xs font-bold">Sign In</button>
+      </div>
     </div>
-    <div id="mobile-auth-btn">
-      <button onclick="openAuthModal()" class="bg-red-500 px-3 py-1 rounded-full text-xs font-bold">Sign In</button>
+    <!-- Mobile Search Bar -->
+    <div class="relative w-full">
+      <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-gray-400"></i>
+      <input type="text" oninput="handleSearch(this.value)" placeholder="Search captions or creators..." class="w-full bg-slate-800 text-xs text-white rounded-full py-2 pl-9 pr-4 focus:outline-none focus:ring-1 focus:ring-[#25F4EE] border border-white/10">
     </div>
   </header>
 
@@ -77,7 +62,7 @@
   <aside class="hidden md:flex flex-col justify-between w-64 lg:w-72 border-r border-white/10 p-5 glass-panel z-30">
     <div class="space-y-6">
       <!-- Logo -->
-      <div class="flex items-center space-x-3 px-2 cursor-pointer" onclick="loadVideos()">
+      <div class="flex items-center space-x-3 px-2 cursor-pointer" onclick="clearSearchAndReload()">
         <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-black text-black text-sm tracking-tighter shadow-lg shadow-[#FE2C55]/30">
           KDK
         </div>
@@ -87,9 +72,15 @@
         </div>
       </div>
 
+      <!-- Desktop Search Bar -->
+      <div class="relative w-full px-1">
+        <i data-lucide="search" class="w-4 h-4 absolute left-4 top-3 text-gray-400"></i>
+        <input type="text" id="desktop-search-input" oninput="handleSearch(this.value)" placeholder="Search videos or users..." class="w-full bg-slate-800 text-xs text-white rounded-xl py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-[#25F4EE] border border-white/10">
+      </div>
+
       <!-- Navigation Links -->
       <nav class="space-y-2">
-        <button onclick="loadVideos()" class="w-full flex items-center space-x-4 px-4 py-3 rounded-xl bg-[#FE2C55]/10 text-[#FE2C55] font-bold transition hover:bg-[#FE2C55]/20">
+        <button onclick="clearSearchAndReload()" class="w-full flex items-center space-x-4 px-4 py-3 rounded-xl bg-[#FE2C55]/10 text-[#FE2C55] font-bold transition hover:bg-[#FE2C55]/20">
           <i data-lucide="home" class="w-5 h-5"></i>
           <span>For You</span>
         </button>
@@ -102,14 +93,13 @@
 
     <!-- User Mini Card at bottom -->
     <div id="desktop-user-card" class="pt-4 border-t border-white/10 flex items-center justify-between">
-      <button onclick="openAuthModal()" class="w-full py-2.5 bg-red-500 hover:bg-red-600 rounded-xl font-bold text-sm transition text-center">Sign In</button>
+      <button onclick="openAuthModal()" class="w-full py-2.5 bg-[#FE2C55] hover:bg-red-600 rounded-xl font-bold text-sm transition text-center">Sign In</button>
     </div>
   </aside>
 
   <!-- MAIN FEED CONTAINER -->
-  <main class="flex-1 h-full w-full relative flex justify-center items-center overflow-hidden pt-14 md:pt-0 pb-16 md:pb-0">
+  <main class="flex-1 h-full w-full relative flex justify-center items-center overflow-hidden pt-24 md:pt-0 pb-16 md:pb-0">
     <div id="video-feed-container" class="h-full w-full md:max-w-[420px] lg:max-w-[440px] overflow-y-scroll snap-y-mandatory no-scrollbar relative bg-black shadow-2xl">
-      <!-- Dynamic Videos Loaded Here -->
       <div class="h-full flex flex-col justify-center items-center text-gray-400">
         <i data-lucide="loader-2" class="w-8 h-8 animate-spin text-[#FE2C55] mb-2"></i>
         <p class="text-sm font-semibold">Loading ViroKDK Feed...</p>
@@ -119,7 +109,7 @@
 
   <!-- MOBILE BOTTOM NAVBAR -->
   <nav class="md:hidden fixed bottom-0 left-0 right-0 h-16 glass-panel border-t border-white/10 z-40 flex justify-around items-center px-2">
-    <button onclick="loadVideos()" class="flex flex-col items-center justify-center text-[#FE2C55]">
+    <button onclick="clearSearchAndReload()" class="flex flex-col items-center justify-center text-[#FE2C55]">
       <i data-lucide="home" class="w-6 h-6"></i>
       <span class="text-[10px] mt-0.5 font-medium">Home</span>
     </button>
@@ -231,6 +221,7 @@
 
     let isSignUp = false;
     let activeVideoId = null;
+    let allVideosCache = [];
 
     document.addEventListener("DOMContentLoaded", () => {
       lucide.createIcons();
@@ -515,13 +506,34 @@
       viewProfile(session.user.id, username);
     }
 
+    // SEARCH LOGIC
+    function handleSearch(query) {
+      const q = query.toLowerCase().trim();
+      if (!q) {
+        renderFeed(allVideosCache);
+        return;
+      }
+
+      const filtered = allVideosCache.filter(v => 
+        (v.caption && v.caption.toLowerCase().includes(q)) || 
+        (v.username && v.username.toLowerCase().includes(q))
+      );
+
+      renderFeed(filtered);
+    }
+
+    function clearSearchAndReload() {
+      const searchInputs = document.querySelectorAll('input[type="text"][placeholder*="Search"]');
+      searchInputs.forEach(i => i.value = '');
+      renderFeed(allVideosCache);
+    }
+
     async function loadVideos() {
-      const container = document.getElementById('video-feed-container');
-      
       try {
         const { data: videos, error } = await db.from('videos').select('*').order('created_at', { ascending: false });
 
         if (error || !videos || videos.length === 0) {
+          const container = document.getElementById('video-feed-container');
           container.innerHTML = `
             <div class="h-full flex flex-col justify-center items-center text-gray-500 p-6 text-center">
               <i data-lucide="video-off" class="w-12 h-12 mb-2 text-gray-600"></i>
@@ -532,68 +544,86 @@
           return;
         }
 
-        container.innerHTML = videos.map((video, index) => {
-          const username = video.username || 'creator';
-          return `
-            <div class="snap-start-always h-full w-full relative flex items-center justify-center bg-slate-950 overflow-hidden" data-index="${index}">
-              <video 
-                src="${video.video_url}" 
-                class="w-full h-full object-cover cursor-pointer"
-                loop 
-                playsinline
-                onclick="this.paused ? this.play() : this.pause()"
-              ></video>
-
-              <div class="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/80 pointer-events-none"></div>
-
-              <!-- RIGHT SIDEBAR ACTIONS -->
-              <div class="absolute right-3 bottom-20 flex flex-col items-center space-y-5 z-20">
-                <div class="relative group cursor-pointer" onclick="viewProfile('${video.user_id}', '${username}')">
-                  <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-bold text-black text-sm border-2 border-white shadow-lg">
-                    ${username.charAt(0).toUpperCase()}
-                  </div>
-                </div>
-
-                <!-- Likes -->
-                <button onclick="likeVideo('${video.id}', ${video.likes_count || 0})" class="flex flex-col items-center group">
-                  <div class="p-3 rounded-full bg-black/40 backdrop-blur-md border border-white/10 group-hover:scale-110 transition">
-                    <i data-lucide="heart" class="w-6 h-6 text-[#FE2C55] fill-[#FE2C55]"></i>
-                  </div>
-                  <span class="text-xs font-bold mt-1">${formatNumber(video.likes_count || 0)}</span>
-                </button>
-
-                <!-- Comments -->
-                <button onclick="openComments('${video.id}')" class="flex flex-col items-center group">
-                  <div class="p-3 rounded-full bg-black/40 backdrop-blur-md border border-white/10 group-hover:scale-110 transition">
-                    <i data-lucide="message-circle" class="w-6 h-6 text-white"></i>
-                  </div>
-                  <span class="text-xs font-bold mt-1">Chat</span>
-                </button>
-              </div>
-
-              <!-- BRAND WATERMARK -->
-              <div class="absolute top-4 left-4 z-20 flex items-center space-x-1.5 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/15 pointer-events-none">
-                <span class="w-2 h-2 rounded-full bg-[#25F4EE] animate-pulse"></span>
-                <span class="text-[10px] font-black tracking-widest text-white/90 uppercase">ViroKDK</span>
-              </div>
-
-              <!-- BOTTOM CAPTION -->
-              <div class="absolute left-4 right-16 bottom-6 z-20 space-y-1.5 pointer-events-auto">
-                <button onclick="viewProfile('${video.user_id}', '${username}')" class="font-bold text-base text-white hover:underline text-left">
-                  @${username}
-                </button>
-                <p class="text-sm text-gray-100 line-clamp-2 drop-shadow leading-snug">${video.caption || ''}</p>
-              </div>
-            </div>
-          `;
-        }).join('');
-
-        setupIntersectionObserver();
-        lucide.createIcons();
+        allVideosCache = videos;
+        renderFeed(allVideosCache);
 
       } catch (err) {
-        container.innerHTML = `<div class="p-4 text-center text-red-400 text-xs">Failed to load feed.</div>`;
+        document.getElementById('video-feed-container').innerHTML = `<div class="p-4 text-center text-red-400 text-xs">Failed to load feed.</div>`;
       }
+    }
+
+    function renderFeed(videos) {
+      const container = document.getElementById('video-feed-container');
+
+      if (!videos || videos.length === 0) {
+        container.innerHTML = `
+          <div class="h-full flex flex-col justify-center items-center text-gray-400 p-6 text-center">
+            <i data-lucide="search-x" class="w-12 h-12 mb-2 text-gray-500"></i>
+            <p class="font-bold text-white text-sm">No matching videos found</p>
+            <p class="text-xs text-gray-400 mt-1">Try searching for something else.</p>
+          </div>`;
+        lucide.createIcons();
+        return;
+      }
+
+      container.innerHTML = videos.map((video, index) => {
+        const username = video.username || 'creator';
+        return `
+          <div class="snap-start-always h-full w-full relative flex items-center justify-center bg-slate-950 overflow-hidden" data-index="${index}">
+            <video 
+              src="${video.video_url}" 
+              class="w-full h-full object-cover cursor-pointer"
+              loop 
+              playsinline
+              onclick="this.paused ? this.play() : this.pause()"
+            ></video>
+
+            <div class="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/80 pointer-events-none"></div>
+
+            <!-- RIGHT SIDEBAR ACTIONS -->
+            <div class="absolute right-3 bottom-20 flex flex-col items-center space-y-5 z-20">
+              <div class="relative group cursor-pointer" onclick="viewProfile('${video.user_id}', '${username}')">
+                <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-bold text-black text-sm border-2 border-white shadow-lg">
+                  ${username.charAt(0).toUpperCase()}
+                </div>
+              </div>
+
+              <!-- Likes -->
+              <button onclick="likeVideo('${video.id}', ${video.likes_count || 0})" class="flex flex-col items-center group">
+                <div class="p-3 rounded-full bg-black/40 backdrop-blur-md border border-white/10 group-hover:scale-110 transition">
+                  <i data-lucide="heart" class="w-6 h-6 text-[#FE2C55] fill-[#FE2C55]"></i>
+                </div>
+                <span class="text-xs font-bold mt-1">${formatNumber(video.likes_count || 0)}</span>
+              </button>
+
+              <!-- Comments -->
+              <button onclick="openComments('${video.id}')" class="flex flex-col items-center group">
+                <div class="p-3 rounded-full bg-black/40 backdrop-blur-md border border-white/10 group-hover:scale-110 transition">
+                  <i data-lucide="message-circle" class="w-6 h-6 text-white"></i>
+                </div>
+                <span class="text-xs font-bold mt-1">Chat</span>
+              </button>
+            </div>
+
+            <!-- BRAND WATERMARK -->
+            <div class="absolute top-4 left-4 z-20 flex items-center space-x-1.5 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/15 pointer-events-none">
+              <span class="w-2 h-2 rounded-full bg-[#25F4EE] animate-pulse"></span>
+              <span class="text-[10px] font-black tracking-widest text-white/90 uppercase">ViroKDK</span>
+            </div>
+
+            <!-- BOTTOM CAPTION -->
+            <div class="absolute left-4 right-16 bottom-6 z-20 space-y-1.5 pointer-events-auto">
+              <button onclick="viewProfile('${video.user_id}', '${username}')" class="font-bold text-base text-white hover:underline text-left">
+                @${username}
+              </button>
+              <p class="text-sm text-gray-100 line-clamp-2 drop-shadow leading-snug">${video.caption || ''}</p>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      setupIntersectionObserver();
+      lucide.createIcons();
     }
 
     function setupIntersectionObserver() {
