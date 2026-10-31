@@ -1,448 +1,337 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ViroKDK</title>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Supabase JS Client -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-  <style>
-    body { background-color: #000; color: #fff; margin: 0; font-family: sans-serif; }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-  </style>
-</head>
-<body class="bg-black text-white h-screen flex flex-col justify-between overflow-hidden">
+<script>
+  const SUPABASE_URL = 'https://wjpvqoluqwghxujtyrch.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_y5WtvnM9PB0kIFWyztrJFw_CphEf0Vd';
+  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  <!-- Header Navigation -->
-  <header class="flex justify-between items-center p-4 border-b border-gray-800 bg-black z-20">
-    <h1 class="text-2xl font-bold tracking-wider text-red-500 cursor-pointer" onclick="loadVideos()">ViroKDK</h1>
-    <div class="flex items-center space-x-3">
-      <button id="upload-nav-btn" onclick="openUploadModal()" class="hidden bg-gray-800 hover:bg-gray-700 text-white px-3 py-1.5 rounded-full text-sm font-semibold transition flex items-center space-x-1.5">
-        <i class="fa-solid fa-plus text-red-500"></i>
-        <span>Post Video</span>
-      </button>
-      <div id="auth-header">
-        <button onclick="openAuthModal()" class="bg-red-500 hover:bg-red-600 px-4 py-1.5 rounded-full font-semibold text-sm transition">
-          Sign In
-        </button>
-      </div>
-    </div>
-  </header>
+  let isSignUp = false;
+  let activeVideoId = null;
 
-  <!-- Main App View (Feed or Profile) -->
-  <main id="app-container" class="flex-1 overflow-y-scroll snap-y snap-mandatory no-scrollbar bg-black relative">
-    <div id="feed-loader" class="h-full flex flex-col justify-center items-center text-gray-500">
-      <i class="fa-solid fa-spinner fa-spin text-4xl mb-2 text-red-500"></i>
-      <p>Loading ViroKDK...</p>
-    </div>
-  </main>
+  function openAuthModal() { document.getElementById('auth-modal').classList.remove('hidden'); }
+  function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
+  function openUploadModal() { document.getElementById('upload-modal').classList.remove('hidden'); }
+  function closeUploadModal() { document.getElementById('upload-modal').classList.add('hidden'); }
 
-  <!-- Comments Modal Drawer -->
-  <div id="comments-modal" class="fixed inset-x-0 bottom-0 top-1/3 bg-gray-900 border-t border-gray-800 rounded-t-3xl transform translate-y-full transition-transform duration-300 z-50 flex flex-col p-4 shadow-2xl">
-    <div class="flex justify-between items-center border-b border-gray-800 pb-3">
-      <h3 class="font-bold text-lg">Comments</h3>
-      <button onclick="closeCommentsModal()" class="text-gray-400 hover:text-white p-2">
-        <i class="fa-solid fa-xmark text-xl"></i>
-      </button>
-    </div>
-    <div id="comments-list" class="flex-1 overflow-y-auto py-3 space-y-3"></div>
-    <form onsubmit="postComment(event)" class="flex items-center space-x-2 pt-2 border-t border-gray-800">
-      <input type="text" id="comment-input" placeholder="Add a comment..." required class="flex-1 bg-gray-800 border border-gray-700 rounded-full px-4 py-2 text-sm text-white focus:outline-none focus:border-red-500"/>
-      <button type="submit" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-full font-bold text-sm transition">Post</button>
-    </form>
-  </div>
+  function toggleAuthMode() {
+    isSignUp = !isSignUp;
+    document.getElementById('modal-title').innerText = isSignUp ? 'Create ViroKDK Account' : 'Log In to ViroKDK';
+    document.getElementById('auth-submit-btn').innerText = isSignUp ? 'Sign Up' : 'Log In';
+    document.getElementById('toggle-text').innerText = isSignUp ? 'Already have an account?' : "Don't have an account?";
+    document.getElementById('toggle-btn').innerText = isSignUp ? 'Log In' : 'Sign Up';
+    document.getElementById('username-container').classList.toggle('hidden', !isSignUp);
+  }
 
-  <!-- Upload Modal -->
-  <div id="upload-modal" class="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center hidden z-50 p-4">
-    <div class="bg-gray-900 border border-gray-800 p-6 rounded-2xl w-full max-w-md relative">
-      <button onclick="closeUploadModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
-        <i class="fa-solid fa-xmark text-xl"></i>
-      </button>
-      <h2 class="text-2xl font-bold mb-4 text-center">Upload a Video</h2>
-      <form id="upload-form" onsubmit="handleVideoUpload(event)" class="space-y-4">
-        <div>
-          <label class="block text-xs font-semibold mb-1 text-gray-400">SELECT MP4 FILE</label>
-          <input type="file" id="upload-file" accept="video/mp4,video/*" required class="w-full bg-gray-800 border border-gray-700 rounded-lg p-2.5 text-xs text-white focus:outline-none"/>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold mb-1 text-gray-400">CAPTION</label>
-          <input type="text" id="upload-caption" placeholder="Write a caption..." class="w-full bg-gray-800 border border-gray-700 rounded-lg p-2.5 text-white text-sm focus:outline-none focus:border-red-500"/>
-        </div>
-        <p id="upload-message" class="text-sm text-center font-medium hidden"></p>
-        <button type="submit" id="upload-submit-btn" class="w-full bg-red-500 hover:bg-red-600 font-bold py-2.5 rounded-lg transition flex justify-center items-center space-x-2">
-          <span>Upload & Share</span>
-        </button>
-      </form>
-    </div>
-  </div>
+  async function handleAuth(e) {
+    e.preventDefault();
+    const email = document.getElementById('auth-email').value;
+    const password = document.getElementById('auth-password').value;
+    const username = document.getElementById('auth-username').value;
+    const msg = document.getElementById('auth-message');
 
-  <!-- Auth Modal -->
-  <div id="auth-modal" class="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center hidden z-50 p-4">
-    <div class="bg-gray-900 border border-gray-800 p-6 rounded-2xl w-full max-w-md relative">
-      <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
-        <i class="fa-solid fa-xmark text-xl"></i>
-      </button>
-      <h2 id="modal-title" class="text-2xl font-bold mb-4 text-center">Log In to ViroKDK</h2>
-      <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4">
-        <div id="username-container" class="hidden">
-          <label class="block text-xs font-semibold mb-1 text-gray-400">USERNAME</label>
-          <input type="text" id="auth-username" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-red-500" placeholder="e.g. kdk_creator"/>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold mb-1 text-gray-400">EMAIL</label>
-          <input type="email" id="auth-email" required class="w-full bg-gray-800 border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-red-500" placeholder="you@example.com"/>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold mb-1 text-gray-400">PASSWORD</label>
-          <input type="password" id="auth-password" required minlength="6" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-red-500" placeholder="••••••••"/>
-        </div>
-        <p id="auth-message" class="text-sm text-center font-medium hidden"></p>
-        <button type="submit" id="auth-submit-btn" class="w-full bg-red-500 hover:bg-red-600 font-bold py-2.5 rounded-lg transition">
-          Log In
-        </button>
-      </form>
-      <div class="mt-4 text-center text-sm text-gray-400">
-        <span id="toggle-text">Don't have an account?</span>
-        <button onclick="toggleAuthMode()" id="toggle-btn" class="text-red-500 font-semibold underline ml-1">
-          Sign Up
-        </button>
-      </div>
-    </div>
-  </div>
+    msg.classList.remove('hidden', 'text-green-500', 'text-red-500');
+    msg.innerText = 'Processing...';
 
-  <script>
-    const SUPABASE_URL = 'https://wjpvqoluqwghxujtyrch.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_y5WtvnM9PB0kIFWyztrJFw_CphEf0Vd';
-    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    let result = isSignUp 
+      ? await db.auth.signUp({ email, password, options: { data: { username } } })
+      : await db.auth.signInWithPassword({ email, password });
 
-    let isSignUp = false;
-    let activeVideoId = null;
-
-    function openAuthModal() { document.getElementById('auth-modal').classList.remove('hidden'); }
-    function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
-    function openUploadModal() { document.getElementById('upload-modal').classList.remove('hidden'); }
-    function closeUploadModal() { document.getElementById('upload-modal').classList.add('hidden'); }
-
-    function toggleAuthMode() {
-      isSignUp = !isSignUp;
-      document.getElementById('modal-title').innerText = isSignUp ? 'Create ViroKDK Account' : 'Log In to ViroKDK';
-      document.getElementById('auth-submit-btn').innerText = isSignUp ? 'Sign Up' : 'Log In';
-      document.getElementById('toggle-text').innerText = isSignUp ? 'Already have an account?' : "Don't have an account?";
-      document.getElementById('toggle-btn').innerText = isSignUp ? 'Log In' : 'Sign Up';
-      document.getElementById('username-container').classList.toggle('hidden', !isSignUp);
+    if (result.error) {
+      msg.classList.add('text-red-500');
+      msg.innerText = result.error.message;
+    } else {
+      msg.classList.add('text-green-500');
+      msg.innerText = isSignUp ? 'Account created! Check email or log in.' : 'Logged in successfully!';
+      if (!isSignUp) setTimeout(() => { closeAuthModal(); checkUserSession(); loadVideos(); }, 1000);
     }
+  }
 
-    async function handleAuth(e) {
-      e.preventDefault();
-      const email = document.getElementById('auth-email').value;
-      const password = document.getElementById('auth-password').value;
-      const username = document.getElementById('auth-username').value;
-      const msg = document.getElementById('auth-message');
+  async function checkUserSession() {
+    const { data: { session } } = await db.auth.getSession();
+    const authHeader = document.getElementById('auth-header');
+    const uploadBtn = document.getElementById('upload-nav-btn');
 
-      msg.classList.remove('hidden', 'text-green-500', 'text-red-500');
-      msg.innerText = 'Processing...';
-
-      let result = isSignUp 
-        ? await db.auth.signUp({ email, password, options: { data: { username } } })
-        : await db.auth.signInWithPassword({ email, password });
-
-      if (result.error) {
-        msg.classList.add('text-red-500');
-        msg.innerText = result.error.message;
-      } else {
-        msg.classList.add('text-green-500');
-        msg.innerText = isSignUp ? 'Account created! Check email or log in.' : 'Logged in successfully!';
-        if (!isSignUp) setTimeout(() => { closeAuthModal(); checkUserSession(); loadVideos(); }, 1000);
-      }
-    }
-
-    async function checkUserSession() {
-      const { data: { session } } = await db.auth.getSession();
-      const authHeader = document.getElementById('auth-header');
-      const uploadBtn = document.getElementById('upload-nav-btn');
-
-      if (session?.user) {
-        uploadBtn.classList.remove('hidden');
-        const username = session.user.user_metadata?.username || session.user.email.split('@')[0];
-        authHeader.innerHTML = `
-          <div class="flex items-center space-x-2">
-            <button onclick="viewProfile('${session.user.id}', '${username}')" class="text-xs text-gray-300 hover:text-white font-medium bg-gray-800 px-3 py-1.5 rounded-full">@${username}</button>
-            <button onclick="handleLogout()" class="bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-full text-xs font-semibold">Log Out</button>
-          </div>`;
-      } else {
-        uploadBtn.classList.add('hidden');
-        authHeader.innerHTML = `<button onclick="openAuthModal()" class="bg-red-500 hover:bg-red-600 px-4 py-1.5 rounded-full font-semibold text-sm">Sign In</button>`;
-      }
-    }
-
-    async function handleLogout() {
-      await db.auth.signOut();
-      checkUserSession();
-      loadVideos();
-    }
-
-    async function handleVideoUpload(e) {
-      e.preventDefault();
-      const fileInput = document.getElementById('upload-file');
-      const captionInput = document.getElementById('upload-caption');
-      const msg = document.getElementById('upload-message');
-      const btn = document.getElementById('upload-submit-btn');
-
-      const file = fileInput.files[0];
-      if (!file) return;
-
-      const { data: { session } } = await db.auth.getSession();
-      if (!session) {
-        alert('Please log in first to upload videos!');
-        return;
-      }
-
-      msg.classList.remove('hidden', 'text-red-500', 'text-green-500');
-      msg.innerText = 'Uploading video... Please wait.';
-      btn.disabled = true;
-
-      const fileExt = file.name.split('.').pop();
-      const filePath = `${session.user.id}/${Date.now()}.${fileExt}`;
-
-      const { error: uploadError } = await db.storage
-        .from('videos')
-        .upload(filePath, file);
-
-      if (uploadError) {
-        msg.classList.add('text-red-500');
-        msg.innerText = uploadError.message;
-        btn.disabled = false;
-        return;
-      }
-
-      const { data: publicUrlData } = db.storage
-        .from('videos')
-        .getPublicUrl(filePath);
-
+    if (session?.user) {
+      uploadBtn.classList.remove('hidden');
       const username = session.user.user_metadata?.username || session.user.email.split('@')[0];
-      const videoUrl = publicUrlData.publicUrl;
+      authHeader.innerHTML = `
+        <div class="flex items-center space-x-2">
+          <button onclick="viewProfile('${session.user.id}', '${username}')" class="text-xs text-gray-300 hover:text-white font-medium bg-gray-800 px-3 py-1.5 rounded-full">@${username}</button>
+          <button onclick="handleLogout()" class="bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-full text-xs font-semibold">Log Out</button>
+        </div>`;
+    } else {
+      uploadBtn.classList.add('hidden');
+      authHeader.innerHTML = `<button onclick="openAuthModal()" class="bg-red-500 hover:bg-red-600 px-4 py-1.5 rounded-full font-semibold text-sm">Sign In</button>`;
+    }
+  }
 
-      const { error: dbError } = await db
-        .from('videos')
-        .insert([{ user_id: session.user.id, username: username, caption: captionInput.value, video_url: videoUrl, likes_count: 0 }]);
+  async function handleLogout() {
+    await db.auth.signOut();
+    checkUserSession();
+    loadVideos();
+  }
 
+  async function handleVideoUpload(e) {
+    e.preventDefault();
+    const fileInput = document.getElementById('upload-file');
+    const captionInput = document.getElementById('upload-caption');
+    const msg = document.getElementById('upload-message');
+    const btn = document.getElementById('upload-submit-btn');
+
+    const file = fileInput.files[0];
+    if (!file) return;
+
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) {
+      alert('Please log in first to upload videos!');
+      return;
+    }
+
+    msg.classList.remove('hidden', 'text-red-500', 'text-green-500');
+    msg.innerText = 'Uploading video... Please wait.';
+    btn.disabled = true;
+
+    const fileExt = file.name.split('.').pop();
+    const filePath = `${session.user.id}/${Date.now()}.${fileExt}`;
+
+    const { error: uploadError } = await db.storage
+      .from('videos')
+      .upload(filePath, file);
+
+    if (uploadError) {
+      msg.classList.add('text-red-500');
+      msg.innerText = uploadError.message;
       btn.disabled = false;
-
-      if (dbError) {
-        msg.classList.add('text-red-500');
-        msg.innerText = dbError.message;
-      } else {
-        msg.classList.add('text-green-500');
-        msg.innerText = 'Video uploaded successfully!';
-        setTimeout(() => {
-          closeUploadModal();
-          fileInput.value = '';
-          captionInput.value = '';
-          msg.classList.add('hidden');
-          loadVideos();
-        }, 1500);
-      }
+      return;
     }
 
-    async function likeVideo(videoId, currentLikes) {
-      const newLikes = currentLikes + 1;
-      const { error } = await db
-        .from('videos')
-        .update({ likes_count: newLikes })
-        .eq('id', videoId);
+    const { data: publicUrlData } = db.storage
+      .from('videos')
+      .getPublicUrl(filePath);
 
-      if (!error) loadVideos();
+    const username = session.user.user_metadata?.username || session.user.email.split('@')[0];
+    const videoUrl = publicUrlData.publicUrl;
+
+    const { error: dbError } = await db
+      .from('videos')
+      .insert([{ user_id: session.user.id, username: username, caption: captionInput.value, video_url: videoUrl, likes_count: 0 }]);
+
+    btn.disabled = false;
+
+    if (dbError) {
+      msg.classList.add('text-red-500');
+      msg.innerText = dbError.message;
+    } else {
+      msg.classList.add('text-green-500');
+      msg.innerText = 'Video uploaded successfully!';
+      setTimeout(() => {
+        closeUploadModal();
+        fileInput.value = '';
+        captionInput.value = '';
+        msg.classList.add('hidden');
+        loadVideos();
+      }, 1500);
+    }
+  }
+
+  async function likeVideo(videoId, currentLikes) {
+    const newLikes = currentLikes + 1;
+    const { error } = await db
+      .from('videos')
+      .update({ likes_count: newLikes })
+      .eq('id', videoId);
+
+    if (!error) loadVideos();
+  }
+
+  async function openComments(videoId) {
+    activeVideoId = videoId;
+    document.getElementById('comments-modal').classList.remove('translate-y-full');
+    loadComments(videoId);
+  }
+
+  function closeCommentsModal() {
+    document.getElementById('comments-modal').classList.add('translate-y-full');
+    activeVideoId = null;
+  }
+
+  async function loadComments(videoId) {
+    const list = document.getElementById('comments-list');
+    list.innerHTML = `<p class="text-xs text-gray-400 text-center">Loading comments...</p>`;
+
+    const { data: comments } = await db
+      .from('comments')
+      .select('*')
+      .eq('video_id', videoId)
+      .order('created_at', { ascending: false });
+
+    if (!comments || comments.length === 0) {
+      list.innerHTML = `<p class="text-xs text-gray-500 text-center py-4">No comments yet. Be the first!</p>`;
+      return;
     }
 
-    async function openComments(videoId) {
-      activeVideoId = videoId;
-      document.getElementById('comments-modal').classList.remove('translate-y-full');
-      loadComments(videoId);
+    list.innerHTML = comments.map(c => `
+      <div class="bg-gray-800 p-2.5 rounded-xl text-xs">
+        <span class="font-bold text-red-400">@${c.username}</span>
+        <p class="mt-1 text-gray-200">${c.comment_text}</p>
+      </div>
+    `).join('');
+  }
+
+  async function postComment(e) {
+    e.preventDefault();
+    const input = document.getElementById('comment-input');
+    const text = input.value.trim();
+    if (!text || !activeVideoId) return;
+
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) {
+      alert('Please log in to comment!');
+      openAuthModal();
+      return;
     }
 
-    function closeCommentsModal() {
-      document.getElementById('comments-modal').classList.add('translate-y-full');
-      activeVideoId = null;
+    const username = session.user.user_metadata?.username || session.user.email.split('@')[0];
+    const { error } = await db
+      .from('comments')
+      .insert([{ video_id: activeVideoId, user_id: session.user.id, username: username, comment_text: text }]);
+
+    if (!error) {
+      input.value = '';
+      loadComments(activeVideoId);
+    }
+  }
+
+  async function toggleFollow(targetUserId) {
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) {
+      alert('Please log in to follow creators!');
+      openAuthModal();
+      return;
     }
 
-    async function loadComments(videoId) {
-      const list = document.getElementById('comments-list');
-      list.innerHTML = `<p class="text-xs text-gray-400 text-center">Loading comments...</p>`;
+    const followerId = session.user.id;
+    if (followerId === targetUserId) return;
 
-      const { data: comments } = await db
-        .from('comments')
-        .select('*')
-        .eq('video_id', videoId)
-        .order('created_at', { ascending: false });
+    const { data: existing } = await db
+      .from('follows')
+      .select('*')
+      .eq('follower_id', followerId)
+      .eq('following_id', targetUserId)
+      .single();
 
-      if (!comments || comments.length === 0) {
-        list.innerHTML = `<p class="text-xs text-gray-500 text-center py-4">No comments yet. Be the first!</p>`;
-        return;
-      }
-
-      list.innerHTML = comments.map(c => `
-        <div class="bg-gray-800 p-2.5 rounded-xl text-xs">
-          <span class="font-bold text-red-400">@${c.username}</span>
-          <p class="mt-1 text-gray-200">${c.comment_text}</p>
-        </div>
-      `).join('');
+    if (existing) {
+      await db.from('follows').delete().eq('follower_id', followerId).eq('following_id', targetUserId);
+    } else {
+      await db.from('follows').insert([{ follower_id: followerId, following_id: targetUserId }]);
     }
 
-    async function postComment(e) {
-      e.preventDefault();
-      const input = document.getElementById('comment-input');
-      const text = input.value.trim();
-      if (!text || !activeVideoId) return;
+    viewProfile(targetUserId);
+  }
 
-      const { data: { session } } = await db.auth.getSession();
-      if (!session) {
-        alert('Please log in to comment!');
-        openAuthModal();
-        return;
-      }
+  async function viewProfile(userId, fallbackUsername) {
+    const container = document.getElementById('app-container');
+    container.innerHTML = `<div class="h-full flex justify-center items-center text-gray-400"><i class="fa-solid fa-spinner fa-spin text-3xl text-red-500"></i></div>`;
 
-      const username = session.user.user_metadata?.username || session.user.email.split('@')[0];
-      const { error } = await db
-        .from('comments')
-        .insert([{ video_id: activeVideoId, user_id: session.user.id, username: username, comment_text: text }]);
+    const { data: { session } } = await db.auth.getSession();
+    const currentUserId = session?.user?.id;
 
-      if (!error) {
-        input.value = '';
-        loadComments(activeVideoId);
-      }
-    }
+    const { data: videos } = await db
+      .from('videos')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
 
-    async function toggleFollow(targetUserId) {
-      const { data: { session } } = await db.auth.getSession();
-      if (!session) {
-        alert('Please log in to follow creators!');
-        openAuthModal();
-        return;
-      }
+    const { count: followersCount } = await db
+      .from('follows')
+      .select('*', { count: 'exact', head: true })
+      .eq('following_id', userId);
 
-      const followerId = session.user.id;
-      if (followerId === targetUserId) return;
-
-      // Check if already following
-      const { data: existing } = await db
+    let isFollowing = false;
+    if (currentUserId && currentUserId !== userId) {
+      const { data: followCheck } = await db
         .from('follows')
         .select('*')
-        .eq('follower_id', followerId)
-        .eq('following_id', targetUserId)
+        .eq('follower_id', currentUserId)
+        .eq('following_id', userId)
         .single();
-
-      if (existing) {
-        await db.from('follows').delete().eq('follower_id', followerId).eq('following_id', targetUserId);
-      } else {
-        await db.from('follows').insert([{ follower_id: followerId, following_id: targetUserId }]);
-      }
-
-      // Refresh profile view
-      const { data: profileUser } = await db.auth.getUser();
-      // Reload profile
-      viewProfile(targetUserId);
+      if (followCheck) isFollowing = true;
     }
 
-    async function viewProfile(userId, fallbackUsername = 'creator') {
-      const container = document.getElementById('app-container');
-      container.innerHTML = `<div class="h-full flex justify-center items-center text-gray-400"><i class="fa-solid fa-spinner fa-spin text-3xl text-red-500"></i></div>`;
-
-      const { data: { session } } = await db.auth.getSession();
-      const currentUserId = session?.user?.id;
-
-      // Fetch user videos
-      const { data: videos } = await db
-        .from('videos')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
-
-      // Fetch followers count
-      const { count: followersCount } = await db
-        .from('follows')
-        .select('*', { count: 'exact', head: true })
-        .eq('following_id', userId);
-
-      // Check if current user is following
-      let isFollowing = false;
-      if (currentUserId && currentUserId !== userId) {
-        const { data: followCheck } = await db
-          .from('follows')
-          .select('*')
-          .eq('follower_id', currentUserId)
-          .eq('following_id', userId)
-          .single();
-        if (followCheck) isFollowing = true;
+    // Dynamic username resolution logic:
+    let profileUsername = fallbackUsername;
+    if (!profileUsername || profileUsername === 'creator') {
+      const videoWithUsername = videos?.find(v => v.username && v.username !== 'creator');
+      if (videoWithUsername) {
+        profileUsername = videoWithUsername.username;
+      } else if (currentUserId === userId && session?.user) {
+        profileUsername = session.user.user_metadata?.username || session.user.email.split('@')[0];
+      } else {
+        profileUsername = 'creator';
       }
+    }
 
-      const username = videos?.[0]?.username || fallbackUsername;
-
-      container.innerHTML = `
-        <div class="max-w-2xl mx-auto p-6 bg-black min-h-full">
-          <div class="flex items-center justify-between border-b border-gray-800 pb-6">
-            <div class="flex items-center space-x-4">
-              <div class="w-16 h-16 rounded-full bg-red-500 flex items-center justify-center text-2xl font-bold">
-                ${username.charAt(0).toUpperCase()}
-              </div>
-              <div>
-                <h2 class="text-xl font-bold">@${username}</h2>
-                <p class="text-xs text-gray-400 mt-1"><span class="font-bold text-white">${followersCount || 0}</span> Followers</p>
-              </div>
+    container.innerHTML = `
+      <div class="max-w-2xl mx-auto p-6 bg-black min-h-full">
+        <div class="flex items-center justify-between border-b border-gray-800 pb-6">
+          <div class="flex items-center space-x-4">
+            <div class="w-16 h-16 rounded-full bg-red-500 flex items-center justify-center text-2xl font-bold">
+              ${profileUsername.charAt(0).toUpperCase()}
             </div>
-            ${currentUserId && currentUserId !== userId ? `
-              <button onclick="toggleFollow('${userId}')" class="px-5 py-2 rounded-full font-bold text-sm ${isFollowing ? 'bg-gray-800 text-white hover:bg-gray-700' : 'bg-red-500 text-white hover:bg-red-600'} transition">
-                ${isFollowing ? 'Following' : 'Follow'}
-              </button>
-            ` : ''}
+            <div>
+              <h2 class="text-xl font-bold">@${profileUsername}</h2>
+              <p class="text-xs text-gray-400 mt-1"><span class="font-bold text-white">${followersCount || 0}</span> Followers</p>
+            </div>
           </div>
+          ${currentUserId && currentUserId !== userId ? `
+            <button onclick="toggleFollow('${userId}')" class="px-5 py-2 rounded-full font-bold text-sm ${isFollowing ? 'bg-gray-800 text-white hover:bg-gray-700' : 'bg-red-500 text-white hover:bg-red-600'} transition">
+              ${isFollowing ? 'Following' : 'Follow'}
+            </button>
+          ` : ''}
+        </div>
 
-          <div class="mt-6">
-            <h3 class="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">Videos</h3>
-            <div class="grid grid-cols-3 gap-2">
-              ${videos && videos.length > 0 ? videos.map(v => `
-                <div class="aspect-[9/16] bg-gray-900 rounded-lg overflow-hidden relative group">
-                  <video src="${v.video_url}" class="w-full h-full object-cover"></video>
-                  <div class="absolute inset-0 bg-black bg-opacity-40 flex items-end p-2 opacity-0 group-hover:opacity-100 transition">
-                    <p class="text-xs truncate">${v.caption || ''}</p>
-                  </div>
+        <div class="mt-6">
+          <h3 class="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">Videos</h3>
+          <div class="grid grid-cols-3 gap-2">
+            ${videos && videos.length > 0 ? videos.map(v => `
+              <div class="aspect-[9/16] bg-gray-900 rounded-lg overflow-hidden relative group">
+                <video src="${v.video_url}" class="w-full h-full object-cover"></video>
+                <div class="absolute inset-0 bg-black bg-opacity-40 flex items-end p-2 opacity-0 group-hover:opacity-100 transition">
+                  <p class="text-xs truncate">${v.caption || ''}</p>
                 </div>
-              `).join('') : '<p class="col-span-3 text-center text-gray-500 py-10">No videos uploaded yet.</p>'}
-            </div>
+              </div>
+            `).join('') : '<p class="col-span-3 text-center text-gray-500 py-10">No videos uploaded yet.</p>'}
           </div>
         </div>
-      `;
-    }
+      </div>
+    `;
+  }
 
-    async function loadVideos() {
-      const container = document.getElementById('app-container');
-      
-      try {
-        const { data: videos, error } = await db
-          .from('videos')
-          .select('*')
-          .order('created_at', { ascending: false });
+  async function loadVideos() {
+    const container = document.getElementById('app-container');
+    
+    try {
+      const { data: videos, error } = await db
+        .from('videos')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-        if (error || !videos || videos.length === 0) {
-          container.innerHTML = `
-            <div class="h-full flex flex-col justify-center items-center text-gray-500 p-4">
-              <p class="font-medium text-lg">No videos yet!</p>
-              <p class="text-sm text-gray-600">Be the first creator to upload a video to ViroKDK.</p>
-            </div>`;
-          return;
-        }
+      if (error || !videos || videos.length === 0) {
+        container.innerHTML = `
+          <div class="h-full flex flex-col justify-center items-center text-gray-500 p-4">
+            <p class="font-medium text-lg">No videos yet!</p>
+            <p class="text-sm text-gray-600">Be the first creator to upload a video to ViroKDK.</p>
+          </div>`;
+        return;
+      }
 
-        container.innerHTML = videos.map(video => `
+      container.innerHTML = videos.map(video => {
+        const displayUsername = video.username || 'creator';
+        return `
           <div class="h-full w-full snap-start flex justify-center items-center relative bg-black">
             <video src="${video.video_url}" class="h-full w-auto max-w-full object-cover" loop onclick="this.paused ? this.play() : this.pause()"></video>
             
             <div class="absolute bottom-6 left-4 right-16 z-10 text-white drop-shadow-md">
-              <button onclick="viewProfile('${video.user_id}', '${video.username || 'creator'}')" class="font-bold text-lg hover:underline text-left">
-                @${video.username || 'creator'}
+              <button onclick="viewProfile('${video.user_id}', '${displayUsername}')" class="font-bold text-lg hover:underline text-left">
+                @${displayUsername}
               </button>
               <p class="text-sm mt-1">${video.caption || ''}</p>
             </div>
@@ -463,15 +352,14 @@
               </button>
             </div>
           </div>
-        `).join('');
+        `;
+      }).join('');
 
-      } catch (err) {
-        container.innerHTML = `<div class="p-4 text-center text-red-500">Failed to load feed.</div>`;
-      }
+    } catch (err) {
+      container.innerHTML = `<div class="p-4 text-center text-red-500">Failed to load feed.</div>`;
     }
+  }
 
-    checkUserSession();
-    loadVideos();
-  </script>
-</body>
-</html>
+  checkUserSession();
+  loadVideos();
+</script>
