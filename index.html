@@ -20,7 +20,7 @@
 
   <!-- Header Navigation -->
   <header class="flex justify-between items-center p-4 border-b border-gray-800 bg-black z-20">
-    <h1 class="text-2xl font-bold tracking-wider text-red-500">ViroKDK</h1>
+    <h1 class="text-2xl font-bold tracking-wider text-red-500 cursor-pointer" onclick="loadVideos()">ViroKDK</h1>
     <div class="flex items-center space-x-3">
       <button id="upload-nav-btn" onclick="openUploadModal()" class="hidden bg-gray-800 hover:bg-gray-700 text-white px-3 py-1.5 rounded-full text-sm font-semibold transition flex items-center space-x-1.5">
         <i class="fa-solid fa-plus text-red-500"></i>
@@ -41,6 +41,23 @@
       <p>Loading videos...</p>
     </div>
   </main>
+
+  <!-- Comments Modal Drawer -->
+  <div id="comments-modal" class="fixed inset-x-0 bottom-0 top-1/3 bg-gray-900 border-t border-gray-800 rounded-t-3xl transform translate-y-full transition-transform duration-300 z-50 flex flex-col p-4 shadow-2xl">
+    <div class="flex justify-between items-center border-b border-gray-800 pb-3">
+      <h3 class="font-bold text-lg">Comments</h3>
+      <button onclick="closeCommentsModal()" class="text-gray-400 hover:text-white p-2">
+        <i class="fa-solid fa-xmark text-xl"></i>
+      </button>
+    </div>
+    <div id="comments-list" class="flex-1 overflow-y-auto py-3 space-y-3">
+      <!-- Dynamic Comments -->
+    </div>
+    <form onsubmit="postComment(event)" class="flex items-center space-x-2 pt-2 border-t border-gray-800">
+      <input type="text" id="comment-input" placeholder="Add a comment..." required class="flex-1 bg-gray-800 border border-gray-700 rounded-full px-4 py-2 text-sm text-white focus:outline-none focus:border-red-500"/>
+      <button type="submit" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-full font-bold text-sm transition">Post</button>
+    </form>
+  </div>
 
   <!-- Upload Modal -->
   <div id="upload-modal" class="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center hidden z-50 p-4">
@@ -101,12 +118,12 @@
   </div>
 
   <script>
-    // Clean initialization using 'db' to prevent name collisions
     const SUPABASE_URL = 'https://wjpvqoluqwghxujtyrch.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_y5WtvnM9PB0kIFWyztrJFw_CphEf0Vd';
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let isSignUp = false;
+    let activeVideoId = null;
 
     function openAuthModal() { document.getElementById('auth-modal').classList.remove('hidden'); }
     function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
@@ -153,9 +170,10 @@
 
       if (session?.user) {
         uploadBtn.classList.remove('hidden');
+        const username = session.user.user_metadata?.username || session.user.email.split('@')[0];
         authHeader.innerHTML = `
           <div class="flex items-center space-x-2">
-            <span class="text-xs text-gray-400 hidden sm:inline">${session.user.email}</span>
+            <span class="text-xs text-gray-400 font-medium">@${username}</span>
             <button onclick="handleLogout()" class="bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-full text-xs font-semibold">Log Out</button>
           </div>`;
       } else {
@@ -207,11 +225,12 @@
         .from('videos')
         .getPublicUrl(filePath);
 
+      const username = session.user.user_metadata?.username || session.user.email.split('@')[0];
       const videoUrl = publicUrlData.publicUrl;
 
       const { error: dbError } = await db
         .from('videos')
-        .insert([{ user_id: session.user.id, caption: captionInput.value, video_url: videoUrl }]);
+        .insert([{ user_id: session.user.id, username: username, caption: captionInput.value, video_url: videoUrl, likes_count: 0 }]);
 
       btn.disabled = false;
 
@@ -228,6 +247,79 @@
           msg.classList.add('hidden');
           loadVideos();
         }, 1500);
+      }
+    }
+
+    async function likeVideo(videoId, currentLikes) {
+      const newLikes = currentLikes + 1;
+      const { error } = await db
+        .from('videos')
+        .update({ likes_count: newLikes })
+        .eq('id', videoId);
+
+      if (!error) {
+        loadVideos();
+      }
+    }
+
+    async function openComments(videoId) {
+      activeVideoId = videoId;
+      document.getElementById('comments-modal').classList.remove('translate-y-full');
+      loadComments(videoId);
+    }
+
+    function closeCommentsModal() {
+      document.getElementById('comments-modal').classList.add('translate-y-full');
+      activeVideoId = null;
+    }
+
+    async function loadComments(videoId) {
+      const list = document.getElementById('comments-list');
+      list.innerHTML = `<p class="text-xs text-gray-400 text-center">Loading comments...</p>`;
+
+      const { data: comments, error } = await db
+        .from('comments')
+        .select('*')
+        .eq('video_id', videoId)
+        .order('created_at', { ascending: false });
+
+      if (error || !comments || comments.length === 0) {
+        list.innerHTML = `<p class="text-xs text-gray-500 text-center py-4">No comments yet. Be the first!</p>`;
+        return;
+      }
+
+      list.innerHTML = comments.map(c => `
+        <div class="bg-gray-800 p-2.5 rounded-xl text-xs">
+          <span class="font-bold text-red-400">@${c.username}</span>
+          <p class="mt-1 text-gray-200">${c.comment_text}</p>
+        </div>
+      `).join('');
+    }
+
+    async function postComment(e) {
+      e.preventDefault();
+      const input = document.getElementById('comment-input');
+      const text = input.value.trim();
+      if (!text || !activeVideoId) return;
+
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) {
+        alert('Please log in to comment!');
+        openAuthModal();
+        return;
+      }
+
+      const username = session.user.user_metadata?.username || session.user.email.split('@')[0];
+
+      const { error } = await db
+        .from('comments')
+        .insert([{ video_id: activeVideoId, user_id: session.user.id, username: username, comment_text: text }]);
+
+      if (!error) {
+        input.value = '';
+        loadComments(activeVideoId);
+      } else {
+        alert('Error posting comment: ' + error.message);
       }
     }
 
@@ -263,8 +355,24 @@
             <video src="${video.video_url}" class="h-full w-auto max-w-full object-cover" loop onclick="this.paused ? this.play() : this.pause()"></video>
             
             <div class="absolute bottom-6 left-4 right-16 z-10 text-white drop-shadow-md">
-              <p class="font-bold text-lg">@creator</p>
+              <p class="font-bold text-lg">@${video.username || 'creator'}</p>
               <p class="text-sm mt-1">${video.caption || ''}</p>
+            </div>
+
+            <div class="absolute right-4 bottom-12 flex flex-col items-center space-y-6 z-10">
+              <button onclick="likeVideo('${video.id}', ${video.likes_count || 0})" class="flex flex-col items-center group">
+                <div class="w-12 h-12 rounded-full bg-gray-900 bg-opacity-60 flex justify-center items-center group-hover:bg-red-500 transition">
+                  <i class="fa-solid fa-heart text-xl text-red-500 group-hover:text-white"></i>
+                </div>
+                <span class="text-xs mt-1 font-semibold">${video.likes_count || 0}</span>
+              </button>
+
+              <button onclick="openComments('${video.id}')" class="flex flex-col items-center group">
+                <div class="w-12 h-12 rounded-full bg-gray-900 bg-opacity-60 flex justify-center items-center group-hover:bg-blue-500 transition">
+                  <i class="fa-solid fa-comment text-xl"></i>
+                </div>
+                <span class="text-xs mt-1">Chat</span>
+              </button>
             </div>
           </div>
         `).join('');
