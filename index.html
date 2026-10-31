@@ -1,365 +1,631 @@
-<script>
-  const SUPABASE_URL = 'https://wjpvqoluqwghxujtyrch.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_y5WtvnM9PB0kIFWyztrJFw_CphEf0Vd';
-  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ViroKDK - Short Video Experience</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Custom Styling & Animations -->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-  let isSignUp = false;
-  let activeVideoId = null;
-
-  function openAuthModal() { document.getElementById('auth-modal').classList.remove('hidden'); }
-  function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
-  function openUploadModal() { document.getElementById('upload-modal').classList.remove('hidden'); }
-  function closeUploadModal() { document.getElementById('upload-modal').classList.add('hidden'); }
-
-  function toggleAuthMode() {
-    isSignUp = !isSignUp;
-    document.getElementById('modal-title').innerText = isSignUp ? 'Create ViroKDK Account' : 'Log In to ViroKDK';
-    document.getElementById('auth-submit-btn').innerText = isSignUp ? 'Sign Up' : 'Log In';
-    document.getElementById('toggle-text').innerText = isSignUp ? 'Already have an account?' : "Don't have an account?";
-    document.getElementById('toggle-btn').innerText = isSignUp ? 'Log In' : 'Sign Up';
-    document.getElementById('username-container').classList.toggle('hidden', !isSignUp);
-  }
-
-  async function handleAuth(e) {
-    e.preventDefault();
-    const email = document.getElementById('auth-email').value;
-    const password = document.getElementById('auth-password').value;
-    const username = document.getElementById('auth-username').value;
-    const msg = document.getElementById('auth-message');
-
-    msg.classList.remove('hidden', 'text-green-500', 'text-red-500');
-    msg.innerText = 'Processing...';
-
-    let result = isSignUp 
-      ? await db.auth.signUp({ email, password, options: { data: { username } } })
-      : await db.auth.signInWithPassword({ email, password });
-
-    if (result.error) {
-      msg.classList.add('text-red-500');
-      msg.innerText = result.error.message;
-    } else {
-      msg.classList.add('text-green-500');
-      msg.innerText = isSignUp ? 'Account created! Check email or log in.' : 'Logged in successfully!';
-      if (!isSignUp) setTimeout(() => { closeAuthModal(); checkUserSession(); loadVideos(); }, 1000);
-    }
-  }
-
-  async function checkUserSession() {
-    const { data: { session } } = await db.auth.getSession();
-    const authHeader = document.getElementById('auth-header');
-    const uploadBtn = document.getElementById('upload-nav-btn');
-
-    if (session?.user) {
-      uploadBtn.classList.remove('hidden');
-      const username = session.user.user_metadata?.username || session.user.email.split('@')[0];
-      authHeader.innerHTML = `
-        <div class="flex items-center space-x-2">
-          <button onclick="viewProfile('${session.user.id}', '${username}')" class="text-xs text-gray-300 hover:text-white font-medium bg-gray-800 px-3 py-1.5 rounded-full">@${username}</button>
-          <button onclick="handleLogout()" class="bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-full text-xs font-semibold">Log Out</button>
-        </div>`;
-    } else {
-      uploadBtn.classList.add('hidden');
-      authHeader.innerHTML = `<button onclick="openAuthModal()" class="bg-red-500 hover:bg-red-600 px-4 py-1.5 rounded-full font-semibold text-sm">Sign In</button>`;
-    }
-  }
-
-  async function handleLogout() {
-    await db.auth.signOut();
-    checkUserSession();
-    loadVideos();
-  }
-
-  async function handleVideoUpload(e) {
-    e.preventDefault();
-    const fileInput = document.getElementById('upload-file');
-    const captionInput = document.getElementById('upload-caption');
-    const msg = document.getElementById('upload-message');
-    const btn = document.getElementById('upload-submit-btn');
-
-    const file = fileInput.files[0];
-    if (!file) return;
-
-    const { data: { session } } = await db.auth.getSession();
-    if (!session) {
-      alert('Please log in first to upload videos!');
-      return;
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #0b0f17;
+      color: #ffffff;
+      overflow: hidden;
+      user-select: none;
     }
 
-    msg.classList.remove('hidden', 'text-red-500', 'text-green-500');
-    msg.innerText = 'Uploading video... Please wait.';
-    btn.disabled = true;
+    /* Hide scrollbars */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-    const fileExt = file.name.split('.').pop();
-    const filePath = `${session.user.id}/${Date.now()}.${fileExt}`;
+    /* Snap Scrolling Container */
+    .snap-y-mandatory { scroll-snap-type: y mandatory; }
+    .snap-start-always { scroll-snap-align: start; scroll-snap-stop: always; }
 
-    const { error: uploadError } = await db.storage
-      .from('videos')
-      .upload(filePath, file);
+    /* Vinyl Disc Rotation */
+    @keyframes spin-slow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .animate-spin-disc { animation: spin-slow 4s linear infinite; }
 
-    if (uploadError) {
-      msg.classList.add('text-red-500');
-      msg.innerText = uploadError.message;
-      btn.disabled = false;
-      return;
+    /* Floating Heart Animation */
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translateY(0) scale(0.8) rotate(0deg); }
+      50% { transform: translateY(-60px) scale(1.2) rotate(-15deg); }
+      100% { opacity: 0; transform: translateY(-120px) scale(1.5) rotate(15deg); }
+    }
+    .heart-float {
+      position: absolute;
+      pointer-events: none;
+      animation: floatUp 0.9s ease-out forwards;
     }
 
-    const { data: publicUrlData } = db.storage
-      .from('videos')
-      .getPublicUrl(filePath);
-
-    const username = session.user.user_metadata?.username || session.user.email.split('@')[0];
-    const videoUrl = publicUrlData.publicUrl;
-
-    const { error: dbError } = await db
-      .from('videos')
-      .insert([{ user_id: session.user.id, username: username, caption: captionInput.value, video_url: videoUrl, likes_count: 0 }]);
-
-    btn.disabled = false;
-
-    if (dbError) {
-      msg.classList.add('text-red-500');
-      msg.innerText = dbError.message;
-    } else {
-      msg.classList.add('text-green-500');
-      msg.innerText = 'Video uploaded successfully!';
-      setTimeout(() => {
-        closeUploadModal();
-        fileInput.value = '';
-        captionInput.value = '';
-        msg.classList.add('hidden');
-        loadVideos();
-      }, 1500);
+    /* Glassmorphism Panels */
+    .glass-panel {
+      background: rgba(18, 24, 38, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
-  }
+  </style>
+</head>
+<body class="h-screen w-screen flex flex-col md:flex-row bg-slate-950 text-white overflow-hidden">
 
-  async function likeVideo(videoId, currentLikes) {
-    const newLikes = currentLikes + 1;
-    const { error } = await db
-      .from('videos')
-      .update({ likes_count: newLikes })
-      .eq('id', videoId);
-
-    if (!error) loadVideos();
-  }
-
-  async function openComments(videoId) {
-    activeVideoId = videoId;
-    document.getElementById('comments-modal').classList.remove('translate-y-full');
-    loadComments(videoId);
-  }
-
-  function closeCommentsModal() {
-    document.getElementById('comments-modal').classList.add('translate-y-full');
-    activeVideoId = null;
-  }
-
-  async function loadComments(videoId) {
-    const list = document.getElementById('comments-list');
-    list.innerHTML = `<p class="text-xs text-gray-400 text-center">Loading comments...</p>`;
-
-    const { data: comments } = await db
-      .from('comments')
-      .select('*')
-      .eq('video_id', videoId)
-      .order('created_at', { ascending: false });
-
-    if (!comments || comments.length === 0) {
-      list.innerHTML = `<p class="text-xs text-gray-500 text-center py-4">No comments yet. Be the first!</p>`;
-      return;
-    }
-
-    list.innerHTML = comments.map(c => `
-      <div class="bg-gray-800 p-2.5 rounded-xl text-xs">
-        <span class="font-bold text-red-400">@${c.username}</span>
-        <p class="mt-1 text-gray-200">${c.comment_text}</p>
+  <!-- TOP HEADER (Mobile) -->
+  <header class="fixed top-0 left-0 right-0 z-40 flex justify-between items-center px-4 py-3 md:hidden glass-panel border-b border-white/10">
+    <div class="flex items-center space-x-2 cursor-pointer" onclick="loadVideos()">
+      <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-black text-black text-xs tracking-tighter">
+        KDK
       </div>
-    `).join('');
-  }
+      <span class="font-extrabold text-lg tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-white via-cyan-200 to-rose-400">ViroKDK</span>
+    </div>
+    <div id="mobile-auth-btn">
+      <button onclick="openAuthModal()" class="bg-red-500 px-3 py-1 rounded-full text-xs font-bold">Sign In</button>
+    </div>
+  </header>
 
-  async function postComment(e) {
-    e.preventDefault();
-    const input = document.getElementById('comment-input');
-    const text = input.value.trim();
-    if (!text || !activeVideoId) return;
+  <!-- DESKTOP SIDE NAVIGATION -->
+  <aside class="hidden md:flex flex-col justify-between w-64 lg:w-72 border-r border-white/10 p-5 glass-panel z-30">
+    <div class="space-y-6">
+      <!-- Logo -->
+      <div class="flex items-center space-x-3 px-2 cursor-pointer" onclick="loadVideos()">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-black text-black text-sm tracking-tighter shadow-lg shadow-[#FE2C55]/30">
+          KDK
+        </div>
+        <div>
+          <h1 class="font-black text-xl tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-white via-cyan-200 to-rose-400">ViroKDK</h1>
+          <p class="text-xs text-cyan-400 font-semibold tracking-wide">Short Video World</p>
+        </div>
+      </div>
 
-    const { data: { session } } = await db.auth.getSession();
-    if (!session) {
-      alert('Please log in to comment!');
-      openAuthModal();
-      return;
+      <!-- Navigation Links -->
+      <nav class="space-y-2">
+        <button onclick="loadVideos()" class="w-full flex items-center space-x-4 px-4 py-3 rounded-xl bg-[#FE2C55]/10 text-[#FE2C55] font-bold transition hover:bg-[#FE2C55]/20">
+          <i data-lucide="home" class="w-5 h-5"></i>
+          <span>For You</span>
+        </button>
+        <button onclick="openUploadModal()" id="desktop-upload-btn" class="w-full flex items-center space-x-4 px-4 py-3 rounded-xl text-gray-300 hover:bg-white/5 font-semibold transition">
+          <i data-lucide="plus-square" class="w-5 h-5"></i>
+          <span>Create Video</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- User Mini Card at bottom -->
+    <div id="desktop-user-card" class="pt-4 border-t border-white/10 flex items-center justify-between">
+      <button onclick="openAuthModal()" class="w-full py-2.5 bg-red-500 hover:bg-red-600 rounded-xl font-bold text-sm transition text-center">Sign In</button>
+    </div>
+  </aside>
+
+  <!-- MAIN FEED CONTAINER -->
+  <main class="flex-1 h-full w-full relative flex justify-center items-center overflow-hidden pt-14 md:pt-0 pb-16 md:pb-0">
+    <div id="video-feed-container" class="h-full w-full md:max-w-[420px] lg:max-w-[440px] overflow-y-scroll snap-y-mandatory no-scrollbar relative bg-black shadow-2xl">
+      <!-- Dynamic Videos Loaded Here -->
+      <div class="h-full flex flex-col justify-center items-center text-gray-400">
+        <i data-lucide="loader-2" class="w-8 h-8 animate-spin text-[#FE2C55] mb-2"></i>
+        <p class="text-sm font-semibold">Loading ViroKDK Feed...</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- MOBILE BOTTOM NAVBAR -->
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 h-16 glass-panel border-t border-white/10 z-40 flex justify-around items-center px-2">
+    <button onclick="loadVideos()" class="flex flex-col items-center justify-center text-[#FE2C55]">
+      <i data-lucide="home" class="w-6 h-6"></i>
+      <span class="text-[10px] mt-0.5 font-medium">Home</span>
+    </button>
+    <button onclick="openUploadModal()" class="relative flex items-center justify-center px-4 py-1.5">
+      <div class="absolute inset-0 bg-gradient-to-r from-[#25F4EE] to-[#FE2C55] rounded-xl"></div>
+      <div class="relative bg-white text-black font-extrabold rounded-lg px-2.5 py-0.5 flex items-center justify-center">
+        <i data-lucide="plus" class="w-5 h-5 text-black"></i>
+      </div>
+    </button>
+    <button onclick="openProfileFromNav()" class="flex flex-col items-center justify-center text-gray-400 hover:text-white">
+      <i data-lucide="user" class="w-6 h-6"></i>
+      <span class="text-[10px] mt-0.5 font-medium">Profile</span>
+    </button>
+  </nav>
+
+  <!-- COMMENT MODAL / DRAWER -->
+  <div id="comment-drawer" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden transition-opacity duration-300 flex justify-end flex-col md:items-center md:justify-center">
+    <div class="w-full md:max-w-md bg-slate-900 border-t md:border border-white/10 rounded-t-3xl md:rounded-3xl h-[70vh] md:h-[500px] flex flex-col overflow-hidden shadow-2xl" id="comment-drawer-content">
+      <div class="p-4 border-b border-white/10 flex items-center justify-between bg-slate-900/80">
+        <h3 class="font-bold text-sm" id="comment-count-header">Comments</h3>
+        <button onclick="closeCommentDrawer()" class="p-1 rounded-full hover:bg-white/10 text-gray-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div id="comment-list" class="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar"></div>
+      <form onsubmit="postComment(event)" class="p-3 border-t border-white/10 bg-slate-950 flex items-center space-x-2">
+        <input type="text" id="comment-input" placeholder="Add a comment..." required class="flex-1 bg-slate-800 text-sm text-white rounded-full py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-[#FE2C55] border border-white/10">
+        <button type="submit" class="bg-[#FE2C55] text-white px-4 py-2.5 rounded-full font-bold text-xs hover:bg-red-600 transition">Post</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- UPLOAD VIDEO MODAL -->
+  <div id="upload-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-white/10 rounded-3xl w-full max-w-lg p-6 relative shadow-2xl space-y-5">
+      <div class="flex justify-between items-center border-b border-white/10 pb-3">
+        <h3 class="text-lg font-bold text-white flex items-center space-x-2">
+          <i data-lucide="upload-cloud" class="w-5 h-5 text-[#FE2C55]"></i>
+          <span>Upload Video</span>
+        </h3>
+        <button onclick="closeUploadModal()" class="p-1 rounded-full hover:bg-white/10 text-gray-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="upload-form" onsubmit="handleVideoUpload(event)" class="space-y-4">
+        <div class="border-2 border-dashed border-white/20 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#25F4EE] transition bg-white/5" onclick="document.getElementById('upload-file').click()">
+          <i data-lucide="film" class="w-10 h-10 text-gray-400 mb-2"></i>
+          <p class="text-sm font-semibold text-white" id="file-label-text">Select MP4 Video File</p>
+          <input type="file" id="upload-file" accept="video/mp4,video/*" required class="hidden" onchange="document.getElementById('file-label-text').innerText = this.files[0]?.name">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-gray-300 mb-1 block">Caption</label>
+          <input type="text" id="upload-caption" placeholder="Write a catchy caption... #virokdk" class="w-full bg-slate-800 text-sm text-white rounded-xl p-3 border border-white/10 focus:outline-none focus:ring-2 focus:ring-[#FE2C55]">
+        </div>
+        <p id="upload-message" class="text-xs text-center font-semibold hidden"></p>
+        <button type="submit" id="upload-submit-btn" class="w-full py-3 bg-gradient-to-r from-[#FE2C55] to-[#25F4EE] text-black font-extrabold rounded-xl shadow-lg hover:opacity-90 transition">
+          Publish Video
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- AUTH MODAL -->
+  <div id="auth-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-white/10 rounded-3xl w-full max-w-md p-6 relative shadow-2xl">
+      <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <h2 id="modal-title" class="text-2xl font-bold mb-4 text-center">Log In to ViroKDK</h2>
+      <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4">
+        <div id="username-container" class="hidden">
+          <label class="text-xs font-semibold text-gray-400 block mb-1">USERNAME</label>
+          <input type="text" id="auth-username" class="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#FE2C55]" placeholder="e.g. kdk_creator"/>
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-gray-400 block mb-1">EMAIL</label>
+          <input type="email" id="auth-email" required class="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#FE2C55]" placeholder="you@example.com"/>
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-gray-400 block mb-1">PASSWORD</label>
+          <input type="password" id="auth-password" required minlength="6" class="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#FE2C55]" placeholder="••••••••"/>
+        </div>
+        <p id="auth-message" class="text-sm text-center font-medium hidden"></p>
+        <button type="submit" id="auth-submit-btn" class="w-full bg-[#FE2C55] hover:bg-red-600 font-bold py-3 rounded-xl transition text-white">
+          Log In
+        </button>
+      </form>
+      <div class="mt-4 text-center text-xs text-gray-400">
+        <span id="toggle-text">Don't have an account?</span>
+        <button onclick="toggleAuthMode()" id="toggle-btn" class="text-[#25F4EE] font-semibold underline ml-1">Sign Up</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE VIEW CONTAINER -->
+  <div id="profile-container" class="fixed inset-0 z-40 bg-slate-950 hidden overflow-y-auto"></div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-slate-800 text-white text-xs font-semibold px-4 py-2.5 rounded-full border border-white/20 shadow-xl opacity-0 pointer-events-none transition-all duration-300">
+    <span id="toast-message">Action completed</span>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    const SUPABASE_URL = 'https://wjpvqoluqwghxujtyrch.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_y5WtvnM9PB0kIFWyztrJFw_CphEf0Vd';
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let isSignUp = false;
+    let activeVideoId = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+      checkUserSession();
+      loadVideos();
+    });
+
+    function openAuthModal() { document.getElementById('auth-modal').classList.remove('hidden'); }
+    function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
+    function openUploadModal() { 
+      db.auth.getSession().then(({ data: { session } }) => {
+        if (!session) { openAuthModal(); showToast("Please sign in to upload"); return; }
+        document.getElementById('upload-modal').classList.remove('hidden'); 
+      });
+    }
+    function closeUploadModal() { document.getElementById('upload-modal').classList.add('hidden'); }
+
+    function toggleAuthMode() {
+      isSignUp = !isSignUp;
+      document.getElementById('modal-title').innerText = isSignUp ? 'Create ViroKDK Account' : 'Log In to ViroKDK';
+      document.getElementById('auth-submit-btn').innerText = isSignUp ? 'Sign Up' : 'Log In';
+      document.getElementById('toggle-text').innerText = isSignUp ? 'Already have an account?' : "Don't have an account?";
+      document.getElementById('toggle-btn').innerText = isSignUp ? 'Log In' : 'Sign Up';
+      document.getElementById('username-container').classList.toggle('hidden', !isSignUp);
     }
 
-    const username = session.user.user_metadata?.username || session.user.email.split('@')[0];
-    const { error } = await db
-      .from('comments')
-      .insert([{ video_id: activeVideoId, user_id: session.user.id, username: username, comment_text: text }]);
+    async function handleAuth(e) {
+      e.preventDefault();
+      const email = document.getElementById('auth-email').value;
+      const password = document.getElementById('auth-password').value;
+      const username = document.getElementById('auth-username').value;
+      const msg = document.getElementById('auth-message');
 
-    if (!error) {
-      input.value = '';
-      loadComments(activeVideoId);
-    }
-  }
+      msg.classList.remove('hidden', 'text-green-400', 'text-red-400');
+      msg.innerText = 'Processing...';
 
-  async function toggleFollow(targetUserId) {
-    const { data: { session } } = await db.auth.getSession();
-    if (!session) {
-      alert('Please log in to follow creators!');
-      openAuthModal();
-      return;
-    }
+      let result = isSignUp 
+        ? await db.auth.signUp({ email, password, options: { data: { username } } })
+        : await db.auth.signInWithPassword({ email, password });
 
-    const followerId = session.user.id;
-    if (followerId === targetUserId) return;
-
-    const { data: existing } = await db
-      .from('follows')
-      .select('*')
-      .eq('follower_id', followerId)
-      .eq('following_id', targetUserId)
-      .single();
-
-    if (existing) {
-      await db.from('follows').delete().eq('follower_id', followerId).eq('following_id', targetUserId);
-    } else {
-      await db.from('follows').insert([{ follower_id: followerId, following_id: targetUserId }]);
-    }
-
-    viewProfile(targetUserId);
-  }
-
-  async function viewProfile(userId, fallbackUsername) {
-    const container = document.getElementById('app-container');
-    container.innerHTML = `<div class="h-full flex justify-center items-center text-gray-400"><i class="fa-solid fa-spinner fa-spin text-3xl text-red-500"></i></div>`;
-
-    const { data: { session } } = await db.auth.getSession();
-    const currentUserId = session?.user?.id;
-
-    const { data: videos } = await db
-      .from('videos')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
-
-    const { count: followersCount } = await db
-      .from('follows')
-      .select('*', { count: 'exact', head: true })
-      .eq('following_id', userId);
-
-    let isFollowing = false;
-    if (currentUserId && currentUserId !== userId) {
-      const { data: followCheck } = await db
-        .from('follows')
-        .select('*')
-        .eq('follower_id', currentUserId)
-        .eq('following_id', userId)
-        .single();
-      if (followCheck) isFollowing = true;
-    }
-
-    // Dynamic username resolution logic:
-    let profileUsername = fallbackUsername;
-    if (!profileUsername || profileUsername === 'creator') {
-      const videoWithUsername = videos?.find(v => v.username && v.username !== 'creator');
-      if (videoWithUsername) {
-        profileUsername = videoWithUsername.username;
-      } else if (currentUserId === userId && session?.user) {
-        profileUsername = session.user.user_metadata?.username || session.user.email.split('@')[0];
+      if (result.error) {
+        msg.classList.add('text-red-400');
+        msg.innerText = result.error.message;
       } else {
-        profileUsername = 'creator';
+        msg.classList.add('text-green-400');
+        msg.innerText = isSignUp ? 'Account created! Check email or log in.' : 'Logged in successfully!';
+        if (!isSignUp) {
+          setTimeout(() => { closeAuthModal(); checkUserSession(); loadVideos(); }, 1000);
+        }
       }
     }
 
-    container.innerHTML = `
-      <div class="max-w-2xl mx-auto p-6 bg-black min-h-full">
-        <div class="flex items-center justify-between border-b border-gray-800 pb-6">
-          <div class="flex items-center space-x-4">
-            <div class="w-16 h-16 rounded-full bg-red-500 flex items-center justify-center text-2xl font-bold">
-              ${profileUsername.charAt(0).toUpperCase()}
-            </div>
-            <div>
-              <h2 class="text-xl font-bold">@${profileUsername}</h2>
-              <p class="text-xs text-gray-400 mt-1"><span class="font-bold text-white">${followersCount || 0}</span> Followers</p>
-            </div>
-          </div>
-          ${currentUserId && currentUserId !== userId ? `
-            <button onclick="toggleFollow('${userId}')" class="px-5 py-2 rounded-full font-bold text-sm ${isFollowing ? 'bg-gray-800 text-white hover:bg-gray-700' : 'bg-red-500 text-white hover:bg-red-600'} transition">
-              ${isFollowing ? 'Following' : 'Follow'}
-            </button>
-          ` : ''}
-        </div>
+    async function checkUserSession() {
+      const { data: { session } } = await db.auth.getSession();
+      const desktopUserCard = document.getElementById('desktop-user-card');
+      const mobileAuthBtn = document.getElementById('mobile-auth-btn');
 
-        <div class="mt-6">
-          <h3 class="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">Videos</h3>
-          <div class="grid grid-cols-3 gap-2">
-            ${videos && videos.length > 0 ? videos.map(v => `
-              <div class="aspect-[9/16] bg-gray-900 rounded-lg overflow-hidden relative group">
-                <video src="${v.video_url}" class="w-full h-full object-cover"></video>
-                <div class="absolute inset-0 bg-black bg-opacity-40 flex items-end p-2 opacity-0 group-hover:opacity-100 transition">
-                  <p class="text-xs truncate">${v.caption || ''}</p>
-                </div>
+      if (session?.user) {
+        const username = session.user.user_metadata?.username || session.user.email.split('@')[0];
+        desktopUserCard.innerHTML = `
+          <div class="flex items-center justify-between w-full cursor-pointer" onclick="viewProfile('${session.user.id}', '${username}')">
+            <div class="flex items-center space-x-3">
+              <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-bold text-black text-xs">
+                ${username.charAt(0).toUpperCase()}
               </div>
-            `).join('') : '<p class="col-span-3 text-center text-gray-500 py-10">No videos uploaded yet.</p>'}
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  async function loadVideos() {
-    const container = document.getElementById('app-container');
-    
-    try {
-      const { data: videos, error } = await db
-        .from('videos')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error || !videos || videos.length === 0) {
-        container.innerHTML = `
-          <div class="h-full flex flex-col justify-center items-center text-gray-500 p-4">
-            <p class="font-medium text-lg">No videos yet!</p>
-            <p class="text-sm text-gray-600">Be the first creator to upload a video to ViroKDK.</p>
+              <div class="truncate">
+                <p class="text-xs font-bold text-white truncate">@${username}</p>
+                <p class="text-[10px] text-cyan-400">My Profile</p>
+              </div>
+            </div>
+            <button onclick="handleLogout(event)" class="text-gray-400 hover:text-white p-1"><i data-lucide="log-out" class="w-4 h-4"></i></button>
           </div>`;
+        mobileAuthBtn.innerHTML = `<button onclick="viewProfile('${session.user.id}', '${username}')" class="bg-slate-800 text-xs px-3 py-1 rounded-full font-bold text-cyan-400">@${username}</button>`;
+      } else {
+        desktopUserCard.innerHTML = `<button onclick="openAuthModal()" class="w-full py-2.5 bg-[#FE2C55] hover:bg-red-600 rounded-xl font-bold text-sm transition text-center">Sign In</button>`;
+        mobileAuthBtn.innerHTML = `<button onclick="openAuthModal()" class="bg-[#FE2C55] px-3 py-1 rounded-full text-xs font-bold">Sign In</button>`;
+      }
+      lucide.createIcons();
+    }
+
+    async function handleLogout(e) {
+      e.stopPropagation();
+      await db.auth.signOut();
+      checkUserSession();
+      loadVideos();
+      showToast("Logged out successfully");
+    }
+
+    async function handleVideoUpload(e) {
+      e.preventDefault();
+      const fileInput = document.getElementById('upload-file');
+      const captionInput = document.getElementById('upload-caption');
+      const msg = document.getElementById('upload-message');
+      const btn = document.getElementById('upload-submit-btn');
+
+      const file = fileInput.files[0];
+      if (!file) return;
+
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) { openAuthModal(); return; }
+
+      msg.classList.remove('hidden', 'text-red-400', 'text-green-400');
+      msg.innerText = 'Uploading video...';
+      btn.disabled = true;
+
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${session.user.id}/${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await db.storage.from('videos').upload(filePath, file);
+      if (uploadError) {
+        msg.classList.add('text-red-400');
+        msg.innerText = uploadError.message;
+        btn.disabled = false;
         return;
       }
 
-      container.innerHTML = videos.map(video => {
-        const displayUsername = video.username || 'creator';
-        return `
-          <div class="h-full w-full snap-start flex justify-center items-center relative bg-black">
-            <video src="${video.video_url}" class="h-full w-auto max-w-full object-cover" loop onclick="this.paused ? this.play() : this.pause()"></video>
-            
-            <div class="absolute bottom-6 left-4 right-16 z-10 text-white drop-shadow-md">
-              <button onclick="viewProfile('${video.user_id}', '${displayUsername}')" class="font-bold text-lg hover:underline text-left">
-                @${displayUsername}
-              </button>
-              <p class="text-sm mt-1">${video.caption || ''}</p>
+      const { data: publicUrlData } = db.storage.from('videos').getPublicUrl(filePath);
+      const username = session.user.user_metadata?.username || session.user.email.split('@')[0];
+
+      const { error: dbError } = await db
+        .from('videos')
+        .insert([{ user_id: session.user.id, username: username, caption: captionInput.value, video_url: publicUrlData.publicUrl, likes_count: 0 }]);
+
+      btn.disabled = false;
+      if (dbError) {
+        msg.classList.add('text-red-400');
+        msg.innerText = dbError.message;
+      } else {
+        msg.classList.add('text-green-400');
+        msg.innerText = 'Published successfully!';
+        setTimeout(() => {
+          closeUploadModal();
+          fileInput.value = '';
+          captionInput.value = '';
+          msg.classList.add('hidden');
+          loadVideos();
+        }, 1200);
+      }
+    }
+
+    async function likeVideo(videoId, currentLikes) {
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) { openAuthModal(); showToast("Sign in to like videos"); return; }
+
+      const newLikes = currentLikes + 1;
+      const { error } = await db.from('videos').update({ likes_count: newLikes }).eq('id', videoId);
+      if (!error) loadVideos();
+    }
+
+    async function openComments(videoId) {
+      activeVideoId = videoId;
+      document.getElementById('comment-drawer').classList.remove('hidden');
+      loadComments(videoId);
+    }
+
+    function closeCommentDrawer() {
+      document.getElementById('comment-drawer').classList.add('hidden');
+      activeVideoId = null;
+    }
+
+    async function loadComments(videoId) {
+      const list = document.getElementById('comment-list');
+      list.innerHTML = `<p class="text-xs text-gray-400 text-center py-4">Loading comments...</p>`;
+
+      const { data: comments } = await db.from('comments').select('*').eq('video_id', videoId).order('created_at', { ascending: false });
+
+      if (!comments || comments.length === 0) {
+        list.innerHTML = `<p class="text-xs text-gray-500 text-center py-6">No comments yet. Be the first!</p>`;
+        return;
+      }
+
+      list.innerHTML = comments.map(c => `
+        <div class="flex space-x-3 items-start bg-white/5 p-2.5 rounded-xl">
+          <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-bold text-black text-[10px]">
+            ${c.username.charAt(0).toUpperCase()}
+          </div>
+          <div class="flex-1">
+            <span class="font-bold text-xs text-[#25F4EE]">@${c.username}</span>
+            <p class="text-xs text-gray-200 mt-0.5">${c.comment_text}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function postComment(e) {
+      e.preventDefault();
+      const input = document.getElementById('comment-input');
+      const text = input.value.trim();
+      if (!text || !activeVideoId) return;
+
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) { openAuthModal(); return; }
+
+      const username = session.user.user_metadata?.username || session.user.email.split('@')[0];
+      const { error } = await db.from('comments').insert([{ video_id: activeVideoId, user_id: session.user.id, username: username, comment_text: text }]);
+
+      if (!error) {
+        input.value = '';
+        loadComments(activeVideoId);
+      }
+    }
+
+    async function toggleFollow(targetUserId) {
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) { openAuthModal(); return; }
+
+      const followerId = session.user.id;
+      if (followerId === targetUserId) return;
+
+      const { data: existing } = await db.from('follows').select('*').eq('follower_id', followerId).eq('following_id', targetUserId).single();
+      if (existing) {
+        await db.from('follows').delete().eq('follower_id', followerId).eq('following_id', targetUserId);
+      } else {
+        await db.from('follows').insert([{ follower_id: followerId, following_id: targetUserId }]);
+      }
+      viewProfile(targetUserId);
+    }
+
+    async function viewProfile(userId, fallbackUsername = 'creator') {
+      const container = document.getElementById('profile-container');
+      container.classList.remove('hidden');
+      container.innerHTML = `<div class="h-full flex justify-center items-center"><i data-lucide="loader-2" class="w-8 h-8 animate-spin text-[#FE2C55]"></i></div>`;
+      lucide.createIcons();
+
+      const { data: { session } } = await db.auth.getSession();
+      const currentUserId = session?.user?.id;
+
+      const { data: videos } = await db.from('videos').select('*').eq('user_id', userId).order('created_at', { ascending: false });
+      const { count: followersCount } = await db.from('follows').select('*', { count: 'exact', head: true }).eq('following_id', userId);
+
+      let isFollowing = false;
+      if (currentUserId && currentUserId !== userId) {
+        const { data: followCheck } = await db.from('follows').select('*').eq('follower_id', currentUserId).eq('following_id', userId).single();
+        if (followCheck) isFollowing = true;
+      }
+
+      const username = videos?.[0]?.username || fallbackUsername;
+
+      container.innerHTML = `
+        <div class="max-w-xl mx-auto p-6 min-h-full">
+          <div class="flex justify-between items-center mb-6">
+            <button onclick="document.getElementById('profile-container').classList.add('hidden')" class="p-2 rounded-full bg-white/10 hover:bg-white/20 transition">
+              <i data-lucide="arrow-left" class="w-5 h-5"></i>
+            </button>
+            <span class="font-bold text-sm">@${username}</span>
+            <div class="w-9"></div>
+          </div>
+
+          <div class="text-center border-b border-white/10 pb-6">
+            <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center text-3xl font-black text-black mx-auto mb-3 shadow-xl">
+              ${username.charAt(0).toUpperCase()}
             </div>
-
-            <div class="absolute right-4 bottom-12 flex flex-col items-center space-y-6 z-10">
-              <button onclick="likeVideo('${video.id}', ${video.likes_count || 0})" class="flex flex-col items-center group">
-                <div class="w-12 h-12 rounded-full bg-gray-900 bg-opacity-60 flex justify-center items-center group-hover:bg-red-500 transition">
-                  <i class="fa-solid fa-heart text-xl text-red-500 group-hover:text-white"></i>
-                </div>
-                <span class="text-xs mt-1 font-semibold">${video.likes_count || 0}</span>
+            <h2 class="text-xl font-bold">@${username}</h2>
+            <p class="text-xs text-gray-400 mt-1"><span class="font-bold text-white">${followersCount || 0}</span> Followers</p>
+            
+            ${currentUserId && currentUserId !== userId ? `
+              <button onclick="toggleFollow('${userId}')" class="mt-4 px-6 py-2 rounded-full font-bold text-xs ${isFollowing ? 'bg-white/10 hover:bg-white/20' : 'bg-[#FE2C55] hover:bg-red-600'} transition">
+                ${isFollowing ? 'Following' : 'Follow'}
               </button>
+            ` : ''}
+          </div>
 
-              <button onclick="openComments('${video.id}')" class="flex flex-col items-center group">
-                <div class="w-12 h-12 rounded-full bg-gray-900 bg-opacity-60 flex justify-center items-center group-hover:bg-blue-500 transition">
-                  <i class="fa-solid fa-comment text-xl"></i>
+          <div class="mt-6">
+            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Uploaded Videos</h3>
+            <div class="grid grid-cols-3 gap-2">
+              ${videos && videos.length > 0 ? videos.map(v => `
+                <div class="aspect-[9/16] bg-slate-900 rounded-xl overflow-hidden relative group">
+                  <video src="${v.video_url}" class="w-full h-full object-cover"></video>
                 </div>
-                <span class="text-xs mt-1">Chat</span>
-              </button>
+              `).join('') : '<p class="col-span-3 text-center text-gray-500 py-12 text-xs">No videos yet.</p>'}
             </div>
           </div>
-        `;
-      }).join('');
-
-    } catch (err) {
-      container.innerHTML = `<div class="p-4 text-center text-red-500">Failed to load feed.</div>`;
+        </div>
+      `;
+      lucide.createIcons();
     }
-  }
 
-  checkUserSession();
-  loadVideos();
-</script>
+    async function openProfileFromNav() {
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) { openAuthModal(); return; }
+      const username = session.user.user_metadata?.username || session.user.email.split('@')[0];
+      viewProfile(session.user.id, username);
+    }
+
+    async function loadVideos() {
+      const container = document.getElementById('video-feed-container');
+      
+      try {
+        const { data: videos, error } = await db.from('videos').select('*').order('created_at', { ascending: false });
+
+        if (error || !videos || videos.length === 0) {
+          container.innerHTML = `
+            <div class="h-full flex flex-col justify-center items-center text-gray-500 p-6 text-center">
+              <i data-lucide="video-off" class="w-12 h-12 mb-2 text-gray-600"></i>
+              <p class="font-bold text-white text-base">No videos yet!</p>
+              <p class="text-xs text-gray-400 mt-1">Be the first creator to publish on ViroKDK.</p>
+            </div>`;
+          lucide.createIcons();
+          return;
+        }
+
+        container.innerHTML = videos.map((video, index) => {
+          const username = video.username || 'creator';
+          return `
+            <div class="snap-start-always h-full w-full relative flex items-center justify-center bg-slate-950 overflow-hidden" data-index="${index}">
+              <video 
+                src="${video.video_url}" 
+                class="w-full h-full object-cover cursor-pointer"
+                loop 
+                muted 
+                playsinline
+                onclick="this.paused ? this.play() : this.pause()"
+              ></video>
+
+              <div class="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/80 pointer-events-none"></div>
+
+              <!-- RIGHT SIDEBAR ACTIONS -->
+              <div class="absolute right-3 bottom-20 flex flex-col items-center space-y-5 z-20">
+                <div class="relative group cursor-pointer" onclick="viewProfile('${video.user_id}', '${username}')">
+                  <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-bold text-black text-sm border-2 border-white shadow-lg">
+                    ${username.charAt(0).toUpperCase()}
+                  </div>
+                </div>
+
+                <!-- Likes -->
+                <button onclick="likeVideo('${video.id}', ${video.likes_count || 0})" class="flex flex-col items-center group">
+                  <div class="p-3 rounded-full bg-black/40 backdrop-blur-md border border-white/10 group-hover:scale-110 transition">
+                    <i data-lucide="heart" class="w-6 h-6 text-[#FE2C55] fill-[#FE2C55]"></i>
+                  </div>
+                  <span class="text-xs font-bold mt-1">${formatNumber(video.likes_count || 0)}</span>
+                </button>
+
+                <!-- Comments -->
+                <button onclick="openComments('${video.id}')" class="flex flex-col items-center group">
+                  <div class="p-3 rounded-full bg-black/40 backdrop-blur-md border border-white/10 group-hover:scale-110 transition">
+                    <i data-lucide="message-circle" class="w-6 h-6 text-white"></i>
+                  </div>
+                  <span class="text-xs font-bold mt-1">Chat</span>
+                </button>
+              </div>
+
+              <!-- BRAND WATERMARK -->
+              <div class="absolute top-4 left-4 z-20 flex items-center space-x-1.5 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/15 pointer-events-none">
+                <span class="w-2 h-2 rounded-full bg-[#25F4EE] animate-pulse"></span>
+                <span class="text-[10px] font-black tracking-widest text-white/90 uppercase">ViroKDK</span>
+              </div>
+
+              <!-- BOTTOM CAPTION -->
+              <div class="absolute left-4 right-16 bottom-6 z-20 space-y-1.5 pointer-events-auto">
+                <button onclick="viewProfile('${video.user_id}', '${username}')" class="font-bold text-base text-white hover:underline text-left">
+                  @${username}
+                </button>
+                <p class="text-sm text-gray-100 line-clamp-2 drop-shadow leading-snug">${video.caption || ''}</p>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        setupIntersectionObserver();
+        lucide.createIcons();
+
+      } catch (err) {
+        container.innerHTML = `<div class="p-4 text-center text-red-400 text-xs">Failed to load feed.</div>`;
+      }
+    }
+
+    function setupIntersectionObserver() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          const video = entry.target.querySelector("video");
+          if (video) {
+            if (entry.isIntersecting) {
+              video.play().catch(() => { video.muted = true; video.play(); });
+            } else {
+              video.pause();
+            }
+          }
+        });
+      }, { threshold: 0.75 });
+
+      document.querySelectorAll("#video-feed-container > div").forEach(card => observer.observe(card));
+    }
+
+    function formatNumber(num) {
+      if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+      if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+      return num;
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      document.getElementById("toast-message").textContent = msg;
+      toast.classList.remove("opacity-0", "pointer-events-none");
+      setTimeout(() => { toast.classList.add("opacity-0", "pointer-events-none"); }, 2500);
+    }
+  </script>
+</body>
+</html>
