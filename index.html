@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ViroKDK - Short Video Experience</title>
+  <title>ViroKDK - Social Feed</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Supabase JS Client -->
@@ -17,164 +17,233 @@
       font-family: 'Plus Jakarta Sans', sans-serif;
       background-color: #000000;
       color: #ffffff;
-      overflow: hidden;
+      overflow-x: hidden;
       user-select: none;
     }
 
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-    .snap-y-mandatory { scroll-snap-type: y mandatory; }
-    .snap-start-always { scroll-snap-align: start; scroll-snap-stop: always; }
-
-    .glass-panel {
-      background: rgba(18, 24, 38, 0.85);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+    .story-ring {
+      background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
     }
   </style>
 </head>
-<body class="h-screen w-screen flex flex-col md:flex-row bg-black text-white overflow-hidden">
+<body class="h-screen w-screen flex bg-black text-white overflow-hidden">
 
-  <!-- TOP HEADER (Mobile Only) -->
-  <header class="fixed top-0 left-0 right-0 z-40 flex flex-col gap-2 p-3 md:hidden glass-panel border-b border-white/10">
-    <div class="flex justify-between items-center">
-      <div class="flex items-center space-x-2 cursor-pointer" onclick="clearSearchAndReload()">
-        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-black text-black text-xs tracking-tighter">
+  <!-- LEFT SIDEBAR NAVIGATION (INSTAGRAM STYLE) -->
+  <aside class="hidden md:flex flex-col justify-between w-16 lg:w-64 border-r border-neutral-800 p-4 bg-black z-30 shrink-0">
+    <div class="space-y-6">
+      <!-- Logo -->
+      <div class="flex items-center space-x-3 px-2 py-2 cursor-pointer" onclick="clearSearchAndReload()">
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-black text-black text-xs tracking-tighter">
           KDK
         </div>
-        <span class="font-extrabold text-lg tracking-wider text-white">ViroKDK</span>
-      </div>
-      <div id="mobile-auth-btn">
-        <button onclick="openAuthModal()" class="bg-[#FE2C55] px-3 py-1 rounded-full text-xs font-bold">Sign In</button>
-      </div>
-    </div>
-    <div class="relative w-full">
-      <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-gray-400"></i>
-      <input type="text" oninput="handleSearch(this.value)" placeholder="Search..." class="w-full bg-slate-800 text-xs text-white rounded-full py-2 pl-9 pr-4 focus:outline-none border border-white/10">
-    </div>
-  </header>
-
-  <!-- DESKTOP SIDE NAVIGATION -->
-  <aside class="hidden md:flex flex-col justify-between w-60 lg:w-64 border-r border-white/10 p-4 bg-black z-30 shrink-0">
-    <div class="space-y-4">
-      <div class="flex items-center space-x-3 px-2 py-1 cursor-pointer" onclick="clearSearchAndReload()">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-black text-black text-xs tracking-tighter">
-          KDK
-        </div>
-        <h1 class="font-black text-2xl tracking-tight text-white">ViroKDK</h1>
+        <h1 class="hidden lg:block font-extrabold text-xl tracking-tight text-white">ViroKDK</h1>
       </div>
 
-      <div class="relative w-full px-1">
-        <i data-lucide="search" class="w-4 h-4 absolute left-4 top-3 text-gray-400"></i>
-        <input type="text" id="desktop-search-input" oninput="handleSearch(this.value)" placeholder="Search" class="w-full bg-gray-900 text-xs text-white rounded-full py-2.5 pl-10 pr-4 focus:outline-none border border-white/10">
-      </div>
-
-      <nav class="space-y-1">
-        <button onclick="clearSearchAndReload()" class="w-full flex items-center space-x-4 px-3 py-2.5 rounded-xl text-[#FE2C55] font-bold hover:bg-white/5 transition">
+      <!-- Navigation Links -->
+      <nav class="space-y-2">
+        <button onclick="clearSearchAndReload()" class="w-full flex items-center space-x-4 p-3 rounded-xl text-white font-bold hover:bg-neutral-900 transition">
           <i data-lucide="home" class="w-6 h-6"></i>
-          <span>For You</span>
+          <span class="hidden lg:block">Home</span>
         </button>
-        <button onclick="openUploadModal()" class="w-full flex items-center space-x-4 px-3 py-2.5 rounded-xl text-gray-300 font-semibold hover:bg-white/5 transition">
+        <button onclick="showToast('Search feature active')" class="w-full flex items-center space-x-4 p-3 rounded-xl text-neutral-300 font-semibold hover:bg-neutral-900 transition">
+          <i data-lucide="search" class="w-6 h-6"></i>
+          <span class="hidden lg:block">Search</span>
+        </button>
+        <button onclick="showToast('Explore feed')" class="w-full flex items-center space-x-4 p-3 rounded-xl text-neutral-300 font-semibold hover:bg-neutral-900 transition">
+          <i data-lucide="compass" class="w-6 h-6"></i>
+          <span class="hidden lg:block">Explore</span>
+        </button>
+        <button onclick="showToast('Reels feed')" class="w-full flex items-center space-x-4 p-3 rounded-xl text-neutral-300 font-semibold hover:bg-neutral-900 transition">
+          <i data-lucide="clapperboard" class="w-6 h-6"></i>
+          <span class="hidden lg:block">Reels</span>
+        </button>
+
+        <button onclick="openUploadModal()" class="w-full flex items-center space-x-4 p-3 rounded-xl text-neutral-300 font-semibold hover:bg-neutral-900 transition">
           <i data-lucide="plus-square" class="w-6 h-6"></i>
-          <span>Upload</span>
+          <span class="hidden lg:block">Create</span>
         </button>
-        <button onclick="openProfileFromNav()" class="w-full flex items-center space-x-4 px-3 py-2.5 rounded-xl text-gray-300 font-semibold hover:bg-white/5 transition">
+        <button onclick="openProfileFromNav()" class="w-full flex items-center space-x-4 p-3 rounded-xl text-neutral-300 font-semibold hover:bg-neutral-900 transition">
           <i data-lucide="user" class="w-6 h-6"></i>
-          <span>Profile</span>
+          <span class="hidden lg:block">Profile</span>
         </button>
       </nav>
     </div>
 
-    <div id="desktop-user-card" class="pt-4 border-t border-white/10 flex items-center justify-between">
-      <button onclick="openAuthModal()" class="w-full py-2.5 bg-[#FE2C55] hover:bg-red-600 rounded-xl font-bold text-sm transition text-center">Sign In</button>
+    <!-- User Account Bottom Row -->
+    <div id="desktop-user-card" class="pt-4 border-t border-neutral-800 flex items-center justify-between">
+      <button onclick="openAuthModal()" class="w-full py-2 bg-[#FE2C55] hover:bg-red-600 rounded-xl font-bold text-sm transition text-center">Sign In</button>
     </div>
   </aside>
 
-  <!-- MAIN FEED CONTAINER -->
-  <main class="flex-1 h-full w-full relative flex justify-center items-center overflow-hidden pt-24 md:pt-0 pb-16 md:pb-0 bg-black">
-    <div id="video-feed-container" class="h-full w-full overflow-y-scroll snap-y-mandatory no-scrollbar relative">
-      <div class="h-full flex flex-col justify-center items-center text-gray-400">
-        <i data-lucide="loader-2" class="w-8 h-8 animate-spin text-[#FE2C55] mb-2"></i>
-        <p class="text-sm font-semibold">Loading ViroKDK Feed...</p>
+  <!-- MAIN CONTAINER (STORIES + FEED + RIGHT SIDEBAR) -->
+  <main class="flex-1 h-full overflow-y-auto no-scrollbar flex justify-center bg-black">
+    <div class="w-full max-w-5xl flex gap-8 p-4 lg:p-8">
+      
+      <!-- CENTER FEED AREA -->
+      <div class="flex-1 max-w-[470px] mx-auto space-y-6">
+        
+        <!-- STORIES TRAY -->
+        <div class="flex items-center space-x-4 overflow-x-auto no-scrollbar py-2 border-b border-neutral-900">
+          <div class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer" onclick="openUploadModal()">
+            <div class="relative w-16 h-16 rounded-full p-[2px] bg-neutral-800 flex items-center justify-center">
+              <div class="w-full h-full rounded-full bg-neutral-900 flex items-center justify-center text-white">
+                <i data-lucide="plus" class="w-6 h-6"></i>
+              </div>
+            </div>
+            <span class="text-[11px] text-neutral-400">Your Story</span>
+          </div>
+
+          <!-- Sample Stories -->
+          <div class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer">
+            <div class="w-16 h-16 rounded-full p-[2px] story-ring">
+              <div class="w-full h-full rounded-full bg-black p-[2px]">
+                <div class="w-full h-full rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-bold text-black text-xs">M</div>
+              </div>
+            </div>
+            <span class="text-[11px] text-neutral-300">manutd</span>
+          </div>
+
+          <div class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer">
+            <div class="w-16 h-16 rounded-full p-[2px] story-ring">
+              <div class="w-full h-full rounded-full bg-black p-[2px]">
+                <div class="w-full h-full rounded-full bg-slate-800 flex items-center justify-center font-bold text-cyan-400 text-xs">K</div>
+              </div>
+            </div>
+            <span class="text-[11px] text-neutral-300">kevindebru...</span>
+          </div>
+
+          <div class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer">
+            <div class="w-16 h-16 rounded-full p-[2px] story-ring">
+              <div class="w-full h-full rounded-full bg-black p-[2px]">
+                <div class="w-full h-full rounded-full bg-rose-900 flex items-center justify-center font-bold text-white text-xs">Z</div>
+              </div>
+            </div>
+            <span class="text-[11px] text-neutral-300">zarithebos...</span>
+          </div>
+        </div>
+
+        <!-- POSTS FEED CONTAINER -->
+        <div id="posts-feed-container" class="space-y-6">
+          <div class="flex flex-col justify-center items-center py-12 text-neutral-500">
+            <i data-lucide="loader-2" class="w-8 h-8 animate-spin text-[#FE2C55] mb-2"></i>
+            <p class="text-xs font-semibold">Loading Feed...</p>
+          </div>
+        </div>
+
       </div>
+
+      <!-- RIGHT SIDEBAR (SUGGESTED FOR YOU) -->
+      <div class="hidden lg:block w-80 space-y-4 shrink-0 pt-4">
+        
+        <!-- Active User Profile Row -->
+        <div id="sidebar-user-info" class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-bold text-black text-sm">K</div>
+            <div>
+              <p class="text-xs font-bold text-white" id="sidebar-username">kden.is000</p>
+              <p class="text-[11px] text-neutral-400" id="sidebar-[#FE2C55]name">KIZITO DENIS KASOZI</p>
+            </div>
+          </div>
+          <button onclick="openAuthModal()" class="text-xs font-bold text-[#25F4EE] hover:text-white">Switch</button>
+        </div>
+
+        <!-- Suggested Header -->
+        <div class="flex justify-between items-center pt-2">
+          <span class="text-xs font-bold text-neutral-400">Suggested for you</span>
+          <button class="text-xs font-bold text-white hover:text-neutral-400">See All</button>
+        </div>
+
+        <!-- Suggested Accounts List -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 rounded-full bg-neutral-800 flex items-center justify-center text-xs font-bold">J</div>
+              <div>
+                <p class="text-xs font-bold text-white">J@zera 👑</p>
+                <p class="text-[10px] text-neutral-400">Suggested for you</p>
+              </div>
+            </div>
+            <button class="text-xs font-bold text-[#FE2C55] hover:text-white">Follow</button>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 rounded-full bg-neutral-800 flex items-center justify-center text-xs font-bold">Z</div>
+              <div>
+                <p class="text-xs font-bold text-white">Zäră Ir★s♡</p>
+                <p class="text-[10px] text-neutral-400">Followed by user123</p>
+              </div>
+            </div>
+            <button class="text-xs font-bold text-[#FE2C55] hover:text-white">Follow</button>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 rounded-full bg-neutral-800 flex items-center justify-center text-xs font-bold">C</div>
+              <div>
+                <p class="text-xs font-bold text-white">Corazon Ravens</p>
+                <p class="text-[10px] text-neutral-400">Suggested for you</p>
+              </div>
+            </div>
+            <button class="text-xs font-bold text-[#FE2C55] hover:text-white">Follow</button>
+          </div>
+        </div>
+
+        <!-- Footer Info -->
+        <p class="text-[10px] text-neutral-600 leading-relaxed pt-4">
+          About · Help · Press · API · Jobs · Privacy · Terms · Locations · Language
+        </p>
+        <p class="text-[10px] text-neutral-600 font-semibold">© 2026 VIROKDK FROM KDK STUDIOS</p>
+
+      </div>
+
     </div>
   </main>
 
   <!-- MOBILE BOTTOM NAVBAR -->
-  <nav class="md:hidden fixed bottom-0 left-0 right-0 h-16 glass-panel border-t border-white/10 z-40 flex justify-around items-center px-2">
-    <button onclick="clearSearchAndReload()" class="flex flex-col items-center justify-center text-[#FE2C55]">
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 h-14 bg-black border-t border-neutral-800 z-40 flex justify-around items-center px-2">
+    <button onclick="clearSearchAndReload()" class="text-white">
       <i data-lucide="home" class="w-6 h-6"></i>
-      <span class="text-[10px] mt-0.5 font-medium">Home</span>
     </button>
-    <button onclick="openUploadModal()" class="relative flex items-center justify-center px-4 py-1.5">
-      <div class="absolute inset-0 bg-gradient-to-r from-[#25F4EE] to-[#FE2C55] rounded-xl"></div>
-      <div class="relative bg-white text-black font-extrabold rounded-lg px-2.5 py-0.5 flex items-center justify-center">
-        <i data-lucide="plus" class="w-5 h-5 text-black"></i>
-      </div>
+    <button onclick="openUploadModal()" class="text-white">
+      <i data-lucide="plus-square" class="w-6 h-6"></i>
     </button>
-    <button onclick="openProfileFromNav()" class="flex flex-col items-center justify-center text-gray-400 hover:text-white">
+    <button onclick="openProfileFromNav()" class="text-neutral-400 hover:text-white">
       <i data-lucide="user" class="w-6 h-6"></i>
-      <span class="text-[10px] mt-0.5 font-medium">Profile</span>
     </button>
   </nav>
 
-  <!-- COMMENT MODAL DRAWER -->
-  <div id="comment-drawer" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden transition-opacity duration-300 flex justify-end flex-col md:items-center md:justify-center">
-    <div class="w-full md:max-w-md bg-slate-900 border-t md:border border-white/10 rounded-t-3xl md:rounded-3xl h-[70vh] md:h-[500px] flex flex-col overflow-hidden shadow-2xl" id="comment-drawer-content">
-      <div class="p-4 border-b border-white/10 flex items-center justify-between bg-slate-900/80">
-        <h3 class="font-bold text-sm" id="comment-count-header">Comments</h3>
-        <button onclick="closeCommentDrawer()" class="p-1 rounded-full hover:bg-white/10 text-gray-400 hover:text-white">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-      <div id="comment-list" class="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar"></div>
-      <form onsubmit="postComment(event)" class="p-3 border-t border-white/10 bg-slate-950 flex items-center space-x-2">
-        <input type="text" id="comment-input" placeholder="Add a comment..." required class="flex-1 bg-slate-800 text-sm text-white rounded-full py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-[#FE2C55] border border-white/10">
-        <button type="submit" class="bg-[#FE2C55] text-white px-4 py-2.5 rounded-full font-bold text-xs hover:bg-red-600 transition">Post</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- UPLOAD VIDEO MODAL -->
-  <div id="upload-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-white/10 rounded-3xl w-full max-w-2xl p-6 relative shadow-2xl space-y-6">
-      <button onclick="closeUploadModal()" class="absolute top-4 right-4 p-2 rounded-full bg-white/10 text-gray-400 hover:text-white transition">
+  <!-- UPLOAD MEDIA MODAL (PHOTO & VIDEO SUPPORT) -->
+  <div id="upload-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-neutral-900 border border-neutral-800 rounded-2xl w-full max-w-lg p-6 relative shadow-2xl space-y-4">
+      <button onclick="closeUploadModal()" class="absolute top-4 right-4 text-neutral-400 hover:text-white">
         <i data-lucide="x" class="w-5 h-5"></i>
       </button>
 
-      <div class="bg-gradient-to-r from-purple-900/40 via-indigo-900/40 to-rose-900/40 border border-purple-500/30 rounded-2xl p-4 flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-400">
-            <i data-lucide="sparkles" class="w-6 h-6"></i>
-          </div>
-          <div>
-            <h4 class="font-bold text-sm text-white">Create & Share</h4>
-            <p class="text-xs text-gray-300 mt-0.5">Publish your clips instantly to ViroKDK.</p>
-          </div>
-        </div>
-      </div>
+      <h3 class="text-base font-bold text-center border-b border-neutral-800 pb-3">Create New Post</h3>
 
-      <form id="upload-form" onsubmit="handleVideoUpload(event)" class="space-y-4">
-        <div class="border-2 border-dashed border-white/20 rounded-2xl p-10 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#FE2C55] transition bg-slate-950/50" onclick="document.getElementById('upload-file').click()">
-          <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-3 text-gray-400">
-            <i data-lucide="upload-cloud" class="w-8 h-8 text-[#FE2C55]"></i>
-          </div>
-          <p class="text-base font-bold text-white" id="file-label-text">Select video to upload</p>
-          <p class="text-xs text-gray-400 mt-1">Or drag and drop it here</p>
-          <input type="file" id="upload-file" accept="video/mp4,video/*" required class="hidden" onchange="document.getElementById('file-label-text').innerText = this.files[0]?.name">
+      <form id="upload-form" onsubmit="handleMediaUpload(event)" class="space-y-4">
+        
+        <!-- Drag & Drop Zone -->
+        <div class="border-2 border-dashed border-neutral-700 rounded-xl p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#FE2C55] transition bg-black/40" onclick="document.getElementById('upload-file').click()">
+          <i data-lucide="image" class="w-10 h-10 text-neutral-400 mb-2"></i>
+          <p class="text-sm font-bold text-white" id="file-label-text">Select Photo or Video to Upload</p>
+          <p class="text-xs text-neutral-500 mt-1">Supports JPG, PNG, MP4, WEBP</p>
+          <input type="file" id="upload-file" accept="image/*,video/*" required class="hidden" onchange="document.getElementById('file-label-text').innerText = this.files[0]?.name">
         </div>
 
         <div>
-          <label class="text-xs font-semibold text-gray-300 mb-1 block">Caption & Hashtags</label>
-          <input type="text" id="upload-caption" placeholder="Write a catchy caption... #virokdk" class="w-full bg-slate-800 text-sm text-white rounded-xl p-3 border border-white/10 focus:outline-none focus:ring-2 focus:ring-[#FE2C55]">
+          <label class="text-xs font-semibold text-neutral-400 mb-1 block">Caption</label>
+          <input type="text" id="upload-caption" placeholder="Write a caption..." class="w-full bg-neutral-800 text-sm text-white rounded-xl p-3 border border-neutral-700 focus:outline-none focus:ring-1 focus:ring-[#FE2C55]">
         </div>
 
         <p id="upload-message" class="text-xs text-center font-semibold hidden"></p>
 
-        <button type="submit" id="upload-submit-btn" class="w-full py-3.5 bg-[#FE2C55] hover:bg-red-600 text-white font-extrabold rounded-xl shadow-lg transition">
-          Select video & Publish
+        <button type="submit" id="upload-submit-btn" class="w-full py-2.5 bg-[#FE2C55] hover:bg-red-600 text-white font-bold rounded-xl transition">
+          Share Post
         </button>
       </form>
     </div>
@@ -182,100 +251,59 @@
 
   <!-- AUTH MODAL -->
   <div id="auth-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-white/10 rounded-3xl w-full max-w-md p-6 relative shadow-2xl">
-      <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+    <div class="bg-neutral-900 border border-neutral-800 rounded-2xl w-full max-w-md p-6 relative shadow-2xl">
+      <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-neutral-400 hover:text-white">
         <i data-lucide="x" class="w-5 h-5"></i>
       </button>
-      <h2 id="modal-title" class="text-2xl font-bold mb-4 text-center">Log In to ViroKDK</h2>
+      <h2 id="modal-title" class="text-xl font-bold mb-4 text-center">Log In to ViroKDK</h2>
       <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4">
         <div id="username-container" class="hidden">
-          <label class="text-xs font-semibold text-gray-400 block mb-1">USERNAME</label>
-          <input type="text" id="auth-username" class="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#FE2C55]" placeholder="e.g. kdk_creator"/>
+          <label class="text-xs font-semibold text-neutral-400 block mb-1">USERNAME</label>
+          <input type="text" id="auth-username" class="w-full bg-neutral-800 border border-neutral-700 rounded-xl p-3 text-white text-sm focus:outline-none" placeholder="e.g. kdk_creator"/>
         </div>
         <div>
-          <label class="text-xs font-semibold text-gray-400 block mb-1">EMAIL</label>
-          <input type="email" id="auth-email" required class="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#FE2C55]" placeholder="you@example.com"/>
+          <label class="text-xs font-semibold text-neutral-400 block mb-1">EMAIL</label>
+          <input type="email" id="auth-email" required class="w-full bg-neutral-800 border border-neutral-700 rounded-xl p-3 text-white text-sm focus:outline-none" placeholder="you@example.com"/>
         </div>
         <div>
-          <label class="text-xs font-semibold text-gray-400 block mb-1">PASSWORD</label>
-          <input type="password" id="auth-password" required minlength="6" class="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#FE2C55]" placeholder="••••••••"/>
+          <label class="text-xs font-semibold text-neutral-400 block mb-1">PASSWORD</label>
+          <input type="password" id="auth-password" required minlength="6" class="w-full bg-neutral-800 border border-neutral-700 rounded-xl p-3 text-white text-sm focus:outline-none" placeholder="••••••••"/>
         </div>
         <p id="auth-message" class="text-sm text-center font-medium hidden"></p>
-        <button type="submit" id="auth-submit-btn" class="w-full bg-[#FE2C55] hover:bg-red-600 font-bold py-3 rounded-xl transition text-white">
+        <button type="submit" id="auth-submit-btn" class="w-full bg-[#FE2C55] hover:bg-red-600 font-bold py-2.5 rounded-xl transition text-white">
           Log In
         </button>
       </form>
-      <div class="mt-4 text-center text-xs text-gray-400">
+      <div class="mt-4 text-center text-xs text-neutral-400">
         <span id="toggle-text">Don't have an account?</span>
         <button onclick="toggleAuthMode()" id="toggle-btn" class="text-[#25F4EE] font-semibold underline ml-1">Sign Up</button>
       </div>
     </div>
   </div>
 
-  <!-- EDIT PROFILE MODAL (WITH AVATAR PICTURE UPLOADER) -->
-  <div id="edit-profile-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-white/10 rounded-3xl w-full max-w-md p-6 relative shadow-2xl space-y-4">
-      <button onclick="closeEditProfileModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
-        <i data-lucide="x" class="w-5 h-5"></i>
-      </button>
-      <h3 class="text-lg font-bold text-center">Edit Profile</h3>
-      <form onsubmit="saveProfileChanges(event)" class="space-y-4">
-        
-        <!-- Profile Picture Upload Selector -->
-        <div class="flex flex-col items-center justify-center space-y-2">
-          <div class="relative w-20 h-20 rounded-full overflow-hidden border-2 border-[#25F4EE] group cursor-pointer" onclick="document.getElementById('edit-avatar-file').click()">
-            <img id="edit-avatar-preview" src="" class="w-full h-full object-cover hidden">
-            <div id="edit-avatar-placeholder" class="w-full h-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center text-2xl font-bold text-black">
-              ?
-            </div>
-            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition">
-              <i data-lucide="camera" class="w-6 h-6"></i>
-            </div>
-          </div>
-          <span class="text-xs text-cyan-400 font-semibold cursor-pointer" onclick="document.getElementById('edit-avatar-file').click()">Change Profile Photo</span>
-          <input type="file" id="edit-avatar-file" accept="image/*" class="hidden" onchange="handleAvatarFileSelect(event)">
-        </div>
-
-        <div>
-          <label class="text-xs font-semibold text-gray-400 block mb-1">Display Name</label>
-          <input type="text" id="edit-name-input" class="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#FE2C55]">
-        </div>
-        <div>
-          <label class="text-xs font-semibold text-gray-400 block mb-1">Username (@)</label>
-          <input type="text" id="edit-username-input" class="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#FE2C55]">
-        </div>
-        <div>
-          <label class="text-xs font-semibold text-gray-400 block mb-1">Bio</label>
-          <textarea id="edit-bio-input" rows="3" placeholder="Write something about yourself..." class="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#FE2C55]"></textarea>
-        </div>
-
-        <button type="submit" id="save-profile-btn" class="w-full py-3 bg-[#FE2C55] hover:bg-red-600 font-bold rounded-xl text-white transition">Save Changes</button>
+  <!-- COMMENTS DRAWER MODAL -->
+  <div id="comment-drawer" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-neutral-900 border border-neutral-800 rounded-2xl h-[500px] flex flex-col overflow-hidden shadow-2xl">
+      <div class="p-4 border-b border-neutral-800 flex items-center justify-between">
+        <h3 class="font-bold text-sm">Comments</h3>
+        <button onclick="closeCommentDrawer()" class="text-neutral-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div id="comment-list" class="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar"></div>
+      <form onsubmit="postComment(event)" class="p-3 border-t border-neutral-800 flex items-center space-x-2 bg-black">
+        <input type="text" id="comment-input" placeholder="Add a comment..." required class="flex-1 bg-neutral-800 text-sm text-white rounded-full py-2 px-4 focus:outline-none border border-neutral-700">
+        <button type="submit" class="text-[#FE2C55] font-bold text-xs hover:text-white px-2">Post</button>
       </form>
     </div>
   </div>
 
   <!-- PROFILE VIEW CONTAINER -->
-  <div id="profile-container" class="fixed inset-0 z-40 bg-slate-950 hidden flex flex-col justify-between overflow-y-auto">
-    <div id="profile-scroll-area" class="flex-1 p-6 md:p-12 max-w-5xl mx-auto w-full"></div>
-    <div class="glass-panel border-t border-white/10 p-3 flex justify-around items-center z-50 md:hidden">
-      <button onclick="closeProfilePage()" class="flex flex-col items-center text-gray-400 hover:text-white">
-        <i data-lucide="home" class="w-5 h-5"></i>
-        <span class="text-[10px] mt-0.5">Home Feed</span>
-      </button>
-      <button onclick="openUploadModal()" class="flex flex-col items-center text-gray-400 hover:text-white">
-        <i data-lucide="plus-square" class="w-5 h-5"></i>
-        <span class="text-[10px] mt-0.5">Upload</span>
-      </button>
-      <button onclick="closeProfilePage()" class="flex flex-col items-center text-[#25F4EE]">
-        <i data-lucide="user" class="w-5 h-5"></i>
-        <span class="text-[10px] mt-0.5">Profile</span>
-      </button>
-    </div>
-  </div>
+  <div id="profile-container" class="fixed inset-0 z-40 bg-black hidden overflow-y-auto p-6 lg:p-12"></div>
 
   <!-- TOAST NOTIFICATION -->
-  <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-slate-800 text-white text-xs font-semibold px-4 py-2.5 rounded-full border border-white/20 shadow-xl opacity-0 pointer-events-none transition-all duration-300">
-    <span id="toast-message">Action completed</span>
+  <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-neutral-800 text-white text-xs font-semibold px-4 py-2.5 rounded-full border border-neutral-700 shadow-xl opacity-0 pointer-events-none transition-all duration-300">
+    <span id="toast-message">Notification</span>
   </div>
 
   <!-- JAVASCRIPT LOGIC -->
@@ -286,9 +314,6 @@
 
     let isSignUp = false;
     let activeVideoId = null;
-    let allVideosCache = [];
-    let currentProfileUserId = null;
-    let selectedAvatarFile = null;
 
     document.addEventListener("DOMContentLoaded", () => {
       lucide.createIcons();
@@ -306,90 +331,6 @@
     }
     function closeUploadModal() { document.getElementById('upload-modal').classList.add('hidden'); }
     function closeProfilePage() { document.getElementById('profile-container').classList.add('hidden'); }
-
-    function handleAvatarFileSelect(event) {
-      const file = event.target.files[0];
-      if (file) {
-        selectedAvatarFile = file;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const preview = document.getElementById('edit-avatar-preview');
-          const placeholder = document.getElementById('edit-avatar-placeholder');
-          preview.src = e.target.result;
-          preview.classList.remove('hidden');
-          placeholder.classList.add('hidden');
-        }
-        reader.readAsDataURL(file);
-      }
-    }
-
-    function openEditProfileModal() {
-      db.auth.getSession().then(({ data: { session } }) => {
-        if (!session) return;
-        const userMeta = session.user.user_metadata || {};
-        document.getElementById('edit-name-input').value = userMeta.display_name || userMeta.username || '';
-        document.getElementById('edit-username-input').value = userMeta.username || '';
-        document.getElementById('edit-bio-input').value = userMeta.bio || '';
-        
-        const preview = document.getElementById('edit-avatar-preview');
-        const placeholder = document.getElementById('edit-avatar-placeholder');
-
-        if (userMeta.avatar_url) {
-          preview.src = userMeta.avatar_url;
-          preview.classList.remove('hidden');
-          placeholder.classList.add('hidden');
-        } else {
-          preview.classList.add('hidden');
-          placeholder.classList.remove('hidden');
-          placeholder.innerText = (userMeta.username || 'U').charAt(0).toUpperCase();
-        }
-
-        document.getElementById('edit-profile-modal').classList.remove('hidden');
-      });
-    }
-    function closeEditProfileModal() { document.getElementById('edit-profile-modal').classList.add('hidden'); }
-
-    async function saveProfileChanges(e) {
-      e.preventDefault();
-      const saveBtn = document.getElementById('save-profile-btn');
-      saveBtn.disabled = true;
-      saveBtn.innerText = "Saving changes...";
-
-      const newName = document.getElementById('edit-name-input').value;
-      const newUsername = document.getElementById('edit-username-input').value;
-      const newBio = document.getElementById('edit-bio-input').value;
-
-      const { data: { session } } = await db.auth.getSession();
-      let avatarUrl = session.user.user_metadata?.avatar_url || null;
-
-      if (selectedAvatarFile) {
-        const fileExt = selectedAvatarFile.name.split('.').pop();
-        const filePath = `avatars/${session.user.id}_${Date.now()}.${fileExt}`;
-        
-        const { error: uploadError } = await db.storage.from('videos').upload(filePath, selectedAvatarFile);
-        if (!uploadError) {
-          const { data: publicUrlData } = db.storage.from('videos').getPublicUrl(filePath);
-          avatarUrl = publicUrlData.publicUrl;
-        }
-      }
-
-      const { error } = await db.auth.updateUser({
-        data: { display_name: newName, username: newUsername, bio: newBio, avatar_url: avatarUrl }
-      });
-
-      saveBtn.disabled = false;
-      saveBtn.innerText = "Save Changes";
-
-      if (error) {
-        showToast(error.message);
-      } else {
-        showToast("Profile updated successfully!");
-        selectedAvatarFile = null;
-        closeEditProfileModal();
-        checkUserSession();
-        viewProfile(currentProfileUserId, newUsername);
-      }
-    }
 
     function toggleAuthMode() {
       isSignUp = !isSignUp;
@@ -411,7 +352,7 @@
       msg.innerText = 'Processing...';
 
       let result = isSignUp 
-        ? await db.auth.signUp({ email, password, options: { data: { username, display_name: username, bio: "Hey there! I am using ViroKDK." } } })
+        ? await db.auth.signUp({ email, password, options: { data: { username, display_name: username } } })
         : await db.auth.signInWithPassword({ email, password });
 
       if (result.error) {
@@ -419,7 +360,7 @@
         msg.innerText = result.error.message;
       } else {
         msg.classList.add('text-green-400');
-        msg.innerText = isSignUp ? 'Account created! Check email or log in.' : 'Logged in successfully!';
+        msg.innerText = isSignUp ? 'Account created! Log in.' : 'Logged in successfully!';
         if (!isSignUp) {
           setTimeout(() => { closeAuthModal(); checkUserSession(); loadVideos(); }, 1000);
         }
@@ -429,32 +370,23 @@
     async function checkUserSession() {
       const { data: { session } } = await db.auth.getSession();
       const desktopUserCard = document.getElementById('desktop-user-card');
-      const mobileAuthBtn = document.getElementById('mobile-auth-btn');
 
       if (session?.user) {
-        const userMeta = session.user.user_metadata || {};
-        const username = userMeta.username || session.user.email.split('@')[0];
-        const avatarUrl = userMeta.avatar_url;
-
-        const avatarHTML = avatarUrl 
-          ? `<img src="${avatarUrl}" class="w-9 h-9 rounded-full object-cover border border-[#25F4EE]">`
-          : `<div class="w-9 h-9 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-bold text-black text-xs">${username.charAt(0).toUpperCase()}</div>`;
+        const username = session.user.user_metadata?.username || session.user.email.split('@')[0];
+        document.getElementById('sidebar-username').innerText = `@${username}`;
 
         desktopUserCard.innerHTML = `
           <div class="flex items-center justify-between w-full cursor-pointer" onclick="viewProfile('${session.user.id}', '${username}')">
             <div class="flex items-center space-x-3">
-              ${avatarHTML}
-              <div class="truncate">
-                <p class="text-xs font-bold text-white truncate">@${username}</p>
-                <p class="text-[10px] text-cyan-400">My Profile</p>
+              <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-bold text-black text-xs">
+                ${username.charAt(0).toUpperCase()}
               </div>
+              <p class="hidden lg:block text-xs font-bold text-white truncate">@${username}</p>
             </div>
-            <button onclick="handleLogout(event)" class="text-gray-400 hover:text-white p-1"><i data-lucide="log-out" class="w-4 h-4"></i></button>
+            <button onclick="handleLogout(event)" class="text-neutral-400 hover:text-white"><i data-lucide="log-out" class="w-4 h-4"></i></button>
           </div>`;
-        mobileAuthBtn.innerHTML = `<button onclick="viewProfile('${session.user.id}', '${username}')" class="bg-slate-800 text-xs px-3 py-1 rounded-full font-bold text-cyan-400">@${username}</button>`;
       } else {
-        desktopUserCard.innerHTML = `<button onclick="openAuthModal()" class="w-full py-2.5 bg-[#FE2C55] hover:bg-red-600 rounded-xl font-bold text-sm transition text-center">Sign In</button>`;
-        mobileAuthBtn.innerHTML = `<button onclick="openAuthModal()" class="bg-[#FE2C55] px-3 py-1 rounded-full text-xs font-bold">Sign In</button>`;
+        desktopUserCard.innerHTML = `<button onclick="openAuthModal()" class="w-full py-2 bg-[#FE2C55] hover:bg-red-600 rounded-xl font-bold text-sm transition text-center">Sign In</button>`;
       }
       lucide.createIcons();
     }
@@ -464,10 +396,10 @@
       await db.auth.signOut();
       checkUserSession();
       loadVideos();
-      showToast("Logged out successfully");
+      showToast("Logged out");
     }
 
-    async function handleVideoUpload(e) {
+    async function handleMediaUpload(e) {
       e.preventDefault();
       const fileInput = document.getElementById('upload-file');
       const captionInput = document.getElementById('upload-caption');
@@ -481,11 +413,11 @@
       if (!session) { openAuthModal(); return; }
 
       msg.classList.remove('hidden', 'text-red-400', 'text-green-400');
-      msg.innerText = 'Uploading video to ViroKDK...';
+      msg.innerText = 'Uploading file...';
       btn.disabled = true;
 
       const fileExt = file.name.split('.').pop();
-      const filePath = `${session.user.id}/${Date.now()}.${fileExt}`;
+      const filePath = `posts/${session.user.id}_${Date.now()}.${fileExt}`;
 
       const { error: uploadError } = await db.storage.from('videos').upload(filePath, file);
       if (uploadError) {
@@ -521,7 +453,7 @@
 
     async function likeVideo(videoId, currentLikes) {
       const { data: { session } } = await db.auth.getSession();
-      if (!session) { openAuthModal(); showToast("Sign in to like videos"); return; }
+      if (!session) { openAuthModal(); return; }
 
       const newLikes = currentLikes + 1;
       const { error } = await db.from('videos').update({ likes_count: newLikes }).eq('id', videoId);
@@ -541,24 +473,19 @@
 
     async function loadComments(videoId) {
       const list = document.getElementById('comment-list');
-      list.innerHTML = `<p class="text-xs text-gray-400 text-center py-4">Loading comments...</p>`;
+      list.innerHTML = `<p class="text-xs text-neutral-500 text-center py-4">Loading comments...</p>`;
 
       const { data: comments } = await db.from('comments').select('*').eq('video_id', videoId).order('created_at', { ascending: false });
 
       if (!comments || comments.length === 0) {
-        list.innerHTML = `<p class="text-xs text-gray-500 text-center py-6">No comments yet. Be the first!</p>`;
+        list.innerHTML = `<p class="text-xs text-neutral-500 text-center py-6">No comments yet.</p>`;
         return;
       }
 
       list.innerHTML = comments.map(c => `
-        <div class="flex space-x-3 items-start bg-white/5 p-2.5 rounded-xl">
-          <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-bold text-black text-[10px]">
-            ${c.username.charAt(0).toUpperCase()}
-          </div>
-          <div class="flex-1">
-            <span class="font-bold text-xs text-[#25F4EE]">@${c.username}</span>
-            <p class="text-xs text-gray-200 mt-0.5">${c.comment_text}</p>
-          </div>
+        <div class="flex space-x-3 items-start bg-neutral-800/40 p-2.5 rounded-xl text-xs">
+          <span class="font-bold text-[#25F4EE]">@${c.username}</span>
+          <p class="text-neutral-200">${c.comment_text}</p>
         </div>
       `).join('');
     }
@@ -581,128 +508,104 @@
       }
     }
 
-    async function toggleFollow(targetUserId) {
-      const { data: { session } } = await db.auth.getSession();
-      if (!session) { openAuthModal(); return; }
+    async function loadVideos() {
+      const container = document.getElementById('posts-feed-container');
+      try {
+        const { data: posts, error } = await db.from('videos').select('*').order('created_at', { ascending: false });
 
-      const followerId = session.user.id;
-      if (followerId === targetUserId) return;
+        if (error || !posts || posts.length === 0) {
+          container.innerHTML = `<p class="text-center text-neutral-500 py-12 text-sm">No posts yet. Click Create to post!</p>`;
+          return;
+        }
 
-      const { data: existing } = await db.from('follows').select('*').eq('follower_id', followerId).eq('following_id', targetUserId).single();
-      if (existing) {
-        await db.from('follows').delete().eq('follower_id', followerId).eq('following_id', targetUserId);
-      } else {
-        await db.from('follows').insert([{ follower_id: followerId, following_id: targetUserId }]);
+        container.innerHTML = posts.map(post => {
+          const username = post.username || 'creator';
+          const isVideo = post.video_url.match(/\.(mp4|webm|mov)$/i);
+
+          return `
+            <div class="bg-black border border-neutral-900 rounded-2xl overflow-hidden shadow-xl">
+              <!-- Post Header -->
+              <div class="flex items-center justify-between p-3 border-b border-neutral-900">
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="viewProfile('${post.user_id}', '${username}')">
+                  <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-bold text-black text-xs">
+                    ${username.charAt(0).toUpperCase()}
+                  </div>
+                  <span class="font-bold text-xs text-white">@${username}</span>
+                </div>
+                <i data-lucide="more-horizontal" class="w-4 h-4 text-neutral-400"></i>
+              </div>
+
+              <!-- Media Display (Photo or Video) -->
+              <div class="w-full bg-neutral-950 aspect-square flex items-center justify-center overflow-hidden">
+                ${isVideo ? `
+                  <video src="${post.video_url}" class="w-full h-full object-cover" loop controls></video>
+                ` : `
+                  <img src="${post.video_url}" class="w-full h-full object-cover" alt="Post Image">
+                `}
+              </div>
+
+              <!-- Actions & Caption -->
+              <div class="p-3 space-y-2">
+                <div class="flex items-center justify-between text-white">
+                  <div class="flex items-center space-x-4">
+                    <button onclick="likeVideo('${post.id}', ${post.likes_count || 0})">
+                      <i data-lucide="heart" class="w-6 h-6 hover:text-[#FE2C55] transition"></i>
+                    </button>
+                    <button onclick="openComments('${post.id}')">
+                      <i data-lucide="message-circle" class="w-6 h-6 hover:text-cyan-400 transition"></i>
+                    </button>
+                    <i data-lucide="send" class="w-6 h-6 hover:text-neutral-400 transition"></i>
+                  </div>
+                  <i data-lucide="bookmark" class="w-6 h-6 hover:text-amber-400 transition"></i>
+                </div>
+
+                <p class="text-xs font-bold text-white">${post.likes_count || 0} likes</p>
+                <p class="text-xs text-neutral-300"><span class="font-bold text-white mr-2">@${username}</span>${post.caption || ''}</p>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        lucide.createIcons();
+      } catch (err) {
+        container.innerHTML = `<p class="text-center text-red-500 py-6 text-xs">Failed to load feed.</p>`;
       }
-      viewProfile(targetUserId);
-    }
-
-    function playProfileVideo(vEl) {
-      if (vEl.paused) { vEl.play(); } else { vEl.pause(); }
     }
 
     async function viewProfile(userId, fallbackUsername = 'creator') {
-      currentProfileUserId = userId;
       const container = document.getElementById('profile-container');
-      const scrollArea = document.getElementById('profile-scroll-area');
       container.classList.remove('hidden');
-      scrollArea.innerHTML = `<div class="h-64 flex justify-center items-center"><i data-lucide="loader-2" class="w-8 h-8 animate-spin text-[#FE2C55]"></i></div>`;
-      lucide.createIcons();
-
-      const { data: { session } } = await db.auth.getSession();
-      const currentUserId = session?.user?.id;
+      container.innerHTML = `<p class="text-center py-12 text-neutral-400">Loading Profile...</p>`;
 
       const { data: videos } = await db.from('videos').select('*').eq('user_id', userId).order('created_at', { ascending: false });
-      const { count: followersCount } = await db.from('follows').select('*', { count: 'exact', head: true }).eq('following_id', userId);
-      const { count: followingCount } = await db.from('follows').select('*', { count: 'exact', head: true }).eq('follower_id', userId);
 
-      let isFollowing = false;
-      if (currentUserId && currentUserId !== userId) {
-        const { data: followCheck } = await db.from('follows').select('*').eq('follower_id', currentUserId).eq('following_id', userId).single();
-        if (followCheck) isFollowing = true;
-      }
-
-      let username = fallbackUsername;
-      let displayName = fallbackUsername;
-      let bio = "No bio yet.";
-      let avatarUrl = null;
-
-      if (currentUserId === userId && session?.user?.user_metadata) {
-        username = session.user.user_metadata.username || fallbackUsername;
-        displayName = session.user.user_metadata.display_name || username;
-        bio = session.user.user_metadata.bio || "No bio yet.";
-        avatarUrl = session.user.user_metadata.avatar_url;
-      } else if (videos && videos.length > 0 && videos[0].username) {
-        username = videos[0].username;
-        displayName = videos[0].username;
-      }
-
-      const avatarDisplay = avatarUrl 
-        ? `<img src="${avatarUrl}" class="w-24 h-24 rounded-full object-cover shadow-2xl border-2 border-[#25F4EE] shrink-0">`
-        : `<div class="w-24 h-24 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center text-4xl font-black text-black shadow-2xl shrink-0">${username.charAt(0).toUpperCase()}</div>`;
-
-      scrollArea.innerHTML = `
-        <div class="flex items-center justify-between mb-8">
-          <button onclick="closeProfilePage()" class="flex items-center space-x-2 text-sm font-bold bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl transition">
-            <i data-lucide="arrow-left" class="w-4 h-4"></i>
-            <span>Back to Feed</span>
-          </button>
-        </div>
-
-        <div class="flex flex-col md:flex-row items-start md:items-center justify-between border-b border-white/10 pb-8 gap-6">
-          <div class="flex items-center space-x-6">
-            ${avatarDisplay}
+      container.innerHTML = `
+        <div class="max-w-3xl mx-auto space-y-6">
+          <button onclick="closeProfilePage()" class="px-4 py-2 bg-neutral-900 rounded-xl text-xs font-bold text-white">← Back</button>
+          
+          <div class="flex items-center space-x-6 border-b border-neutral-800 pb-6">
+            <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center text-3xl font-bold text-black">
+              ${fallbackUsername.charAt(0).toUpperCase()}
+            </div>
             <div>
-              <h2 class="text-2xl font-black text-white">${displayName}</h2>
-              <p class="text-xs text-gray-400 mt-0.5">@${username}</p>
-              
-              <div class="flex space-x-6 mt-3 text-xs">
-                <div><span class="font-bold text-white text-sm">${followingCount || 0}</span> <span class="text-gray-400">Following</span></div>
-                <div><span class="font-bold text-white text-sm">${followersCount || 0}</span> <span class="text-gray-400">Followers</span></div>
-                <div><span class="font-bold text-white text-sm">${videos ? videos.reduce((acc, v) => acc + (v.likes_count || 0), 0) : 0}</span> <span class="text-gray-400">Likes</span></div>
-              </div>
-
-              <p class="text-xs text-gray-300 mt-3 max-w-md">${bio}</p>
+              <h2 class="text-xl font-bold">@${fallbackUsername}</h2>
+              <p class="text-xs text-neutral-400 mt-1">${videos ? videos.length : 0} Posts</p>
             </div>
           </div>
 
-          <div>
-            ${currentUserId === userId ? `
-              <button onclick="openEditProfileModal()" class="px-6 py-2.5 rounded-xl font-bold text-xs bg-white/10 hover:bg-white/20 border border-white/10 transition flex items-center space-x-2">
-                <i data-lucide="edit-3" class="w-4 h-4"></i>
-                <span>Edit profile</span>
-              </button>
-            ` : `
-              <button onclick="toggleFollow('${userId}')" class="px-8 py-2.5 rounded-xl font-bold text-xs ${isFollowing ? 'bg-white/10 hover:bg-white/20' : 'bg-[#FE2C55] hover:bg-red-600'} transition">
-                ${isFollowing ? 'Following' : 'Follow'}
-              </button>
-            `}
-          </div>
-        </div>
-
-        <div class="flex space-x-8 border-b border-white/10 mt-6 text-sm font-bold">
-          <button class="pb-3 border-b-2 border-white text-white flex items-center space-x-2">
-            <i data-lucide="video" class="w-4 h-4"></i>
-            <span>Videos (${videos ? videos.length : 0})</span>
-          </button>
-        </div>
-
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-6">
-          ${videos && videos.length > 0 ? videos.map(v => `
-            <div class="aspect-[9/16] bg-slate-900 rounded-2xl overflow-hidden relative cursor-pointer group shadow-lg border border-white/5" onclick="playProfileVideo(this.querySelector('video'))">
-              <video src="${v.video_url}" class="w-full h-full object-cover" loop playsinline></video>
-              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-3">
-                <p class="text-xs text-white truncate font-medium">${v.caption || ''}</p>
-                <div class="flex items-center space-x-1 text-[10px] text-gray-300 mt-1">
-                  <i data-lucide="play" class="w-3 h-3 fill-white"></i>
-                  <span>${v.likes_count || 0}</span>
-                </div>
+          <div class="grid grid-cols-3 gap-2">
+            ${videos && videos.length > 0 ? videos.map(v => `
+              <div class="aspect-square bg-neutral-900 rounded-lg overflow-hidden">
+                ${v.video_url.match(/\.(mp4|webm|mov)$/i) ? `
+                  <video src="${v.video_url}" class="w-full h-full object-cover"></video>
+                ` : `
+                  <img src="${v.video_url}" class="w-full h-full object-cover">
+                `}
               </div>
-            </div>
-          `).join('') : '<p class="col-span-full text-center text-gray-500 py-16 text-sm">No videos uploaded yet.</p>'}
+            `).join('') : '<p class="col-span-3 text-center py-12 text-xs text-neutral-500">No posts yet.</p>'}
+          </div>
         </div>
       `;
-      lucide.createIcons();
     }
 
     async function openProfileFromNav() {
@@ -712,177 +615,7 @@
       viewProfile(session.user.id, username);
     }
 
-    function handleSearch(query) {
-      const q = query.toLowerCase().trim();
-      if (!q) { renderFeed(allVideosCache); return; }
-      const filtered = allVideosCache.filter(v => 
-        (v.caption && v.caption.toLowerCase().includes(q)) || 
-        (v.username && v.username.toLowerCase().includes(q))
-      );
-      renderFeed(filtered);
-    }
-
-    function clearSearchAndReload() {
-      const searchInputs = document.querySelectorAll('input[type="text"][placeholder*="Search"]');
-      searchInputs.forEach(i => i.value = '');
-      renderFeed(allVideosCache);
-    }
-
-    function navigateFeed(direction) {
-      const container = document.getElementById('video-feed-container');
-      const currentScroll = container.scrollTop;
-      const videoHeight = container.clientHeight;
-      
-      if (direction === 'down') {
-        container.scrollTo({ top: currentScroll + videoHeight, behavior: 'smooth' });
-      } else if (direction === 'up') {
-        container.scrollTo({ top: currentScroll - videoHeight, behavior: 'smooth' });
-      }
-    }
-
-    async function loadVideos() {
-      try {
-        const { data: videos, error } = await db.from('videos').select('*').order('created_at', { ascending: false });
-        if (error || !videos || videos.length === 0) {
-          document.getElementById('video-feed-container').innerHTML = `
-            <div class="h-full flex flex-col justify-center items-center text-gray-500 p-6 text-center">
-              <i data-lucide="video-off" class="w-12 h-12 mb-2 text-gray-600"></i>
-              <p class="font-bold text-white text-base">No videos yet!</p>
-              <p class="text-xs text-gray-400 mt-1">Be the first creator to publish on ViroKDK.</p>
-            </div>`;
-          lucide.createIcons();
-          return;
-        }
-        allVideosCache = videos;
-        renderFeed(allVideosCache);
-      } catch (err) {
-        document.getElementById('video-feed-container').innerHTML = `<div class="p-4 text-center text-red-400 text-xs">Failed to load feed.</div>`;
-      }
-    }
-
-    function renderFeed(videos) {
-      const container = document.getElementById('video-feed-container');
-      if (!videos || videos.length === 0) {
-        container.innerHTML = `
-          <div class="h-full flex flex-col justify-center items-center text-gray-400 p-6 text-center">
-            <i data-lucide="search-x" class="w-12 h-12 mb-2 text-gray-500"></i>
-            <p class="font-bold text-white text-sm">No matching videos found</p>
-          </div>`;
-        lucide.createIcons();
-        return;
-      }
-
-      container.innerHTML = videos.map((video, index) => {
-        const username = video.username || 'creator';
-        return `
-          <div class="snap-start-always h-full w-full relative flex items-center justify-center bg-black py-4" data-index="${index}">
-            
-            <div class="flex items-end justify-center space-x-4 h-full max-h-[680px] w-full max-w-2xl px-4 relative">
-              
-              <div class="flex-1 h-full max-w-[380px] bg-gray-900 rounded-2xl overflow-hidden relative shadow-2xl flex flex-col justify-between border border-white/10">
-                <video 
-                  src="${video.video_url}" 
-                  class="w-full h-full object-cover cursor-pointer"
-                  loop 
-                  playsinline
-                  onclick="this.paused ? this.play() : this.pause()"
-                ></video>
-
-                <div class="absolute top-4 left-4 z-20 flex items-center space-x-1.5 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/15 pointer-events-none">
-                  <span class="w-2 h-2 rounded-full bg-[#25F4EE] animate-pulse"></span>
-                  <span class="text-[10px] font-black tracking-widest text-white/90 uppercase">ViroKDK</span>
-                </div>
-
-                <div class="absolute left-0 right-0 bottom-0 p-4 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-20 pointer-events-auto space-y-1.5">
-                  <button onclick="viewProfile('${video.user_id}', '${username}')" class="font-bold text-base text-white hover:underline text-left block">
-                    ${username}
-                  </button>
-                  <p class="text-xs text-gray-200 line-clamp-2 leading-relaxed">${video.caption || ''}</p>
-                </div>
-              </div>
-
-              <div class="flex flex-col items-center space-y-4 pb-2 z-20 shrink-0">
-                
-                <div class="relative cursor-pointer group mb-1" onclick="viewProfile('${video.user_id}', '${username}')">
-                  <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-black text-black text-base border-2 border-white shadow-xl">
-                    ${username.charAt(0).toUpperCase()}
-                  </div>
-                  <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-5 h-5 bg-[#FE2C55] rounded-full flex items-center justify-center text-white text-xs font-bold border-2 border-black">
-                    +
-                  </div>
-                </div>
-
-                <button onclick="likeVideo('${video.id}', ${video.likes_count || 0})" class="flex flex-col items-center group">
-                  <div class="w-12 h-12 rounded-full bg-gray-900 border border-white/10 flex items-center justify-center group-hover:bg-white/10 transition shadow-lg">
-                    <i data-lucide="heart" class="w-6 h-6 text-[#FE2C55] fill-[#FE2C55]"></i>
-                  </div>
-                  <span class="text-xs font-bold mt-1 text-gray-300">${formatNumber(video.likes_count || 0)}</span>
-                </button>
-
-                <button onclick="openComments('${video.id}')" class="flex flex-col items-center group">
-                  <div class="w-12 h-12 rounded-full bg-gray-900 border border-white/10 flex items-center justify-center group-hover:bg-white/10 transition shadow-lg">
-                    <i data-lucide="message-circle" class="w-6 h-6 text-white"></i>
-                  </div>
-                  <span class="text-xs font-bold mt-1 text-gray-300">Chat</span>
-                </button>
-
-                <button onclick="showToast('Saved to Favorites')" class="flex flex-col items-center group">
-                  <div class="w-12 h-12 rounded-full bg-gray-900 border border-white/10 flex items-center justify-center group-hover:bg-white/10 transition shadow-lg">
-                    <i data-lucide="bookmark" class="w-6 h-6 text-white"></i>
-                  </div>
-                  <span class="text-xs font-bold mt-1 text-gray-300">Save</span>
-                </button>
-
-                <button onclick="showToast('Link copied!')" class="flex flex-col items-center group">
-                  <div class="w-12 h-12 rounded-full bg-gray-900 border border-white/10 flex items-center justify-center group-hover:bg-white/10 transition shadow-lg">
-                    <i data-lucide="share-2" class="w-6 h-6 text-white"></i>
-                  </div>
-                  <span class="text-xs font-bold mt-1 text-gray-300">Share</span>
-                </button>
-
-                <div class="pt-2 flex flex-col space-y-2">
-                  <button onclick="navigateFeed('up')" class="w-10 h-10 rounded-full bg-gray-900 border border-white/10 flex items-center justify-center text-gray-300 hover:text-white hover:bg-white/10 transition">
-                    <i data-lucide="chevron-up" class="w-5 h-5"></i>
-                  </button>
-                  <button onclick="navigateFeed('down')" class="w-10 h-10 rounded-full bg-gray-900 border border-white/10 flex items-center justify-center text-gray-300 hover:text-white hover:bg-white/10 transition">
-                    <i data-lucide="chevron-down" class="w-5 h-5"></i>
-                  </button>
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
-        `;
-      }).join('');
-
-      setupIntersectionObserver();
-      lucide.createIcons();
-    }
-
-    function setupIntersectionObserver() {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          const video = entry.target.querySelector("video");
-          if (video) {
-            if (entry.isIntersecting) {
-              video.play().catch(() => { video.muted = true; video.play(); });
-            } else {
-              video.pause();
-            }
-          }
-        });
-      }, { threshold: 0.75 });
-
-      document.querySelectorAll("#video-feed-container > div").forEach(card => observer.observe(card));
-    }
-
-    function formatNumber(num) {
-      if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-      if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
-      return num;
-    }
+    function clearSearchAndReload() { loadVideos(); }
 
     function showToast(msg) {
       const toast = document.getElementById("toast");
