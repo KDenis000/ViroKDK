@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ViroKDK - Social Feed</title>
+  <title>ViroKDK - Home</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Supabase JS Client -->
@@ -17,77 +17,319 @@
       font-family: 'Plus Jakarta Sans', sans-serif;
       background-color: #030712;
       color: #ffffff;
-      overflow-x: hidden;
+      overflow: hidden;
       user-select: none;
     }
 
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-    .story-ring {
+    .story-gradient {
       background: linear-gradient(135deg, #FE2C55 0%, #25F4EE 100%);
     }
 
-    .avatar-ring {
-      background: linear-gradient(135deg, #FE2C55 0%, #25F4EE 100%);
-    }
-
-    .cover-gradient {
-      background: linear-gradient(180deg, rgba(3,7,18,0.1) 0%, rgba(3,7,18,0.9) 85%, rgba(3,7,18,1) 100%);
+    .glass-card {
+      background: rgba(17, 24, 39, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
   </style>
 </head>
-<body class="h-screen w-screen flex flex-col bg-slate-950 text-white overflow-x-hidden">
+<body class="h-screen w-screen flex bg-[#030712] text-white overflow-hidden">
 
-  <!-- TOP HEADER NAV -->
-  <header class="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-white/10 px-4 py-3 flex items-center justify-between">
-    <div class="flex items-center space-x-6">
-      <div class="flex items-center space-x-2 cursor-pointer" onclick="clearSearchAndReload()">
-        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-black text-black text-xs tracking-tighter">
-          KDK
+  <!-- LEFT SIDEBAR -->
+  <aside class="hidden xl:flex flex-col justify-between w-64 border-r border-white/10 p-5 bg-[#030712] shrink-0 h-full overflow-y-auto no-scrollbar">
+    <div class="space-y-6">
+      
+      <!-- Brand Logo -->
+      <div class="cursor-pointer" onclick="clearSearchAndReload()">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-black text-black text-xs">
+            KDK
+          </div>
+          <span class="font-extrabold text-xl tracking-tight text-white">ViroKDK</span>
         </div>
-        <span class="font-extrabold text-lg tracking-wider text-white">ViroKDK</span>
+        <p class="text-[11px] text-gray-400 italic mt-0.5 ml-1">More than moments...</p>
       </div>
-      <nav class="hidden md:flex items-center space-x-6 text-xs font-semibold text-gray-300">
-        <button onclick="clearSearchAndReload()" class="hover:text-white transition">Home</button>
-        <button onclick="showToast('Explore Feed')" class="hover:text-white transition">Explore</button>
-        <button onclick="openUploadModal()" class="hover:text-white transition">Create</button>
-        <button onclick="showToast('No new notifications')" class="relative hover:text-white transition">
-          Notifications
-          <span class="absolute -top-1 -right-2 w-2 h-2 rounded-full bg-[#FE2C55]"></span>
+
+      <!-- Main Navigation -->
+      <nav class="space-y-1">
+        <button onclick="clearSearchAndReload()" class="w-full flex items-center space-x-3.5 px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-white font-bold text-xs transition">
+          <i data-lucide="home" class="w-4 h-4 text-[#25F4EE]"></i>
+          <span>Home</span>
         </button>
+
+        <button onclick="showToast('Explore')" class="w-full flex items-center space-x-3.5 px-3.5 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-slate-900/50 font-semibold text-xs transition">
+          <i data-lucide="compass" class="w-4 h-4"></i>
+          <span>Explore</span>
+        </button>
+
+        <button onclick="openUploadModal()" class="w-full flex items-center space-x-3.5 px-3.5 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-slate-900/50 font-semibold text-xs transition">
+          <i data-lucide="plus-square" class="w-4 h-4"></i>
+          <span>Create</span>
+        </button>
+
+        <button onclick="showToast('Notifications')" class="w-full flex items-center space-x-3.5 px-3.5 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-slate-900/50 font-semibold text-xs transition relative">
+          <i data-lucide="bell" class="w-4 h-4"></i>
+          <span>Notifications</span>
+          <span class="absolute right-3 w-2 h-2 rounded-full bg-[#FE2C55]"></span>
+        </button>
+
+        <button onclick="openProfileFromNav()" class="w-full flex items-center space-x-3.5 px-3.5 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-slate-900/50 font-semibold text-xs transition">
+          <i data-lucide="user" class="w-4 h-4"></i>
+          <span>Profile</span>
+        </button>
+
+        <div class="pt-3 border-t border-white/10 space-y-1">
+          <button onclick="showToast('For You Feed')" class="w-full flex items-center space-x-3.5 px-3.5 py-2 rounded-xl text-gray-400 hover:text-white font-medium text-xs transition">
+            <i data-lucide="shuffle" class="w-4 h-4"></i>
+            <span>For You</span>
+          </button>
+
+          <button onclick="showToast('Following Feed')" class="w-full flex items-center space-x-3.5 px-3.5 py-2 rounded-xl text-gray-400 hover:text-white font-medium text-xs transition">
+            <i data-lucide="users" class="w-4 h-4"></i>
+            <span>Following</span>
+          </button>
+
+          <button onclick="showToast('Trending Feed')" class="w-full flex items-center space-x-3.5 px-3.5 py-2 rounded-xl text-gray-400 hover:text-white font-medium text-xs transition">
+            <i data-lucide="flame" class="w-4 h-4 text-[#FE2C55]"></i>
+            <span>Trending</span>
+          </button>
+
+          <button onclick="showToast('Saved Items')" class="w-full flex items-center space-x-3.5 px-3.5 py-2 rounded-xl text-gray-400 hover:text-white font-medium text-xs transition">
+            <i data-lucide="bookmark" class="w-4 h-4"></i>
+            <span>Saved</span>
+          </button>
+        </div>
       </nav>
     </div>
 
-    <!-- Top Search Input Bar -->
-    <div class="relative w-64 md:w-80">
-      <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-gray-400"></i>
-      <input type="text" id="top-search-input" oninput="handleSearch(this.value)" placeholder="Search users, videos, or tags..." class="w-full bg-slate-900 text-xs text-white rounded-full py-2 pl-9 pr-4 focus:outline-none border border-white/10">
+    <!-- Bottom Promo Banner -->
+    <div class="mt-6 p-4 rounded-2xl bg-gradient-to-br from-purple-900/50 via-indigo-900/50 to-rose-900/50 border border-white/10 relative overflow-hidden">
+      <h4 class="font-extrabold text-sm text-white leading-tight">Create<br>Share<br>Inspire</h4>
+      <p class="text-[10px] text-gray-300 mt-2">Turn your moments into a bigger story.</p>
+      <button onclick="openUploadModal()" class="mt-3 px-3 py-1.5 bg-white text-black font-bold text-[11px] rounded-lg shadow hover:bg-gray-200 transition flex items-center space-x-1">
+        <span>Create Now</span>
+        <i data-lucide="arrow-right" class="w-3 h-3"></i>
+      </button>
     </div>
+  </aside>
 
-    <!-- Header User Icon -->
-    <div id="top-auth-btn" class="flex items-center">
-      <button onclick="openAuthModal()" class="bg-[#FE2C55] px-4 py-1.5 rounded-full text-xs font-bold hover:bg-red-600 transition">Sign In</button>
-    </div>
-  </header>
-
-  <!-- MAIN FEED / PROFILE WRAPPER -->
-  <main class="flex-1 w-full overflow-y-auto no-scrollbar">
+  <!-- CENTER CONTENT AREA -->
+  <main class="flex-1 h-full flex flex-col overflow-hidden bg-[#030712]">
     
-    <!-- HOME FEED VIEW -->
-    <div id="home-feed-view" class="max-w-xl mx-auto py-6 px-4 space-y-6">
-      <div id="posts-feed-container" class="space-y-6 w-full">
+    <!-- TOP HEADER SEARCH BAR -->
+    <header class="h-16 border-b border-white/10 px-6 flex items-center justify-between shrink-0 bg-[#030712]">
+      <div class="relative flex-1 max-w-xl">
+        <i data-lucide="search" class="w-4 h-4 absolute left-4 top-3 text-gray-400"></i>
+        <input type="text" id="top-search-input" oninput="handleSearch(this.value)" placeholder="Search videos, users, or hashtags..." class="w-full bg-slate-900/80 border border-white/10 text-xs text-white rounded-xl py-2.5 pl-10 pr-4 focus:outline-none focus:ring-1 focus:ring-[#FE2C55]">
+      </div>
+
+      <div class="flex items-center space-x-4 pl-4" id="top-user-actions">
+        <button onclick="showToast('Notifications')" class="p-2 rounded-xl bg-slate-900 border border-white/10 text-gray-300 hover:text-white relative">
+          <i data-lucide="bell" class="w-4 h-4"></i>
+          <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#FE2C55]"></span>
+        </button>
+        <button onclick="showToast('Messages')" class="p-2 rounded-xl bg-slate-900 border border-white/10 text-gray-300 hover:text-white">
+          <i data-lucide="message-square" class="w-4 h-4"></i>
+        </button>
+        <div id="header-avatar-btn">
+          <button onclick="openAuthModal()" class="bg-[#FE2C55] px-4 py-1.5 rounded-xl text-xs font-bold text-white hover:bg-red-600 transition">Sign In</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- FEED SCROLL CONTAINER -->
+    <div class="flex-1 overflow-y-auto no-scrollbar p-6 space-y-6">
+      
+      <!-- STORIES BAR -->
+      <div class="flex items-center space-x-4 overflow-x-auto no-scrollbar py-2 border-b border-white/10">
+        
+        <!-- Add Story Button -->
+        <div class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer" onclick="openUploadModal()">
+          <div class="w-14 h-14 rounded-full border-2 border-dashed border-white/30 flex items-center justify-center text-white bg-slate-900">
+            <i data-lucide="plus" class="w-5 h-5"></i>
+          </div>
+          <span class="text-[10px] text-gray-400 font-medium">Your Story</span>
+        </div>
+
+        <!-- Sample Story Items -->
+        <div class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer">
+          <div class="w-14 h-14 rounded-full p-0.5 story-gradient relative">
+            <div class="w-full h-full rounded-full bg-slate-950 p-0.5">
+              <div class="w-full h-full rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-bold text-black text-xs">K</div>
+            </div>
+            <span class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-cyan-400 rounded-full border-2 border-black flex items-center justify-center text-[8px] font-black text-black">+</span>
+          </div>
+          <span class="text-[10px] text-gray-300 font-medium">@KDenis000</span>
+        </div>
+
+        <div class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer">
+          <div class="w-14 h-14 rounded-full p-0.5 story-gradient">
+            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=150&q=80" class="w-full h-full rounded-full object-cover">
+          </div>
+          <span class="text-[10px] text-gray-300 font-medium">travelwithjay</span>
+        </div>
+
+        <div class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer">
+          <div class="w-14 h-14 rounded-full p-0.5 story-gradient">
+            <img src="https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=150&q=80" class="w-full h-full rounded-full object-cover">
+          </div>
+          <span class="text-[10px] text-gray-300 font-medium">football.ug</span>
+        </div>
+
+        <div class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer">
+          <div class="w-14 h-14 rounded-full p-0.5 story-gradient">
+            <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=150&q=80" class="w-full h-full rounded-full object-cover">
+          </div>
+          <span class="text-[10px] text-gray-300 font-medium">techdaily</span>
+        </div>
+
+        <div class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer">
+          <div class="w-14 h-14 rounded-full p-0.5 story-gradient">
+            <img src="https://images.unsplash.com/photo-1511988617509-a57c8a288659?auto=format&fit=crop&w=150&q=80" class="w-full h-full rounded-full object-cover">
+          </div>
+          <span class="text-[10px] text-gray-300 font-medium">lifestyle</span>
+        </div>
+
+        <div class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer">
+          <div class="w-14 h-14 rounded-full p-0.5 story-gradient">
+            <img src="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=150&q=80" class="w-full h-full rounded-full object-cover">
+          </div>
+          <span class="text-[10px] text-gray-300 font-medium">naturepix</span>
+        </div>
+      </div>
+
+      <!-- FEED POSTS CONTAINER -->
+      <div id="posts-feed-container" class="space-y-6 max-w-2xl mx-auto">
         <div class="flex flex-col justify-center items-center py-12 text-gray-500">
           <i data-lucide="loader-2" class="w-8 h-8 animate-spin text-[#FE2C55] mb-2"></i>
           <p class="text-xs font-semibold">Loading Feed...</p>
         </div>
       </div>
+
+    </div>
+  </main>
+
+  <!-- RIGHT SIDEBAR -->
+  <aside class="hidden lg:flex flex-col w-80 border-l border-white/10 p-5 bg-[#030712] shrink-0 h-full overflow-y-auto no-scrollbar space-y-5">
+    
+    <!-- Top Quote Banner -->
+    <div class="relative h-36 rounded-2xl overflow-hidden border border-white/10 shadow-xl bg-slate-900">
+      <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover">
+      <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-4 flex flex-col justify-between">
+        <span class="text-[10px] font-bold text-gray-300 tracking-wider">ViroKDK</span>
+        <h3 class="text-lg font-black italic text-white leading-tight">Good Content Better People</h3>
+      </div>
     </div>
 
-    <!-- ADVANCED PROFILE VIEW CONTAINER -->
-    <div id="profile-container" class="hidden w-full min-h-full pb-16 bg-slate-950"></div>
+    <!-- Trending Hashtags Section -->
+    <div class="bg-slate-900/50 border border-white/10 rounded-2xl p-4 space-y-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="flame" class="w-4 h-4 text-[#FE2C55]"></i>
+          <h4 class="font-bold text-xs text-white">Trending</h4>
+        </div>
+        <button class="text-[10px] font-bold text-gray-400 hover:text-white">See all</button>
+      </div>
 
-  </main>
+      <div class="space-y-2.5">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <span class="text-xs font-bold text-gray-400 w-3">1</span>
+            <div>
+              <p class="text-xs font-bold text-white">#motivation</p>
+              <p class="text-[10px] text-gray-400">12.4M posts</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <span class="text-xs font-bold text-gray-400 w-3">2</span>
+            <div>
+              <p class="text-xs font-bold text-white">#football</p>
+              <p class="text-[10px] text-gray-400">8.7M posts</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <span class="text-xs font-bold text-gray-400 w-3">3</span>
+            <div>
+              <p class="text-xs font-bold text-white">#lifestyle</p>
+              <p class="text-[10px] text-gray-400">6.3M posts</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <span class="text-xs font-bold text-gray-400 w-3">4</span>
+            <div>
+              <p class="text-xs font-bold text-white">#tech</p>
+              <p class="text-[10px] text-gray-400">4.9M posts</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <span class="text-xs font-bold text-gray-400 w-3">5</span>
+            <div>
+              <p class="text-xs font-bold text-white">#travel</p>
+              <p class="text-[10px] text-gray-400">4.1M posts</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Suggested Accounts Section -->
+    <div class="bg-slate-900/50 border border-white/10 rounded-2xl p-4 space-y-3">
+      <div class="flex items-center justify-between">
+        <h4 class="font-bold text-xs text-white">Suggested for you</h4>
+        <button class="text-[10px] font-bold text-gray-400 hover:text-white">See all</button>
+      </div>
+
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2.5">
+            <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center font-bold text-xs">T</div>
+            <div>
+              <p class="text-xs font-bold text-white">@travelwithjay</p>
+              <p class="text-[10px] text-gray-400">Travel Creator</p>
+            </div>
+          </div>
+          <button onclick="showToast('Followed creator')" class="px-3 py-1 border border-[#FE2C55] rounded-xl text-[10px] font-bold text-[#FE2C55] hover:bg-[#FE2C55] hover:text-white transition">Follow</button>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2.5">
+            <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center font-bold text-xs">F</div>
+            <div>
+              <p class="text-xs font-bold text-white">@football.ug</p>
+              <p class="text-[10px] text-gray-400">Football Content</p>
+            </div>
+          </div>
+          <button onclick="showToast('Followed creator')" class="px-3 py-1 border border-[#FE2C55] rounded-xl text-[10px] font-bold text-[#FE2C55] hover:bg-[#FE2C55] hover:text-white transition">Follow</button>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2.5">
+            <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center font-bold text-xs font-bold">T</div>
+            <div>
+              <p class="text-xs font-bold text-white">@techdaily</p>
+              <p class="text-[10px] text-gray-400">Tech & Gadgets</p>
+            </div>
+          </div>
+          <button onclick="showToast('Followed creator')" class="px-3 py-1 border border-[#FE2C55] rounded-xl text-[10px] font-bold text-[#FE2C55] hover:bg-[#FE2C55] hover:text-white transition">Follow</button>
+        </div>
+      </div>
+    </div>
+
+  </aside>
 
   <!-- UPLOAD MEDIA MODAL -->
   <div id="upload-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
@@ -152,42 +394,6 @@
     </div>
   </div>
 
-  <!-- EDIT PROFILE MODAL -->
-  <div id="edit-profile-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-white/10 rounded-2xl w-full max-w-md p-6 relative shadow-2xl space-y-4">
-      <button onclick="closeEditProfileModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
-        <i data-lucide="x" class="w-5 h-5"></i>
-      </button>
-      <h3 class="text-lg font-bold text-center">Edit Profile</h3>
-      <form onsubmit="saveProfileChanges(event)" class="space-y-4">
-        
-        <div class="flex flex-col items-center justify-center space-y-2">
-          <div class="relative w-20 h-20 rounded-full overflow-hidden border-2 border-[#25F4EE] group cursor-pointer" onclick="document.getElementById('edit-avatar-file').click()">
-            <img id="edit-avatar-preview" src="" class="w-full h-full object-cover hidden">
-            <div id="edit-avatar-placeholder" class="w-full h-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center text-2xl font-bold text-black">?</div>
-          </div>
-          <span class="text-xs text-cyan-400 font-semibold cursor-pointer" onclick="document.getElementById('edit-avatar-file').click()">Change Profile Photo</span>
-          <input type="file" id="edit-avatar-file" accept="image/*" class="hidden" onchange="handleAvatarFileSelect(event)">
-        </div>
-
-        <div>
-          <label class="text-xs font-semibold text-gray-400 block mb-1">Display Name</label>
-          <input type="text" id="edit-name-input" class="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none">
-        </div>
-        <div>
-          <label class="text-xs font-semibold text-gray-400 block mb-1">Username (@)</label>
-          <input type="text" id="edit-username-input" class="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none">
-        </div>
-        <div>
-          <label class="text-xs font-semibold text-gray-400 block mb-1">Bio</label>
-          <textarea id="edit-bio-input" rows="3" class="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none"></textarea>
-        </div>
-
-        <button type="submit" id="save-profile-btn" class="w-full py-3 bg-[#FE2C55] hover:bg-red-600 font-bold rounded-xl text-white transition">Save Changes</button>
-      </form>
-    </div>
-  </div>
-
   <!-- COMMENTS DRAWER MODAL -->
   <div id="comment-drawer" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="w-full max-w-md bg-slate-900 border border-white/10 rounded-2xl h-[500px] flex flex-col overflow-hidden shadow-2xl">
@@ -202,6 +408,9 @@
       </form>
     </div>
   </div>
+
+  <!-- PROFILE VIEW CONTAINER -->
+  <div id="profile-container" class="fixed inset-0 z-40 bg-[#030712] hidden overflow-y-auto p-6 lg:p-12"></div>
 
   <!-- TOAST NOTIFICATION -->
   <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-slate-800 text-white text-xs font-semibold px-4 py-2.5 rounded-full border border-white/20 shadow-xl opacity-0 pointer-events-none transition-all duration-300">
@@ -218,7 +427,6 @@
     let activeVideoId = null;
     let allPostsCache = [];
     let currentProfileUserId = null;
-    let selectedAvatarBase64 = null;
 
     document.addEventListener("DOMContentLoaded", () => {
       lucide.createIcons();
@@ -235,87 +443,7 @@
       });
     }
     function closeUploadModal() { document.getElementById('upload-modal').classList.add('hidden'); }
-    function closeProfilePage() { 
-      document.getElementById('profile-container').classList.add('hidden'); 
-      document.getElementById('home-feed-view').classList.remove('hidden');
-    }
-
-    function handleAvatarFileSelect(event) {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          selectedAvatarBase64 = e.target.result;
-          const preview = document.getElementById('edit-avatar-preview');
-          const placeholder = document.getElementById('edit-avatar-placeholder');
-          preview.src = selectedAvatarBase64;
-          preview.classList.remove('hidden');
-          placeholder.classList.add('hidden');
-        }
-        reader.readAsDataURL(file);
-      }
-    }
-
-    function openEditProfileModal() {
-      db.auth.getSession().then(({ data: { session } }) => {
-        if (!session) return;
-        const userMeta = session.user.user_metadata || {};
-        document.getElementById('edit-name-input').value = userMeta.display_name || userMeta.username || '';
-        document.getElementById('edit-username-input').value = userMeta.username || '';
-        document.getElementById('edit-bio-input').value = userMeta.bio || '';
-        
-        const preview = document.getElementById('edit-avatar-preview');
-        const placeholder = document.getElementById('edit-avatar-placeholder');
-
-        if (userMeta.avatar_url) {
-          preview.src = userMeta.avatar_url;
-          preview.classList.remove('hidden');
-          placeholder.classList.add('hidden');
-        } else {
-          preview.classList.add('hidden');
-          placeholder.classList.remove('hidden');
-          placeholder.innerText = (userMeta.username || 'U').charAt(0).toUpperCase();
-        }
-
-        document.getElementById('edit-profile-modal').classList.remove('hidden');
-      });
-    }
-    function closeEditProfileModal() { document.getElementById('edit-profile-modal').classList.add('hidden'); }
-
-    async function saveProfileChanges(e) {
-      e.preventDefault();
-      const saveBtn = document.getElementById('save-profile-btn');
-      saveBtn.disabled = true;
-      saveBtn.innerText = "Saving changes...";
-
-      const newName = document.getElementById('edit-name-input').value;
-      const newUsername = document.getElementById('edit-username-input').value;
-      const newBio = document.getElementById('edit-bio-input').value;
-
-      const { data: { session } } = await db.auth.getSession();
-      let avatarUrl = session.user.user_metadata?.avatar_url || null;
-
-      if (selectedAvatarBase64) {
-        avatarUrl = selectedAvatarBase64;
-      }
-
-      const { error } = await db.auth.updateUser({
-        data: { display_name: newName, username: newUsername, bio: newBio, avatar_url: avatarUrl }
-      });
-
-      saveBtn.disabled = false;
-      saveBtn.innerText = "Save Changes";
-
-      if (error) {
-        showToast(error.message);
-      } else {
-        showToast("Profile updated successfully!");
-        selectedAvatarBase64 = null;
-        closeEditProfileModal();
-        checkUserSession();
-        viewProfile(currentProfileUserId, newUsername);
-      }
-    }
+    function closeProfilePage() { document.getElementById('profile-container').classList.add('hidden'); }
 
     function toggleAuthMode() {
       isSignUp = !isSignUp;
@@ -354,7 +482,7 @@
 
     async function checkUserSession() {
       const { data: { session } } = await db.auth.getSession();
-      const topAuthBtn = document.getElementById('top-auth-btn');
+      const headerAvatarBtn = document.getElementById('header-avatar-btn');
 
       if (session?.user) {
         const userMeta = session.user.user_metadata || {};
@@ -365,13 +493,13 @@
           ? `<img src="${avatarUrl}" class="w-8 h-8 rounded-full object-cover border border-[#25F4EE]">`
           : `<div class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-bold text-black text-xs">${username.charAt(0).toUpperCase()}</div>`;
 
-        topAuthBtn.innerHTML = `
-          <div class="flex items-center space-x-3 cursor-pointer" onclick="viewProfile('${session.user.id}', '${username}')">
+        headerAvatarBtn.innerHTML = `
+          <div class="flex items-center space-x-2 cursor-pointer" onclick="viewProfile('${session.user.id}', '${username}')">
             ${avatarHTML}
-            <button onclick="handleLogout(event)" class="text-gray-400 hover:text-white ml-1"><i data-lucide="log-out" class="w-4 h-4"></i></button>
+            <button onclick="handleLogout(event)" class="text-gray-400 hover:text-white p-1"><i data-lucide="log-out" class="w-4 h-4"></i></button>
           </div>`;
       } else {
-        topAuthBtn.innerHTML = `<button onclick="openAuthModal()" class="bg-[#FE2C55] px-4 py-1.5 rounded-full text-xs font-bold hover:bg-red-600 transition">Sign In</button>`;
+        headerAvatarBtn.innerHTML = `<button onclick="openAuthModal()" class="bg-[#FE2C55] px-4 py-1.5 rounded-xl text-xs font-bold text-white hover:bg-red-600 transition">Sign In</button>`;
       }
       lucide.createIcons();
     }
@@ -539,40 +667,102 @@
         const isVideo = post.video_url.match(/\.(mp4|webm|mov)$/i);
 
         return `
-          <div class="bg-slate-900 border border-white/10 rounded-2xl overflow-hidden shadow-xl w-full">
-            <div class="flex items-center justify-between p-3 border-b border-white/10">
+          <div class="bg-slate-900 border border-white/10 rounded-2xl overflow-hidden shadow-2xl relative">
+            
+            <!-- Post Header -->
+            <div class="flex items-center justify-between p-4 border-b border-white/10">
               <div class="flex items-center space-x-3 cursor-pointer" onclick="viewProfile('${post.user_id}', '${username}')">
-                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-bold text-black text-xs">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-bold text-black text-sm">
                   ${username.charAt(0).toUpperCase()}
                 </div>
-                <span class="font-bold text-xs text-white">@${username}</span>
+                <div>
+                  <h4 class="font-bold text-xs text-white">@${username}</h4>
+                  <p class="text-[10px] text-gray-400">2 hours ago • Kampala, Uganda</p>
+                </div>
               </div>
-              <i data-lucide="more-horizontal" class="w-4 h-4 text-gray-400"></i>
+              <button class="text-gray-400 hover:text-white"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button>
             </div>
 
-            <div class="w-full bg-black aspect-square flex items-center justify-center overflow-hidden">
+            <!-- Media Container with Floating Right Controls -->
+            <div class="relative w-full aspect-[4/3] bg-black flex items-center justify-center overflow-hidden">
               ${isVideo ? `
-                <video src="${post.video_url}" class="w-full h-full object-cover cursor-pointer" loop playsinline onclick="this.paused ? this.play() : this.pause()"></video>
+                <video src="${post.video_url}" class="w-full h-full object-cover" loop playsinline></video>
+                <button onclick="playProfileVideo(this.previousElementSibling)" class="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition">
+                  <div class="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white">
+                    <i data-lucide="play" class="w-6 h-6 fill-white"></i>
+                  </div>
+                </button>
               ` : `
                 <img src="${post.video_url}" class="w-full h-full object-cover" alt="Post Image">
               `}
-            </div>
 
-            <div class="p-3 space-y-2">
-              <div class="flex items-center justify-between text-white">
-                <div class="flex items-center space-x-4">
-                  <button onclick="likeVideo('${post.id}', ${post.likes_count || 0})">
-                    <i data-lucide="heart" class="w-6 h-6 hover:text-[#FE2C55] transition"></i>
-                  </button>
-                  <button onclick="openComments('${post.id}')">
-                    <i data-lucide="message-circle" class="w-6 h-6 hover:text-cyan-400 transition"></i>
-                  </button>
+              <!-- Right Overlay Controls -->
+              <div class="absolute right-3 bottom-12 flex flex-col items-center space-y-4 z-20">
+                
+                <div class="relative cursor-pointer group" onclick="viewProfile('${post.user_id}', '${username}')">
+                  <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-bold text-black text-xs border border-white">
+                    ${username.charAt(0).toUpperCase()}
+                  </div>
+                  <span class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-4 h-4 bg-[#FE2C55] rounded-full flex items-center justify-center text-white text-[10px] font-bold">+</span>
                 </div>
+
+                <button onclick="likeVideo('${post.id}', ${post.likes_count || 0})" class="flex flex-col items-center text-white group">
+                  <div class="w-10 h-10 rounded-full bg-slate-900/80 backdrop-blur-md border border-white/10 flex items-center justify-center group-hover:bg-white/20 transition">
+                    <i data-lucide="heart" class="w-5 h-5 text-white fill-white"></i>
+                  </div>
+                  <span class="text-[10px] font-bold mt-1">${post.likes_count || '12.4K'}</span>
+                </button>
+
+                <button onclick="openComments('${post.id}')" class="flex flex-col items-center text-white group">
+                  <div class="w-10 h-10 rounded-full bg-slate-900/80 backdrop-blur-md border border-white/10 flex items-center justify-center group-hover:bg-white/20 transition">
+                    <i data-lucide="message-circle" class="w-5 h-5"></i>
+                  </div>
+                  <span class="text-[10px] font-bold mt-1">320</span>
+                </button>
+
+                <button onclick="showToast('Link copied')" class="flex flex-col items-center text-white group">
+                  <div class="w-10 h-10 rounded-full bg-slate-900/80 backdrop-blur-md border border-white/10 flex items-center justify-center group-hover:bg-white/20 transition">
+                    <i data-lucide="share-2" class="w-5 h-5"></i>
+                  </div>
+                  <span class="text-[10px] font-bold mt-1">1.1K</span>
+                </button>
+
+                <button onclick="showToast('Saved to bookmark')" class="flex flex-col items-center text-white group">
+                  <div class="w-10 h-10 rounded-full bg-slate-900/80 backdrop-blur-md border border-white/10 flex items-center justify-center group-hover:bg-white/20 transition">
+                    <i data-lucide="bookmark" class="w-5 h-5"></i>
+                  </div>
+                  <span class="text-[10px] font-bold mt-1">Save</span>
+                </button>
+
               </div>
 
-              <p class="text-xs font-bold text-white">${post.likes_count || 0} likes</p>
-              <p class="text-xs text-gray-300"><span class="font-bold text-white mr-2">@${username}</span>${post.caption || ''}</p>
+              <!-- Media Bottom Progress Bar -->
+              <div class="absolute bottom-3 left-3 right-16 flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-black/50 backdrop-blur-md text-[10px] text-gray-300">
+                <span>00:02 / 00:30</span>
+                <div class="flex-1 h-1 bg-white/20 rounded-full overflow-hidden">
+                  <div class="w-1/4 h-full bg-[#FE2C55]"></div>
+                </div>
+                <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+                <i data-lucide="maximize" class="w-3.5 h-3.5"></i>
+              </div>
+
             </div>
+
+            <!-- Caption & Hashtags Footer -->
+            <div class="p-4 space-y-1.5">
+              <p class="text-xs font-bold text-white">@${username} <span class="font-normal text-gray-300">${post.caption || 'Try'}</span></p>
+              <div class="flex flex-wrap gap-1.5 text-xs font-bold text-cyan-400">
+                <span>#motivation</span>
+                <span>#mindset</span>
+                <span>#discipline</span>
+                <span>#fyp</span>
+              </div>
+              <div class="flex items-center space-x-1.5 text-[11px] text-gray-400 pt-1">
+                <i data-lucide="music" class="w-3 h-3 text-[#25F4EE]"></i>
+                <span>original sound - songeffects_</span>
+              </div>
+            </div>
+
           </div>
         `;
       }).join('');
@@ -584,10 +774,8 @@
       if (vEl.paused) { vEl.play(); } else { vEl.pause(); }
     }
 
-    // RENDER MATCHING DESIGNER PROFILE VIEW
     async function viewProfile(userId, fallbackUsername = 'KDenis000') {
       currentProfileUserId = userId;
-      document.getElementById('home-feed-view').classList.add('hidden');
       const container = document.getElementById('profile-container');
       container.classList.remove('hidden');
       container.innerHTML = `<p class="text-center py-20 text-gray-400">Loading Profile...</p>`;
@@ -612,214 +800,39 @@
 
       const avatarDisplay = avatarUrl 
         ? `<img src="${avatarUrl}" class="w-full h-full rounded-full object-cover">`
-        : `<div class="w-full h-full rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center text-6xl font-black text-black">${username.charAt(0).toUpperCase()}</div>`;
+        : `<div class="w-full h-full rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center text-5xl font-black text-black">${username.charAt(0).toUpperCase()}</div>`;
 
       container.innerHTML = `
-        <div class="max-w-6xl mx-auto space-y-6">
+        <div class="max-w-4xl mx-auto space-y-6">
+          <button onclick="closeProfilePage()" class="px-4 py-2 bg-slate-900 rounded-xl text-xs font-bold text-white border border-white/10">← Back to Feed</button>
           
-          <!-- BANNER / COVER IMAGE SECTION -->
-          <div class="relative w-full h-64 md:h-80 rounded-2xl overflow-hidden bg-slate-900 border border-white/10 shadow-2xl">
-            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80" class="w-full h-full object-cover">
-            <div class="absolute inset-0 cover-gradient flex items-center justify-between p-6">
-              
-              <div class="text-left space-y-1">
-                <p class="text-[10px] tracking-widest uppercase font-bold text-gray-300">S A M E</p>
-                <p class="text-[10px] tracking-widest uppercase font-bold text-gray-300">K I D</p>
-                <p class="text-[10px] tracking-widest uppercase font-bold text-gray-300">B I G G E R</p>
-                <p class="text-[10px] tracking-widest uppercase font-bold text-gray-300">V I S I O N</p>
+          <div class="flex items-center space-x-6 border-b border-white/10 pb-6">
+            <div class="w-24 h-24 rounded-full p-1 story-gradient shrink-0">
+              <div class="w-full h-full rounded-full bg-slate-950 p-1">
+                ${avatarDisplay}
               </div>
-
-              <div class="hidden md:block text-right">
-                <h3 class="text-2xl font-black italic tracking-wide text-white">Good Content Better People</h3>
-              </div>
-
-              <button onclick="showToast('Edit cover updated')" class="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-lg text-xs font-bold text-white hover:bg-black/80 transition flex items-center space-x-1.5">
-                <i data-lucide="camera" class="w-3.5 h-3.5"></i>
-                <span>Edit Cover</span>
-              </button>
+            </div>
+            <div>
+              <h2 class="text-2xl font-extrabold text-white">@${username}</h2>
+              <p class="text-xs text-gray-400 mt-0.5">${bio}</p>
+              <p class="text-xs text-cyan-400 mt-2 font-semibold">${videos ? videos.length : 0} Posts published</p>
             </div>
           </div>
 
-          <!-- PROFILE HEADER ROW -->
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 px-4">
-            
-            <!-- Left Profile Card -->
-            <div class="lg:col-span-2 flex flex-col md:flex-row items-start space-y-4 md:space-y-0 md:space-x-6">
-              
-              <!-- Avatar Circle -->
-              <div class="relative shrink-0">
-                <div class="w-32 h-32 md:w-40 md:h-40 rounded-full p-1 avatar-ring shadow-2xl">
-                  <div class="w-full h-full rounded-full bg-slate-950 p-1">
-                    ${avatarDisplay}
-                  </div>
-                </div>
-                <span class="absolute bottom-2 right-2 w-5 h-5 bg-emerald-500 border-2 border-slate-950 rounded-full"></span>
-              </div>
-
-              <!-- Profile Details -->
-              <div class="space-y-3 flex-1">
-                <div class="flex items-center space-x-2">
-                  <h1 class="text-2xl font-black text-white">@${username}</h1>
-                  <i data-lucide="check-circle-2" class="w-5 h-5 text-sky-400 fill-sky-400"></i>
-                </div>
-
-                <p class="text-xs text-gray-300 font-medium">Creator | Uganda 🇺🇬</p>
-                <p class="text-xs text-gray-400">Videos • Football • Lifestyle • Tech</p>
-                <p class="text-xs text-gray-200 font-semibold">${bio}</p>
-
-                <a href="https://linktr.ee/kdenis000" target="_blank" class="inline-flex items-center space-x-1.5 text-xs text-cyan-400 font-bold hover:underline">
-                  <i data-lucide="link" class="w-3.5 h-3.5"></i>
-                  <span>linktr.ee/kdenis000</span>
-                </a>
-
-                <!-- Action Buttons & Stats Row -->
-                <div class="flex items-center space-x-3 pt-2">
-                  ${currentUserId === userId ? `
-                    <button onclick="openEditProfileModal()" class="bg-[#FE2C55] hover:bg-red-600 px-6 py-2 rounded-xl text-xs font-bold text-white transition">Edit Profile</button>
-                  ` : `
-                    <button onclick="showToast('Followed creator')" class="bg-[#FE2C55] hover:bg-red-600 px-6 py-2 rounded-xl text-xs font-bold text-white transition">Follow</button>
-                  `}
-                  <button onclick="showToast('Messages opened')" class="bg-slate-900 border border-white/10 hover:bg-slate-800 px-4 py-2 rounded-xl text-xs font-bold text-white transition flex items-center space-x-1.5">
-                    <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
-                    <span>Message</span>
-                  </button>
-                  <button onclick="showToast('Link copied')" class="bg-slate-900 border border-white/10 hover:bg-slate-800 p-2 rounded-xl text-white transition">
-                    <i data-lucide="share-2" class="w-4 h-4"></i>
-                  </button>
-                  <button onclick="showToast('Options')" class="bg-slate-900 border border-white/10 hover:bg-slate-800 p-2 rounded-xl text-white transition">
-                    <i data-lucide="more-horizontal" class="w-4 h-4"></i>
-                  </button>
-                </div>
-
-                <!-- Posts/Followers Stats -->
-                <div class="flex items-center space-x-8 pt-3 text-center">
-                  <div>
-                    <p class="text-lg font-black text-white">${videos ? videos.length : 234}</p>
-                    <p class="text-[10px] text-gray-400 uppercase font-semibold">Posts</p>
-                  </div>
-                  <div>
-                    <p class="text-lg font-black text-white">18.2K</p>
-                    <p class="text-[10px] text-gray-400 uppercase font-semibold">Followers</p>
-                  </div>
-                  <div>
-                    <p class="text-lg font-black text-white">320K</p>
-                    <p class="text-[10px] text-gray-400 uppercase font-semibold">Likes</p>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-
-            <!-- Right Engagement Box -->
-            <div class="bg-slate-900/60 border border-white/10 rounded-2xl p-5 h-fit space-y-4">
-              <div class="flex items-center justify-between text-xs">
-                <span class="text-gray-400 font-medium">Engagement Rate</span>
-                <span class="font-extrabold text-white">92%</span>
-              </div>
-              <div class="flex items-center justify-between text-xs">
-                <span class="text-gray-400 font-medium">Following</span>
-                <span class="font-extrabold text-white">194</span>
-              </div>
-              <div class="flex items-center justify-between text-xs">
-                <span class="text-gray-400 font-medium">Joined</span>
-                <span class="font-extrabold text-white">Jan 2024</span>
-              </div>
-            </div>
-
-          </div>
-
-          <!-- HIGHLIGHTS STORY CIRCLES -->
-          <div class="flex items-center space-x-6 overflow-x-auto no-scrollbar py-4 px-4 border-t border-white/10">
-            <div class="flex flex-col items-center space-y-1.5 shrink-0 cursor-pointer" onclick="openUploadModal()">
-              <div class="w-14 h-14 rounded-full border-2 border-dashed border-white/30 flex items-center justify-center text-white hover:border-[#FE2C55] transition">
-                <i data-lucide="plus" class="w-5 h-5"></i>
-              </div>
-              <span class="text-[11px] font-semibold text-gray-300">New</span>
-            </div>
-
-            <div class="flex flex-col items-center space-y-1.5 shrink-0 cursor-pointer">
-              <div class="w-14 h-14 rounded-full border-2 border-white/20 p-0.5 overflow-hidden">
-                <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=200&q=80" class="w-full h-full rounded-full object-cover">
-              </div>
-              <span class="text-[11px] font-semibold text-gray-300">Life</span>
-            </div>
-
-            <div class="flex flex-col items-center space-y-1.5 shrink-0 cursor-pointer">
-              <div class="w-14 h-14 rounded-full border-2 border-white/20 p-0.5 overflow-hidden">
-                <img src="https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=200&q=80" class="w-full h-full rounded-full object-cover">
-              </div>
-              <span class="text-[11px] font-semibold text-gray-300">Football</span>
-            </div>
-
-            <div class="flex flex-col items-center space-y-1.5 shrink-0 cursor-pointer">
-              <div class="w-14 h-14 rounded-full border-2 border-white/20 p-0.5 overflow-hidden">
-                <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=200&q=80" class="w-full h-full rounded-full object-cover">
-              </div>
-              <span class="text-[11px] font-semibold text-gray-300">Tech</span>
-            </div>
-
-            <div class="flex flex-col items-center space-y-1.5 shrink-0 cursor-pointer">
-              <div class="w-14 h-14 rounded-full border-2 border-white/20 p-0.5 overflow-hidden">
-                <img src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=200&q=80" class="w-full h-full rounded-full object-cover">
-              </div>
-              <span class="text-[11px] font-semibold text-gray-300">Travel</span>
-            </div>
-
-            <div class="flex flex-col items-center space-y-1.5 shrink-0 cursor-pointer">
-              <div class="w-14 h-14 rounded-full border-2 border-white/20 p-0.5 overflow-hidden">
-                <img src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=200&q=80" class="w-full h-full rounded-full object-cover">
-              </div>
-              <span class="text-[11px] font-semibold text-gray-300">Motivation</span>
-            </div>
-
-            <div class="flex flex-col items-center space-y-1.5 shrink-0 cursor-pointer">
-              <div class="w-14 h-14 rounded-full border-2 border-white/20 p-0.5 overflow-hidden">
-                <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=200&q=80" class="w-full h-full rounded-full object-cover">
-              </div>
-              <span class="text-[11px] font-semibold text-gray-300">Moments</span>
-            </div>
-          </div>
-
-          <!-- TABS ROW -->
-          <div class="flex items-center justify-center space-x-12 border-t border-b border-white/10 text-xs font-bold text-gray-400 py-3">
-            <button class="text-white border-b-2 border-[#FE2C55] pb-1 flex items-center space-x-2">
-              <i data-lucide="grid" class="w-4 h-4"></i>
-              <span>Posts</span>
-            </button>
-            <button class="hover:text-white flex items-center space-x-2">
-              <i data-lucide="clapperboard" class="w-4 h-4"></i>
-              <span>Reels</span>
-            </button>
-            <button class="hover:text-white flex items-center space-x-2">
-              <i data-lucide="heart" class="w-4 h-4"></i>
-              <span>Liked</span>
-            </button>
-          </div>
-
-          <!-- PROFILE MEDIA GRID -->
-          <div class="grid grid-cols-2 md:grid-cols-3 gap-3 px-4">
+          <div class="grid grid-cols-3 gap-3">
             ${videos && videos.length > 0 ? videos.map(v => {
               const isVideo = v.video_url.match(/\.(mp4|webm|mov)$/i);
               return `
-                <div class="aspect-[9/16] bg-slate-900 rounded-xl overflow-hidden relative cursor-pointer group shadow-xl border border-white/5" onclick="${isVideo ? "playProfileVideo(this.querySelector('video'))" : ""}">
+                <div class="aspect-[9/16] bg-slate-900 rounded-xl overflow-hidden relative cursor-pointer group" onclick="${isVideo ? "playProfileVideo(this.querySelector('video'))" : ""}">
                   ${isVideo ? `
                     <video src="${v.video_url}" class="w-full h-full object-cover" loop playsinline></video>
                   ` : `
                     <img src="${v.video_url}" class="w-full h-full object-cover">
                   `}
-                  <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-3">
-                    <span class="text-xs font-extrabold text-white flex items-center space-x-1">
-                      <i data-lucide="play" class="w-3.5 h-3.5 fill-white"></i>
-                      <span>1.2M</span>
-                    </span>
-                  </div>
                 </div>
               `;
-            }).join('') : `
-              <p class="col-span-full text-center py-12 text-xs text-gray-500">No posts published yet.</p>
-            `}
+            }).join('') : '<p class="col-span-3 text-center py-12 text-xs text-gray-500">No posts published yet.</p>'}
           </div>
-
         </div>
       `;
       lucide.createIcons();
