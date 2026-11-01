@@ -31,7 +31,7 @@
 </head>
 <body class="h-screen w-screen flex bg-black text-white overflow-hidden">
 
-  <!-- LEFT SIDEBAR NAVIGATION (INSTAGRAM STYLE) -->
+  <!-- LEFT SIDEBAR NAVIGATION -->
   <aside class="hidden md:flex flex-col justify-between w-16 lg:w-64 border-r border-neutral-800 p-4 bg-black z-30 shrink-0">
     <div class="space-y-6">
       <!-- Logo -->
@@ -42,25 +42,18 @@
         <h1 class="hidden lg:block font-extrabold text-xl tracking-tight text-white">ViroKDK</h1>
       </div>
 
+      <!-- Search Input Box -->
+      <div class="hidden lg:block relative w-full px-1">
+        <i data-lucide="search" class="w-4 h-4 absolute left-4 top-3 text-neutral-400"></i>
+        <input type="text" id="sidebar-search-input" oninput="handleSearch(this.value)" placeholder="Search posts or users..." class="w-full bg-neutral-900 text-xs text-white rounded-xl py-2.5 pl-10 pr-4 focus:outline-none border border-neutral-800">
+      </div>
+
       <!-- Navigation Links -->
       <nav class="space-y-2">
         <button onclick="clearSearchAndReload()" class="w-full flex items-center space-x-4 p-3 rounded-xl text-white font-bold hover:bg-neutral-900 transition">
           <i data-lucide="home" class="w-6 h-6"></i>
           <span class="hidden lg:block">Home</span>
         </button>
-        <button onclick="showToast('Search feature active')" class="w-full flex items-center space-x-4 p-3 rounded-xl text-neutral-300 font-semibold hover:bg-neutral-900 transition">
-          <i data-lucide="search" class="w-6 h-6"></i>
-          <span class="hidden lg:block">Search</span>
-        </button>
-        <button onclick="showToast('Explore feed')" class="w-full flex items-center space-x-4 p-3 rounded-xl text-neutral-300 font-semibold hover:bg-neutral-900 transition">
-          <i data-lucide="compass" class="w-6 h-6"></i>
-          <span class="hidden lg:block">Explore</span>
-        </button>
-        <button onclick="showToast('Reels feed')" class="w-full flex items-center space-x-4 p-3 rounded-xl text-neutral-300 font-semibold hover:bg-neutral-900 transition">
-          <i data-lucide="clapperboard" class="w-6 h-6"></i>
-          <span class="hidden lg:block">Reels</span>
-        </button>
-
         <button onclick="openUploadModal()" class="w-full flex items-center space-x-4 p-3 rounded-xl text-neutral-300 font-semibold hover:bg-neutral-900 transition">
           <i data-lucide="plus-square" class="w-6 h-6"></i>
           <span class="hidden lg:block">Create</span>
@@ -78,15 +71,15 @@
     </div>
   </aside>
 
-  <!-- MAIN CONTAINER (STORIES + FEED + RIGHT SIDEBAR) -->
+  <!-- MAIN CONTAINER -->
   <main class="flex-1 h-full overflow-y-auto no-scrollbar flex justify-center bg-black">
-    <div class="w-full max-w-5xl flex gap-8 p-4 lg:p-8">
+    <div class="w-full max-w-3xl flex flex-col items-center p-4 lg:p-8">
       
       <!-- CENTER FEED AREA -->
-      <div class="flex-1 max-w-[470px] mx-auto space-y-6">
+      <div class="w-full max-w-[470px] space-y-6">
         
         <!-- STORIES TRAY -->
-        <div class="flex items-center space-x-4 overflow-x-auto no-scrollbar py-2 border-b border-neutral-900">
+        <div class="flex items-center space-x-4 overflow-x-auto no-scrollbar py-2 border-b border-neutral-900 w-full">
           <div class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer" onclick="openUploadModal()">
             <div class="relative w-16 h-16 rounded-full p-[2px] bg-neutral-800 flex items-center justify-center">
               <div class="w-full h-full rounded-full bg-neutral-900 flex items-center justify-center text-white">
@@ -95,108 +88,15 @@
             </div>
             <span class="text-[11px] text-neutral-400">Your Story</span>
           </div>
-
-          <!-- Sample Stories -->
-          <div class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer">
-            <div class="w-16 h-16 rounded-full p-[2px] story-ring">
-              <div class="w-full h-full rounded-full bg-black p-[2px]">
-                <div class="w-full h-full rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-bold text-black text-xs">M</div>
-              </div>
-            </div>
-            <span class="text-[11px] text-neutral-300">manutd</span>
-          </div>
-
-          <div class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer">
-            <div class="w-16 h-16 rounded-full p-[2px] story-ring">
-              <div class="w-full h-full rounded-full bg-black p-[2px]">
-                <div class="w-full h-full rounded-full bg-slate-800 flex items-center justify-center font-bold text-cyan-400 text-xs">K</div>
-              </div>
-            </div>
-            <span class="text-[11px] text-neutral-300">kevindebru...</span>
-          </div>
-
-          <div class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer">
-            <div class="w-16 h-16 rounded-full p-[2px] story-ring">
-              <div class="w-full h-full rounded-full bg-black p-[2px]">
-                <div class="w-full h-full rounded-full bg-rose-900 flex items-center justify-center font-bold text-white text-xs">Z</div>
-              </div>
-            </div>
-            <span class="text-[11px] text-neutral-300">zarithebos...</span>
-          </div>
         </div>
 
         <!-- POSTS FEED CONTAINER -->
-        <div id="posts-feed-container" class="space-y-6">
+        <div id="posts-feed-container" class="space-y-6 w-full">
           <div class="flex flex-col justify-center items-center py-12 text-neutral-500">
             <i data-lucide="loader-2" class="w-8 h-8 animate-spin text-[#FE2C55] mb-2"></i>
             <p class="text-xs font-semibold">Loading Feed...</p>
           </div>
         </div>
-
-      </div>
-
-      <!-- RIGHT SIDEBAR (SUGGESTED FOR YOU) -->
-      <div class="hidden lg:block w-80 space-y-4 shrink-0 pt-4">
-        
-        <!-- Active User Profile Row -->
-        <div id="sidebar-user-info" class="flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-bold text-black text-sm">K</div>
-            <div>
-              <p class="text-xs font-bold text-white" id="sidebar-username">kden.is000</p>
-              <p class="text-[11px] text-neutral-400" id="sidebar-[#FE2C55]name">KIZITO DENIS KASOZI</p>
-            </div>
-          </div>
-          <button onclick="openAuthModal()" class="text-xs font-bold text-[#25F4EE] hover:text-white">Switch</button>
-        </div>
-
-        <!-- Suggested Header -->
-        <div class="flex justify-between items-center pt-2">
-          <span class="text-xs font-bold text-neutral-400">Suggested for you</span>
-          <button class="text-xs font-bold text-white hover:text-neutral-400">See All</button>
-        </div>
-
-        <!-- Suggested Accounts List -->
-        <div class="space-y-3">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-              <div class="w-8 h-8 rounded-full bg-neutral-800 flex items-center justify-center text-xs font-bold">J</div>
-              <div>
-                <p class="text-xs font-bold text-white">J@zera 👑</p>
-                <p class="text-[10px] text-neutral-400">Suggested for you</p>
-              </div>
-            </div>
-            <button class="text-xs font-bold text-[#FE2C55] hover:text-white">Follow</button>
-          </div>
-
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-              <div class="w-8 h-8 rounded-full bg-neutral-800 flex items-center justify-center text-xs font-bold">Z</div>
-              <div>
-                <p class="text-xs font-bold text-white">Zäră Ir★s♡</p>
-                <p class="text-[10px] text-neutral-400">Followed by user123</p>
-              </div>
-            </div>
-            <button class="text-xs font-bold text-[#FE2C55] hover:text-white">Follow</button>
-          </div>
-
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-              <div class="w-8 h-8 rounded-full bg-neutral-800 flex items-center justify-center text-xs font-bold">C</div>
-              <div>
-                <p class="text-xs font-bold text-white">Corazon Ravens</p>
-                <p class="text-[10px] text-neutral-400">Suggested for you</p>
-              </div>
-            </div>
-            <button class="text-xs font-bold text-[#FE2C55] hover:text-white">Follow</button>
-          </div>
-        </div>
-
-        <!-- Footer Info -->
-        <p class="text-[10px] text-neutral-600 leading-relaxed pt-4">
-          About · Help · Press · API · Jobs · Privacy · Terms · Locations · Language
-        </p>
-        <p class="text-[10px] text-neutral-600 font-semibold">© 2026 VIROKDK FROM KDK STUDIOS</p>
 
       </div>
 
@@ -216,7 +116,7 @@
     </button>
   </nav>
 
-  <!-- UPLOAD MEDIA MODAL (PHOTO & VIDEO SUPPORT) -->
+  <!-- UPLOAD MEDIA MODAL -->
   <div id="upload-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
     <div class="bg-neutral-900 border border-neutral-800 rounded-2xl w-full max-w-lg p-6 relative shadow-2xl space-y-4">
       <button onclick="closeUploadModal()" class="absolute top-4 right-4 text-neutral-400 hover:text-white">
@@ -226,8 +126,6 @@
       <h3 class="text-base font-bold text-center border-b border-neutral-800 pb-3">Create New Post</h3>
 
       <form id="upload-form" onsubmit="handleMediaUpload(event)" class="space-y-4">
-        
-        <!-- Drag & Drop Zone -->
         <div class="border-2 border-dashed border-neutral-700 rounded-xl p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#FE2C55] transition bg-black/40" onclick="document.getElementById('upload-file').click()">
           <i data-lucide="image" class="w-10 h-10 text-neutral-400 mb-2"></i>
           <p class="text-sm font-bold text-white" id="file-label-text">Select Photo or Video to Upload</p>
@@ -237,7 +135,7 @@
 
         <div>
           <label class="text-xs font-semibold text-neutral-400 mb-1 block">Caption</label>
-          <input type="text" id="upload-caption" placeholder="Write a caption..." class="w-full bg-neutral-800 text-sm text-white rounded-xl p-3 border border-neutral-700 focus:outline-none focus:ring-1 focus:ring-[#FE2C55]">
+          <input type="text" id="upload-caption" placeholder="Write a caption..." class="w-full bg-neutral-800 text-sm text-white rounded-xl p-3 border border-neutral-700 focus:outline-none">
         </div>
 
         <p id="upload-message" class="text-xs text-center font-semibold hidden"></p>
@@ -281,14 +179,48 @@
     </div>
   </div>
 
+  <!-- EDIT PROFILE MODAL -->
+  <div id="edit-profile-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-neutral-900 border border-neutral-800 rounded-2xl w-full max-w-md p-6 relative shadow-2xl space-y-4">
+      <button onclick="closeEditProfileModal()" class="absolute top-4 right-4 text-neutral-400 hover:text-white">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <h3 class="text-lg font-bold text-center">Edit Profile</h3>
+      <form onsubmit="saveProfileChanges(event)" class="space-y-4">
+        
+        <div class="flex flex-col items-center justify-center space-y-2">
+          <div class="relative w-20 h-20 rounded-full overflow-hidden border-2 border-[#25F4EE] group cursor-pointer" onclick="document.getElementById('edit-avatar-file').click()">
+            <img id="edit-avatar-preview" src="" class="w-full h-full object-cover hidden">
+            <div id="edit-avatar-placeholder" class="w-full h-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center text-2xl font-bold text-black">?</div>
+          </div>
+          <span class="text-xs text-cyan-400 font-semibold cursor-pointer" onclick="document.getElementById('edit-avatar-file').click()">Change Profile Photo</span>
+          <input type="file" id="edit-avatar-file" accept="image/*" class="hidden" onchange="handleAvatarFileSelect(event)">
+        </div>
+
+        <div>
+          <label class="text-xs font-semibold text-neutral-400 block mb-1">Display Name</label>
+          <input type="text" id="edit-name-input" class="w-full bg-neutral-800 border border-neutral-700 rounded-xl p-3 text-sm text-white focus:outline-none">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-neutral-400 block mb-1">Username (@)</label>
+          <input type="text" id="edit-username-input" class="w-full bg-neutral-800 border border-neutral-700 rounded-xl p-3 text-sm text-white focus:outline-none">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-neutral-400 block mb-1">Bio</label>
+          <textarea id="edit-bio-input" rows="3" class="w-full bg-neutral-800 border border-neutral-700 rounded-xl p-3 text-sm text-white focus:outline-none"></textarea>
+        </div>
+
+        <button type="submit" id="save-profile-btn" class="w-full py-3 bg-[#FE2C55] hover:bg-red-600 font-bold rounded-xl text-white transition">Save Changes</button>
+      </form>
+    </div>
+  </div>
+
   <!-- COMMENTS DRAWER MODAL -->
   <div id="comment-drawer" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="w-full max-w-md bg-neutral-900 border border-neutral-800 rounded-2xl h-[500px] flex flex-col overflow-hidden shadow-2xl">
       <div class="p-4 border-b border-neutral-800 flex items-center justify-between">
         <h3 class="font-bold text-sm">Comments</h3>
-        <button onclick="closeCommentDrawer()" class="text-neutral-400 hover:text-white">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+        <button onclick="closeCommentDrawer()" class="text-neutral-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <div id="comment-list" class="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar"></div>
       <form onsubmit="postComment(event)" class="p-3 border-t border-neutral-800 flex items-center space-x-2 bg-black">
@@ -314,11 +246,14 @@
 
     let isSignUp = false;
     let activeVideoId = null;
+    let allPostsCache = [];
+    let currentProfileUserId = null;
+    let selectedAvatarBase64 = null;
 
     document.addEventListener("DOMContentLoaded", () => {
       lucide.createIcons();
       checkUserSession();
-      loadVideos();
+      loadPosts();
     });
 
     function openAuthModal() { document.getElementById('auth-modal').classList.remove('hidden'); }
@@ -331,6 +266,83 @@
     }
     function closeUploadModal() { document.getElementById('upload-modal').classList.add('hidden'); }
     function closeProfilePage() { document.getElementById('profile-container').classList.add('hidden'); }
+
+    function handleAvatarFileSelect(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          selectedAvatarBase64 = e.target.result;
+          const preview = document.getElementById('edit-avatar-preview');
+          const placeholder = document.getElementById('edit-avatar-placeholder');
+          preview.src = selectedAvatarBase64;
+          preview.classList.remove('hidden');
+          placeholder.classList.add('hidden');
+        }
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function openEditProfileModal() {
+      db.auth.getSession().then(({ data: { session } }) => {
+        if (!session) return;
+        const userMeta = session.user.user_metadata || {};
+        document.getElementById('edit-name-input').value = userMeta.display_name || userMeta.username || '';
+        document.getElementById('edit-username-input').value = userMeta.username || '';
+        document.getElementById('edit-bio-input').value = userMeta.bio || '';
+        
+        const preview = document.getElementById('edit-avatar-preview');
+        const placeholder = document.getElementById('edit-avatar-placeholder');
+
+        if (userMeta.avatar_url) {
+          preview.src = userMeta.avatar_url;
+          preview.classList.remove('hidden');
+          placeholder.classList.add('hidden');
+        } else {
+          preview.classList.add('hidden');
+          placeholder.classList.remove('hidden');
+          placeholder.innerText = (userMeta.username || 'U').charAt(0).toUpperCase();
+        }
+
+        document.getElementById('edit-profile-modal').classList.remove('hidden');
+      });
+    }
+    function closeEditProfileModal() { document.getElementById('edit-profile-modal').classList.add('hidden'); }
+
+    async function saveProfileChanges(e) {
+      e.preventDefault();
+      const saveBtn = document.getElementById('save-profile-btn');
+      saveBtn.disabled = true;
+      saveBtn.innerText = "Saving changes...";
+
+      const newName = document.getElementById('edit-name-input').value;
+      const newUsername = document.getElementById('edit-username-input').value;
+      const newBio = document.getElementById('edit-bio-input').value;
+
+      const { data: { session } } = await db.auth.getSession();
+      let avatarUrl = session.user.user_metadata?.avatar_url || null;
+
+      if (selectedAvatarBase64) {
+        avatarUrl = selectedAvatarBase64;
+      }
+
+      const { error } = await db.auth.updateUser({
+        data: { display_name: newName, username: newUsername, bio: newBio, avatar_url: avatarUrl }
+      });
+
+      saveBtn.disabled = false;
+      saveBtn.innerText = "Save Changes";
+
+      if (error) {
+        showToast(error.message);
+      } else {
+        showToast("Profile updated successfully!");
+        selectedAvatarBase64 = null;
+        closeEditProfileModal();
+        checkUserSession();
+        viewProfile(currentProfileUserId, newUsername);
+      }
+    }
 
     function toggleAuthMode() {
       isSignUp = !isSignUp;
@@ -352,7 +364,7 @@
       msg.innerText = 'Processing...';
 
       let result = isSignUp 
-        ? await db.auth.signUp({ email, password, options: { data: { username, display_name: username } } })
+        ? await db.auth.signUp({ email, password, options: { data: { username, display_name: username, bio: "Hey there! I am using ViroKDK." } } })
         : await db.auth.signInWithPassword({ email, password });
 
       if (result.error) {
@@ -362,7 +374,7 @@
         msg.classList.add('text-green-400');
         msg.innerText = isSignUp ? 'Account created! Log in.' : 'Logged in successfully!';
         if (!isSignUp) {
-          setTimeout(() => { closeAuthModal(); checkUserSession(); loadVideos(); }, 1000);
+          setTimeout(() => { closeAuthModal(); checkUserSession(); loadPosts(); }, 1000);
         }
       }
     }
@@ -372,15 +384,18 @@
       const desktopUserCard = document.getElementById('desktop-user-card');
 
       if (session?.user) {
-        const username = session.user.user_metadata?.username || session.user.email.split('@')[0];
-        document.getElementById('sidebar-username').innerText = `@${username}`;
+        const userMeta = session.user.user_metadata || {};
+        const username = userMeta.username || session.user.email.split('@')[0];
+        const avatarUrl = userMeta.avatar_url;
+
+        const avatarHTML = avatarUrl 
+          ? `<img src="${avatarUrl}" class="w-8 h-8 rounded-full object-cover border border-[#25F4EE]">`
+          : `<div class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-bold text-black text-xs">${username.charAt(0).toUpperCase()}</div>`;
 
         desktopUserCard.innerHTML = `
           <div class="flex items-center justify-between w-full cursor-pointer" onclick="viewProfile('${session.user.id}', '${username}')">
             <div class="flex items-center space-x-3">
-              <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-bold text-black text-xs">
-                ${username.charAt(0).toUpperCase()}
-              </div>
+              ${avatarHTML}
               <p class="hidden lg:block text-xs font-bold text-white truncate">@${username}</p>
             </div>
             <button onclick="handleLogout(event)" class="text-neutral-400 hover:text-white"><i data-lucide="log-out" class="w-4 h-4"></i></button>
@@ -395,7 +410,7 @@
       e.stopPropagation();
       await db.auth.signOut();
       checkUserSession();
-      loadVideos();
+      loadPosts();
       showToast("Logged out");
     }
 
@@ -446,7 +461,7 @@
           fileInput.value = '';
           captionInput.value = '';
           msg.classList.add('hidden');
-          loadVideos();
+          loadPosts();
         }, 1200);
       }
     }
@@ -457,7 +472,7 @@
 
       const newLikes = currentLikes + 1;
       const { error } = await db.from('videos').update({ likes_count: newLikes }).eq('id', videoId);
-      if (!error) loadVideos();
+      if (!error) loadPosts();
     }
 
     async function openComments(videoId) {
@@ -508,104 +523,169 @@
       }
     }
 
-    async function loadVideos() {
-      const container = document.getElementById('posts-feed-container');
+    // SEARCH FUNCTIONALITY
+    function handleSearch(query) {
+      const q = query.toLowerCase().trim();
+      if (!q) {
+        renderFeed(allPostsCache);
+        return;
+      }
+      const filtered = allPostsCache.filter(p => 
+        (p.caption && p.caption.toLowerCase().includes(q)) || 
+        (p.username && p.username.toLowerCase().includes(q))
+      );
+      renderFeed(filtered);
+    }
+
+    function clearSearchAndReload() {
+      const input = document.getElementById('sidebar-search-input');
+      if (input) input.value = '';
+      renderFeed(allPostsCache);
+    }
+
+    async function loadPosts() {
       try {
         const { data: posts, error } = await db.from('videos').select('*').order('created_at', { ascending: false });
-
         if (error || !posts || posts.length === 0) {
-          container.innerHTML = `<p class="text-center text-neutral-500 py-12 text-sm">No posts yet. Click Create to post!</p>`;
+          document.getElementById('posts-feed-container').innerHTML = `<p class="text-center text-neutral-500 py-12 text-sm">No posts yet. Click Create to post!</p>`;
           return;
         }
-
-        container.innerHTML = posts.map(post => {
-          const username = post.username || 'creator';
-          const isVideo = post.video_url.match(/\.(mp4|webm|mov)$/i);
-
-          return `
-            <div class="bg-black border border-neutral-900 rounded-2xl overflow-hidden shadow-xl">
-              <!-- Post Header -->
-              <div class="flex items-center justify-between p-3 border-b border-neutral-900">
-                <div class="flex items-center space-x-3 cursor-pointer" onclick="viewProfile('${post.user_id}', '${username}')">
-                  <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-bold text-black text-xs">
-                    ${username.charAt(0).toUpperCase()}
-                  </div>
-                  <span class="font-bold text-xs text-white">@${username}</span>
-                </div>
-                <i data-lucide="more-horizontal" class="w-4 h-4 text-neutral-400"></i>
-              </div>
-
-              <!-- Media Display (Photo or Video) -->
-              <div class="w-full bg-neutral-950 aspect-square flex items-center justify-center overflow-hidden">
-                ${isVideo ? `
-                  <video src="${post.video_url}" class="w-full h-full object-cover" loop controls></video>
-                ` : `
-                  <img src="${post.video_url}" class="w-full h-full object-cover" alt="Post Image">
-                `}
-              </div>
-
-              <!-- Actions & Caption -->
-              <div class="p-3 space-y-2">
-                <div class="flex items-center justify-between text-white">
-                  <div class="flex items-center space-x-4">
-                    <button onclick="likeVideo('${post.id}', ${post.likes_count || 0})">
-                      <i data-lucide="heart" class="w-6 h-6 hover:text-[#FE2C55] transition"></i>
-                    </button>
-                    <button onclick="openComments('${post.id}')">
-                      <i data-lucide="message-circle" class="w-6 h-6 hover:text-cyan-400 transition"></i>
-                    </button>
-                    <i data-lucide="send" class="w-6 h-6 hover:text-neutral-400 transition"></i>
-                  </div>
-                  <i data-lucide="bookmark" class="w-6 h-6 hover:text-amber-400 transition"></i>
-                </div>
-
-                <p class="text-xs font-bold text-white">${post.likes_count || 0} likes</p>
-                <p class="text-xs text-neutral-300"><span class="font-bold text-white mr-2">@${username}</span>${post.caption || ''}</p>
-              </div>
-            </div>
-          `;
-        }).join('');
-
-        lucide.createIcons();
+        allPostsCache = posts;
+        renderFeed(allPostsCache);
       } catch (err) {
-        container.innerHTML = `<p class="text-center text-red-500 py-6 text-xs">Failed to load feed.</p>`;
+        document.getElementById('posts-feed-container').innerHTML = `<p class="text-center text-red-500 py-6 text-xs">Failed to load feed.</p>`;
       }
     }
 
+    function renderFeed(posts) {
+      const container = document.getElementById('posts-feed-container');
+      if (!posts || posts.length === 0) {
+        container.innerHTML = `<p class="text-center text-neutral-500 py-12 text-sm">No matching posts found.</p>`;
+        return;
+      }
+
+      container.innerHTML = posts.map(post => {
+        const username = post.username || 'creator';
+        const isVideo = post.video_url.match(/\.(mp4|webm|mov)$/i);
+
+        return `
+          <div class="bg-black border border-neutral-900 rounded-2xl overflow-hidden shadow-xl w-full">
+            <div class="flex items-center justify-between p-3 border-b border-neutral-900">
+              <div class="flex items-center space-x-3 cursor-pointer" onclick="viewProfile('${post.user_id}', '${username}')">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-bold text-black text-xs">
+                  ${username.charAt(0).toUpperCase()}
+                </div>
+                <span class="font-bold text-xs text-white">@${username}</span>
+              </div>
+              <i data-lucide="more-horizontal" class="w-4 h-4 text-neutral-400"></i>
+            </div>
+
+            <div class="w-full bg-neutral-950 aspect-square flex items-center justify-center overflow-hidden">
+              ${isVideo ? `
+                <video src="${post.video_url}" class="w-full h-full object-cover cursor-pointer" loop playsinline onclick="this.paused ? this.play() : this.pause()"></video>
+              ` : `
+                <img src="${post.video_url}" class="w-full h-full object-cover" alt="Post Image">
+              `}
+            </div>
+
+            <div class="p-3 space-y-2">
+              <div class="flex items-center justify-between text-white">
+                <div class="flex items-center space-x-4">
+                  <button onclick="likeVideo('${post.id}', ${post.likes_count || 0})">
+                    <i data-lucide="heart" class="w-6 h-6 hover:text-[#FE2C55] transition"></i>
+                  </button>
+                  <button onclick="openComments('${post.id}')">
+                    <i data-lucide="message-circle" class="w-6 h-6 hover:text-cyan-400 transition"></i>
+                  </button>
+                </div>
+              </div>
+
+              <p class="text-xs font-bold text-white">${post.likes_count || 0} likes</p>
+              <p class="text-xs text-neutral-300"><span class="font-bold text-white mr-2">@${username}</span>${post.caption || ''}</p>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    function playProfileVideo(vEl) {
+      if (vEl.paused) { vEl.play(); } else { vEl.pause(); }
+    }
+
     async function viewProfile(userId, fallbackUsername = 'creator') {
+      currentProfileUserId = userId;
       const container = document.getElementById('profile-container');
       container.classList.remove('hidden');
       container.innerHTML = `<p class="text-center py-12 text-neutral-400">Loading Profile...</p>`;
 
+      const { data: sessionData } = await db.auth.getSession();
+      const currentUserId = sessionData?.session?.user?.id;
+
       const { data: videos } = await db.from('videos').select('*').eq('user_id', userId).order('created_at', { ascending: false });
+
+      let username = fallbackUsername;
+      let displayName = fallbackUsername;
+      let bio = "No bio yet.";
+      let avatarUrl = null;
+
+      if (currentUserId === userId && sessionData?.session?.user?.user_metadata) {
+        const meta = sessionData.session.user.user_metadata;
+        username = meta.username || fallbackUsername;
+        displayName = meta.display_name || username;
+        bio = meta.bio || "No bio yet.";
+        avatarUrl = meta.avatar_url;
+      } else if (videos && videos.length > 0 && videos[0].username) {
+        username = videos[0].username;
+        displayName = videos[0].username;
+      }
+
+      const avatarDisplay = avatarUrl 
+        ? `<img src="${avatarUrl}" class="w-20 h-20 rounded-full object-cover shadow-2xl border-2 border-[#25F4EE] shrink-0">`
+        : `<div class="w-20 h-20 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center text-3xl font-bold text-black shrink-0">${username.charAt(0).toUpperCase()}</div>`;
 
       container.innerHTML = `
         <div class="max-w-3xl mx-auto space-y-6">
           <button onclick="closeProfilePage()" class="px-4 py-2 bg-neutral-900 rounded-xl text-xs font-bold text-white">← Back</button>
           
-          <div class="flex items-center space-x-6 border-b border-neutral-800 pb-6">
-            <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center text-3xl font-bold text-black">
-              ${fallbackUsername.charAt(0).toUpperCase()}
+          <div class="flex items-center justify-between border-b border-neutral-800 pb-6">
+            <div class="flex items-center space-x-6">
+              ${avatarDisplay}
+              <div>
+                <h2 class="text-xl font-bold text-white">${displayName}</h2>
+                <p class="text-xs text-neutral-400 mt-0.5">@${username}</p>
+                <p class="text-xs text-neutral-300 mt-2">${bio}</p>
+              </div>
             </div>
-            <div>
-              <h2 class="text-xl font-bold">@${fallbackUsername}</h2>
-              <p class="text-xs text-neutral-400 mt-1">${videos ? videos.length : 0} Posts</p>
-            </div>
+
+            ${currentUserId === userId ? `
+              <button onclick="openEditProfileModal()" class="px-5 py-2 rounded-xl font-bold text-xs bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 transition">
+                Edit profile
+              </button>
+            ` : ''}
           </div>
 
           <div class="grid grid-cols-3 gap-2">
-            ${videos && videos.length > 0 ? videos.map(v => `
-              <div class="aspect-square bg-neutral-900 rounded-lg overflow-hidden">
-                ${v.video_url.match(/\.(mp4|webm|mov)$/i) ? `
-                  <video src="${v.video_url}" class="w-full h-full object-cover"></video>
-                ` : `
-                  <img src="${v.video_url}" class="w-full h-full object-cover">
-                `}
-              </div>
-            `).join('') : '<p class="col-span-3 text-center py-12 text-xs text-neutral-500">No posts yet.</p>'}
+            ${videos && videos.length > 0 ? videos.map(v => {
+              const isVideo = v.video_url.match(/\.(mp4|webm|mov)$/i);
+              return `
+                <div class="aspect-square bg-neutral-900 rounded-lg overflow-hidden relative cursor-pointer group" onclick="${isVideo ? "playProfileVideo(this.querySelector('video'))" : ""}">
+                  ${isVideo ? `
+                    <video src="${v.video_url}" class="w-full h-full object-cover" loop playsinline></video>
+                    <div class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                      <i data-lucide="play" class="w-6 h-6 text-white"></i>
+                    </div>
+                  ` : `
+                    <img src="${v.video_url}" class="w-full h-full object-cover">
+                  `}
+                </div>
+              `;
+            }).join('') : '<p class="col-span-3 text-center py-12 text-xs text-neutral-500">No posts yet.</p>'}
           </div>
         </div>
       `;
+      lucide.createIcons();
     }
 
     async function openProfileFromNav() {
@@ -614,8 +694,6 @@
       const username = session.user.user_metadata?.username || session.user.email.split('@')[0];
       viewProfile(session.user.id, username);
     }
-
-    function clearSearchAndReload() { loadVideos(); }
 
     function showToast(msg) {
       const toast = document.getElementById("toast");
