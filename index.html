@@ -15,7 +15,7 @@
 
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      background-color: #000000;
+      background-color: #030712;
       color: #ffffff;
       overflow-x: hidden;
       user-select: none;
@@ -25,117 +25,90 @@
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
     .story-ring {
-      background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+      background: linear-gradient(135deg, #FE2C55 0%, #25F4EE 100%);
+    }
+
+    .avatar-ring {
+      background: linear-gradient(135deg, #FE2C55 0%, #25F4EE 100%);
+    }
+
+    .cover-gradient {
+      background: linear-gradient(180deg, rgba(3,7,18,0.1) 0%, rgba(3,7,18,0.9) 85%, rgba(3,7,18,1) 100%);
     }
   </style>
 </head>
-<body class="h-screen w-screen flex bg-black text-white overflow-hidden">
+<body class="h-screen w-screen flex flex-col bg-slate-950 text-white overflow-x-hidden">
 
-  <!-- LEFT SIDEBAR NAVIGATION -->
-  <aside class="hidden md:flex flex-col justify-between w-16 lg:w-64 border-r border-neutral-800 p-4 bg-black z-30 shrink-0">
-    <div class="space-y-6">
-      <!-- Logo -->
-      <div class="flex items-center space-x-3 px-2 py-2 cursor-pointer" onclick="clearSearchAndReload()">
+  <!-- TOP HEADER NAV -->
+  <header class="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-white/10 px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center space-x-6">
+      <div class="flex items-center space-x-2 cursor-pointer" onclick="clearSearchAndReload()">
         <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-black text-black text-xs tracking-tighter">
           KDK
         </div>
-        <h1 class="hidden lg:block font-extrabold text-xl tracking-tight text-white">ViroKDK</h1>
+        <span class="font-extrabold text-lg tracking-wider text-white">ViroKDK</span>
       </div>
-
-      <!-- Search Input Box -->
-      <div class="hidden lg:block relative w-full px-1">
-        <i data-lucide="search" class="w-4 h-4 absolute left-4 top-3 text-neutral-400"></i>
-        <input type="text" id="sidebar-search-input" oninput="handleSearch(this.value)" placeholder="Search posts or users..." class="w-full bg-neutral-900 text-xs text-white rounded-xl py-2.5 pl-10 pr-4 focus:outline-none border border-neutral-800">
-      </div>
-
-      <!-- Navigation Links -->
-      <nav class="space-y-2">
-        <button onclick="clearSearchAndReload()" class="w-full flex items-center space-x-4 p-3 rounded-xl text-white font-bold hover:bg-neutral-900 transition">
-          <i data-lucide="home" class="w-6 h-6"></i>
-          <span class="hidden lg:block">Home</span>
-        </button>
-        <button onclick="openUploadModal()" class="w-full flex items-center space-x-4 p-3 rounded-xl text-neutral-300 font-semibold hover:bg-neutral-900 transition">
-          <i data-lucide="plus-square" class="w-6 h-6"></i>
-          <span class="hidden lg:block">Create</span>
-        </button>
-        <button onclick="openProfileFromNav()" class="w-full flex items-center space-x-4 p-3 rounded-xl text-neutral-300 font-semibold hover:bg-neutral-900 transition">
-          <i data-lucide="user" class="w-6 h-6"></i>
-          <span class="hidden lg:block">Profile</span>
+      <nav class="hidden md:flex items-center space-x-6 text-xs font-semibold text-gray-300">
+        <button onclick="clearSearchAndReload()" class="hover:text-white transition">Home</button>
+        <button onclick="showToast('Explore Feed')" class="hover:text-white transition">Explore</button>
+        <button onclick="openUploadModal()" class="hover:text-white transition">Create</button>
+        <button onclick="showToast('No new notifications')" class="relative hover:text-white transition">
+          Notifications
+          <span class="absolute -top-1 -right-2 w-2 h-2 rounded-full bg-[#FE2C55]"></span>
         </button>
       </nav>
     </div>
 
-    <!-- User Account Bottom Row -->
-    <div id="desktop-user-card" class="pt-4 border-t border-neutral-800 flex items-center justify-between">
-      <button onclick="openAuthModal()" class="w-full py-2 bg-[#FE2C55] hover:bg-red-600 rounded-xl font-bold text-sm transition text-center">Sign In</button>
+    <!-- Top Search Input Bar -->
+    <div class="relative w-64 md:w-80">
+      <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-gray-400"></i>
+      <input type="text" id="top-search-input" oninput="handleSearch(this.value)" placeholder="Search users, videos, or tags..." class="w-full bg-slate-900 text-xs text-white rounded-full py-2 pl-9 pr-4 focus:outline-none border border-white/10">
     </div>
-  </aside>
 
-  <!-- MAIN CONTAINER -->
-  <main class="flex-1 h-full overflow-y-auto no-scrollbar flex justify-center bg-black">
-    <div class="w-full max-w-3xl flex flex-col items-center p-4 lg:p-8">
-      
-      <!-- CENTER FEED AREA -->
-      <div class="w-full max-w-[470px] space-y-6">
-        
-        <!-- STORIES TRAY -->
-        <div class="flex items-center space-x-4 overflow-x-auto no-scrollbar py-2 border-b border-neutral-900 w-full">
-          <div class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer" onclick="openUploadModal()">
-            <div class="relative w-16 h-16 rounded-full p-[2px] bg-neutral-800 flex items-center justify-center">
-              <div class="w-full h-full rounded-full bg-neutral-900 flex items-center justify-center text-white">
-                <i data-lucide="plus" class="w-6 h-6"></i>
-              </div>
-            </div>
-            <span class="text-[11px] text-neutral-400">Your Story</span>
-          </div>
+    <!-- Header User Icon -->
+    <div id="top-auth-btn" class="flex items-center">
+      <button onclick="openAuthModal()" class="bg-[#FE2C55] px-4 py-1.5 rounded-full text-xs font-bold hover:bg-red-600 transition">Sign In</button>
+    </div>
+  </header>
+
+  <!-- MAIN FEED / PROFILE WRAPPER -->
+  <main class="flex-1 w-full overflow-y-auto no-scrollbar">
+    
+    <!-- HOME FEED VIEW -->
+    <div id="home-feed-view" class="max-w-xl mx-auto py-6 px-4 space-y-6">
+      <div id="posts-feed-container" class="space-y-6 w-full">
+        <div class="flex flex-col justify-center items-center py-12 text-gray-500">
+          <i data-lucide="loader-2" class="w-8 h-8 animate-spin text-[#FE2C55] mb-2"></i>
+          <p class="text-xs font-semibold">Loading Feed...</p>
         </div>
-
-        <!-- POSTS FEED CONTAINER -->
-        <div id="posts-feed-container" class="space-y-6 w-full">
-          <div class="flex flex-col justify-center items-center py-12 text-neutral-500">
-            <i data-lucide="loader-2" class="w-8 h-8 animate-spin text-[#FE2C55] mb-2"></i>
-            <p class="text-xs font-semibold">Loading Feed...</p>
-          </div>
-        </div>
-
       </div>
-
     </div>
-  </main>
 
-  <!-- MOBILE BOTTOM NAVBAR -->
-  <nav class="md:hidden fixed bottom-0 left-0 right-0 h-14 bg-black border-t border-neutral-800 z-40 flex justify-around items-center px-2">
-    <button onclick="clearSearchAndReload()" class="text-white">
-      <i data-lucide="home" class="w-6 h-6"></i>
-    </button>
-    <button onclick="openUploadModal()" class="text-white">
-      <i data-lucide="plus-square" class="w-6 h-6"></i>
-    </button>
-    <button onclick="openProfileFromNav()" class="text-neutral-400 hover:text-white">
-      <i data-lucide="user" class="w-6 h-6"></i>
-    </button>
-  </nav>
+    <!-- ADVANCED PROFILE VIEW CONTAINER -->
+    <div id="profile-container" class="hidden w-full min-h-full pb-16 bg-slate-950"></div>
+
+  </main>
 
   <!-- UPLOAD MEDIA MODAL -->
   <div id="upload-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
-    <div class="bg-neutral-900 border border-neutral-800 rounded-2xl w-full max-w-lg p-6 relative shadow-2xl space-y-4">
-      <button onclick="closeUploadModal()" class="absolute top-4 right-4 text-neutral-400 hover:text-white">
+    <div class="bg-slate-900 border border-white/10 rounded-2xl w-full max-w-lg p-6 relative shadow-2xl space-y-4">
+      <button onclick="closeUploadModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
         <i data-lucide="x" class="w-5 h-5"></i>
       </button>
 
-      <h3 class="text-base font-bold text-center border-b border-neutral-800 pb-3">Create New Post</h3>
+      <h3 class="text-base font-bold text-center border-b border-white/10 pb-3">Create New Post</h3>
 
       <form id="upload-form" onsubmit="handleMediaUpload(event)" class="space-y-4">
-        <div class="border-2 border-dashed border-neutral-700 rounded-xl p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#FE2C55] transition bg-black/40" onclick="document.getElementById('upload-file').click()">
-          <i data-lucide="image" class="w-10 h-10 text-neutral-400 mb-2"></i>
+        <div class="border-2 border-dashed border-white/20 rounded-xl p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#FE2C55] transition bg-black/40" onclick="document.getElementById('upload-file').click()">
+          <i data-lucide="image" class="w-10 h-10 text-gray-400 mb-2"></i>
           <p class="text-sm font-bold text-white" id="file-label-text">Select Photo or Video to Upload</p>
-          <p class="text-xs text-neutral-500 mt-1">Supports JPG, PNG, MP4, WEBP</p>
+          <p class="text-xs text-gray-500 mt-1">Supports JPG, PNG, MP4, WEBP</p>
           <input type="file" id="upload-file" accept="image/*,video/*" required class="hidden" onchange="document.getElementById('file-label-text').innerText = this.files[0]?.name">
         </div>
 
         <div>
-          <label class="text-xs font-semibold text-neutral-400 mb-1 block">Caption</label>
-          <input type="text" id="upload-caption" placeholder="Write a caption..." class="w-full bg-neutral-800 text-sm text-white rounded-xl p-3 border border-neutral-700 focus:outline-none">
+          <label class="text-xs font-semibold text-gray-400 mb-1 block">Caption</label>
+          <input type="text" id="upload-caption" placeholder="Write a caption..." class="w-full bg-slate-800 text-sm text-white rounded-xl p-3 border border-white/10 focus:outline-none">
         </div>
 
         <p id="upload-message" class="text-xs text-center font-semibold hidden"></p>
@@ -149,30 +122,30 @@
 
   <!-- AUTH MODAL -->
   <div id="auth-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
-    <div class="bg-neutral-900 border border-neutral-800 rounded-2xl w-full max-w-md p-6 relative shadow-2xl">
-      <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-neutral-400 hover:text-white">
+    <div class="bg-slate-900 border border-white/10 rounded-2xl w-full max-w-md p-6 relative shadow-2xl">
+      <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
         <i data-lucide="x" class="w-5 h-5"></i>
       </button>
       <h2 id="modal-title" class="text-xl font-bold mb-4 text-center">Log In to ViroKDK</h2>
       <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4">
         <div id="username-container" class="hidden">
-          <label class="text-xs font-semibold text-neutral-400 block mb-1">USERNAME</label>
-          <input type="text" id="auth-username" class="w-full bg-neutral-800 border border-neutral-700 rounded-xl p-3 text-white text-sm focus:outline-none" placeholder="e.g. kdk_creator"/>
+          <label class="text-xs font-semibold text-gray-400 block mb-1">USERNAME</label>
+          <input type="text" id="auth-username" class="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-white text-sm focus:outline-none" placeholder="e.g. KDenis000"/>
         </div>
         <div>
-          <label class="text-xs font-semibold text-neutral-400 block mb-1">EMAIL</label>
-          <input type="email" id="auth-email" required class="w-full bg-neutral-800 border border-neutral-700 rounded-xl p-3 text-white text-sm focus:outline-none" placeholder="you@example.com"/>
+          <label class="text-xs font-semibold text-gray-400 block mb-1">EMAIL</label>
+          <input type="email" id="auth-email" required class="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-white text-sm focus:outline-none" placeholder="you@example.com"/>
         </div>
         <div>
-          <label class="text-xs font-semibold text-neutral-400 block mb-1">PASSWORD</label>
-          <input type="password" id="auth-password" required minlength="6" class="w-full bg-neutral-800 border border-neutral-700 rounded-xl p-3 text-white text-sm focus:outline-none" placeholder="••••••••"/>
+          <label class="text-xs font-semibold text-gray-400 block mb-1">PASSWORD</label>
+          <input type="password" id="auth-password" required minlength="6" class="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-white text-sm focus:outline-none" placeholder="••••••••"/>
         </div>
         <p id="auth-message" class="text-sm text-center font-medium hidden"></p>
         <button type="submit" id="auth-submit-btn" class="w-full bg-[#FE2C55] hover:bg-red-600 font-bold py-2.5 rounded-xl transition text-white">
           Log In
         </button>
       </form>
-      <div class="mt-4 text-center text-xs text-neutral-400">
+      <div class="mt-4 text-center text-xs text-gray-400">
         <span id="toggle-text">Don't have an account?</span>
         <button onclick="toggleAuthMode()" id="toggle-btn" class="text-[#25F4EE] font-semibold underline ml-1">Sign Up</button>
       </div>
@@ -181,8 +154,8 @@
 
   <!-- EDIT PROFILE MODAL -->
   <div id="edit-profile-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
-    <div class="bg-neutral-900 border border-neutral-800 rounded-2xl w-full max-w-md p-6 relative shadow-2xl space-y-4">
-      <button onclick="closeEditProfileModal()" class="absolute top-4 right-4 text-neutral-400 hover:text-white">
+    <div class="bg-slate-900 border border-white/10 rounded-2xl w-full max-w-md p-6 relative shadow-2xl space-y-4">
+      <button onclick="closeEditProfileModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
         <i data-lucide="x" class="w-5 h-5"></i>
       </button>
       <h3 class="text-lg font-bold text-center">Edit Profile</h3>
@@ -198,16 +171,16 @@
         </div>
 
         <div>
-          <label class="text-xs font-semibold text-neutral-400 block mb-1">Display Name</label>
-          <input type="text" id="edit-name-input" class="w-full bg-neutral-800 border border-neutral-700 rounded-xl p-3 text-sm text-white focus:outline-none">
+          <label class="text-xs font-semibold text-gray-400 block mb-1">Display Name</label>
+          <input type="text" id="edit-name-input" class="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none">
         </div>
         <div>
-          <label class="text-xs font-semibold text-neutral-400 block mb-1">Username (@)</label>
-          <input type="text" id="edit-username-input" class="w-full bg-neutral-800 border border-neutral-700 rounded-xl p-3 text-sm text-white focus:outline-none">
+          <label class="text-xs font-semibold text-gray-400 block mb-1">Username (@)</label>
+          <input type="text" id="edit-username-input" class="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none">
         </div>
         <div>
-          <label class="text-xs font-semibold text-neutral-400 block mb-1">Bio</label>
-          <textarea id="edit-bio-input" rows="3" class="w-full bg-neutral-800 border border-neutral-700 rounded-xl p-3 text-sm text-white focus:outline-none"></textarea>
+          <label class="text-xs font-semibold text-gray-400 block mb-1">Bio</label>
+          <textarea id="edit-bio-input" rows="3" class="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none"></textarea>
         </div>
 
         <button type="submit" id="save-profile-btn" class="w-full py-3 bg-[#FE2C55] hover:bg-red-600 font-bold rounded-xl text-white transition">Save Changes</button>
@@ -217,24 +190,21 @@
 
   <!-- COMMENTS DRAWER MODAL -->
   <div id="comment-drawer" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="w-full max-w-md bg-neutral-900 border border-neutral-800 rounded-2xl h-[500px] flex flex-col overflow-hidden shadow-2xl">
-      <div class="p-4 border-b border-neutral-800 flex items-center justify-between">
+    <div class="w-full max-w-md bg-slate-900 border border-white/10 rounded-2xl h-[500px] flex flex-col overflow-hidden shadow-2xl">
+      <div class="p-4 border-b border-white/10 flex items-center justify-between">
         <h3 class="font-bold text-sm">Comments</h3>
-        <button onclick="closeCommentDrawer()" class="text-neutral-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+        <button onclick="closeCommentDrawer()" class="text-gray-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <div id="comment-list" class="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar"></div>
-      <form onsubmit="postComment(event)" class="p-3 border-t border-neutral-800 flex items-center space-x-2 bg-black">
-        <input type="text" id="comment-input" placeholder="Add a comment..." required class="flex-1 bg-neutral-800 text-sm text-white rounded-full py-2 px-4 focus:outline-none border border-neutral-700">
+      <form onsubmit="postComment(event)" class="p-3 border-t border-white/10 flex items-center space-x-2 bg-black">
+        <input type="text" id="comment-input" placeholder="Add a comment..." required class="flex-1 bg-slate-800 text-sm text-white rounded-full py-2 px-4 focus:outline-none border border-white/10">
         <button type="submit" class="text-[#FE2C55] font-bold text-xs hover:text-white px-2">Post</button>
       </form>
     </div>
   </div>
 
-  <!-- PROFILE VIEW CONTAINER -->
-  <div id="profile-container" class="fixed inset-0 z-40 bg-black hidden overflow-y-auto p-6 lg:p-12"></div>
-
   <!-- TOAST NOTIFICATION -->
-  <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-neutral-800 text-white text-xs font-semibold px-4 py-2.5 rounded-full border border-neutral-700 shadow-xl opacity-0 pointer-events-none transition-all duration-300">
+  <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-slate-800 text-white text-xs font-semibold px-4 py-2.5 rounded-full border border-white/20 shadow-xl opacity-0 pointer-events-none transition-all duration-300">
     <span id="toast-message">Notification</span>
   </div>
 
@@ -265,7 +235,10 @@
       });
     }
     function closeUploadModal() { document.getElementById('upload-modal').classList.add('hidden'); }
-    function closeProfilePage() { document.getElementById('profile-container').classList.add('hidden'); }
+    function closeProfilePage() { 
+      document.getElementById('profile-container').classList.add('hidden'); 
+      document.getElementById('home-feed-view').classList.remove('hidden');
+    }
 
     function handleAvatarFileSelect(event) {
       const file = event.target.files[0];
@@ -364,7 +337,7 @@
       msg.innerText = 'Processing...';
 
       let result = isSignUp 
-        ? await db.auth.signUp({ email, password, options: { data: { username, display_name: username, bio: "Hey there! I am using ViroKDK." } } })
+        ? await db.auth.signUp({ email, password, options: { data: { username, display_name: username, bio: "Turning moments into stories." } } })
         : await db.auth.signInWithPassword({ email, password });
 
       if (result.error) {
@@ -381,7 +354,7 @@
 
     async function checkUserSession() {
       const { data: { session } } = await db.auth.getSession();
-      const desktopUserCard = document.getElementById('desktop-user-card');
+      const topAuthBtn = document.getElementById('top-auth-btn');
 
       if (session?.user) {
         const userMeta = session.user.user_metadata || {};
@@ -392,16 +365,13 @@
           ? `<img src="${avatarUrl}" class="w-8 h-8 rounded-full object-cover border border-[#25F4EE]">`
           : `<div class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-bold text-black text-xs">${username.charAt(0).toUpperCase()}</div>`;
 
-        desktopUserCard.innerHTML = `
-          <div class="flex items-center justify-between w-full cursor-pointer" onclick="viewProfile('${session.user.id}', '${username}')">
-            <div class="flex items-center space-x-3">
-              ${avatarHTML}
-              <p class="hidden lg:block text-xs font-bold text-white truncate">@${username}</p>
-            </div>
-            <button onclick="handleLogout(event)" class="text-neutral-400 hover:text-white"><i data-lucide="log-out" class="w-4 h-4"></i></button>
+        topAuthBtn.innerHTML = `
+          <div class="flex items-center space-x-3 cursor-pointer" onclick="viewProfile('${session.user.id}', '${username}')">
+            ${avatarHTML}
+            <button onclick="handleLogout(event)" class="text-gray-400 hover:text-white ml-1"><i data-lucide="log-out" class="w-4 h-4"></i></button>
           </div>`;
       } else {
-        desktopUserCard.innerHTML = `<button onclick="openAuthModal()" class="w-full py-2 bg-[#FE2C55] hover:bg-red-600 rounded-xl font-bold text-sm transition text-center">Sign In</button>`;
+        topAuthBtn.innerHTML = `<button onclick="openAuthModal()" class="bg-[#FE2C55] px-4 py-1.5 rounded-full text-xs font-bold hover:bg-red-600 transition">Sign In</button>`;
       }
       lucide.createIcons();
     }
@@ -488,19 +458,19 @@
 
     async function loadComments(videoId) {
       const list = document.getElementById('comment-list');
-      list.innerHTML = `<p class="text-xs text-neutral-500 text-center py-4">Loading comments...</p>`;
+      list.innerHTML = `<p class="text-xs text-gray-500 text-center py-4">Loading comments...</p>`;
 
       const { data: comments } = await db.from('comments').select('*').eq('video_id', videoId).order('created_at', { ascending: false });
 
       if (!comments || comments.length === 0) {
-        list.innerHTML = `<p class="text-xs text-neutral-500 text-center py-6">No comments yet.</p>`;
+        list.innerHTML = `<p class="text-xs text-gray-500 text-center py-6">No comments yet.</p>`;
         return;
       }
 
       list.innerHTML = comments.map(c => `
-        <div class="flex space-x-3 items-start bg-neutral-800/40 p-2.5 rounded-xl text-xs">
+        <div class="flex space-x-3 items-start bg-slate-800/40 p-2.5 rounded-xl text-xs">
           <span class="font-bold text-[#25F4EE]">@${c.username}</span>
-          <p class="text-neutral-200">${c.comment_text}</p>
+          <p class="text-gray-200">${c.comment_text}</p>
         </div>
       `).join('');
     }
@@ -523,7 +493,6 @@
       }
     }
 
-    // SEARCH FUNCTIONALITY
     function handleSearch(query) {
       const q = query.toLowerCase().trim();
       if (!q) {
@@ -538,8 +507,9 @@
     }
 
     function clearSearchAndReload() {
-      const input = document.getElementById('sidebar-search-input');
+      const input = document.getElementById('top-search-input');
       if (input) input.value = '';
+      closeProfilePage();
       renderFeed(allPostsCache);
     }
 
@@ -547,7 +517,7 @@
       try {
         const { data: posts, error } = await db.from('videos').select('*').order('created_at', { ascending: false });
         if (error || !posts || posts.length === 0) {
-          document.getElementById('posts-feed-container').innerHTML = `<p class="text-center text-neutral-500 py-12 text-sm">No posts yet. Click Create to post!</p>`;
+          document.getElementById('posts-feed-container').innerHTML = `<p class="text-center text-gray-500 py-12 text-sm">No posts yet. Click Create to post!</p>`;
           return;
         }
         allPostsCache = posts;
@@ -560,27 +530,27 @@
     function renderFeed(posts) {
       const container = document.getElementById('posts-feed-container');
       if (!posts || posts.length === 0) {
-        container.innerHTML = `<p class="text-center text-neutral-500 py-12 text-sm">No matching posts found.</p>`;
+        container.innerHTML = `<p class="text-center text-gray-500 py-12 text-sm">No matching posts found.</p>`;
         return;
       }
 
       container.innerHTML = posts.map(post => {
-        const username = post.username || 'creator';
+        const username = post.username || 'KDenis000';
         const isVideo = post.video_url.match(/\.(mp4|webm|mov)$/i);
 
         return `
-          <div class="bg-black border border-neutral-900 rounded-2xl overflow-hidden shadow-xl w-full">
-            <div class="flex items-center justify-between p-3 border-b border-neutral-900">
+          <div class="bg-slate-900 border border-white/10 rounded-2xl overflow-hidden shadow-xl w-full">
+            <div class="flex items-center justify-between p-3 border-b border-white/10">
               <div class="flex items-center space-x-3 cursor-pointer" onclick="viewProfile('${post.user_id}', '${username}')">
                 <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-bold text-black text-xs">
                   ${username.charAt(0).toUpperCase()}
                 </div>
                 <span class="font-bold text-xs text-white">@${username}</span>
               </div>
-              <i data-lucide="more-horizontal" class="w-4 h-4 text-neutral-400"></i>
+              <i data-lucide="more-horizontal" class="w-4 h-4 text-gray-400"></i>
             </div>
 
-            <div class="w-full bg-neutral-950 aspect-square flex items-center justify-center overflow-hidden">
+            <div class="w-full bg-black aspect-square flex items-center justify-center overflow-hidden">
               ${isVideo ? `
                 <video src="${post.video_url}" class="w-full h-full object-cover cursor-pointer" loop playsinline onclick="this.paused ? this.play() : this.pause()"></video>
               ` : `
@@ -601,7 +571,7 @@
               </div>
 
               <p class="text-xs font-bold text-white">${post.likes_count || 0} likes</p>
-              <p class="text-xs text-neutral-300"><span class="font-bold text-white mr-2">@${username}</span>${post.caption || ''}</p>
+              <p class="text-xs text-gray-300"><span class="font-bold text-white mr-2">@${username}</span>${post.caption || ''}</p>
             </div>
           </div>
         `;
@@ -614,11 +584,13 @@
       if (vEl.paused) { vEl.play(); } else { vEl.pause(); }
     }
 
-    async function viewProfile(userId, fallbackUsername = 'creator') {
+    // RENDER MATCHING DESIGNER PROFILE VIEW
+    async function viewProfile(userId, fallbackUsername = 'KDenis000') {
       currentProfileUserId = userId;
+      document.getElementById('home-feed-view').classList.add('hidden');
       const container = document.getElementById('profile-container');
       container.classList.remove('hidden');
-      container.innerHTML = `<p class="text-center py-12 text-neutral-400">Loading Profile...</p>`;
+      container.innerHTML = `<p class="text-center py-20 text-gray-400">Loading Profile...</p>`;
 
       const { data: sessionData } = await db.auth.getSession();
       const currentUserId = sessionData?.session?.user?.id;
@@ -626,63 +598,228 @@
       const { data: videos } = await db.from('videos').select('*').eq('user_id', userId).order('created_at', { ascending: false });
 
       let username = fallbackUsername;
-      let displayName = fallbackUsername;
-      let bio = "No bio yet.";
+      let bio = "Turning moments into stories.";
       let avatarUrl = null;
 
       if (currentUserId === userId && sessionData?.session?.user?.user_metadata) {
         const meta = sessionData.session.user.user_metadata;
         username = meta.username || fallbackUsername;
-        displayName = meta.display_name || username;
-        bio = meta.bio || "No bio yet.";
+        bio = meta.bio || "Turning moments into stories.";
         avatarUrl = meta.avatar_url;
       } else if (videos && videos.length > 0 && videos[0].username) {
         username = videos[0].username;
-        displayName = videos[0].username;
       }
 
       const avatarDisplay = avatarUrl 
-        ? `<img src="${avatarUrl}" class="w-20 h-20 rounded-full object-cover shadow-2xl border-2 border-[#25F4EE] shrink-0">`
-        : `<div class="w-20 h-20 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center text-3xl font-bold text-black shrink-0">${username.charAt(0).toUpperCase()}</div>`;
+        ? `<img src="${avatarUrl}" class="w-full h-full rounded-full object-cover">`
+        : `<div class="w-full h-full rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center text-6xl font-black text-black">${username.charAt(0).toUpperCase()}</div>`;
 
       container.innerHTML = `
-        <div class="max-w-3xl mx-auto space-y-6">
-          <button onclick="closeProfilePage()" class="px-4 py-2 bg-neutral-900 rounded-xl text-xs font-bold text-white">← Back</button>
+        <div class="max-w-6xl mx-auto space-y-6">
           
-          <div class="flex items-center justify-between border-b border-neutral-800 pb-6">
-            <div class="flex items-center space-x-6">
-              ${avatarDisplay}
-              <div>
-                <h2 class="text-xl font-bold text-white">${displayName}</h2>
-                <p class="text-xs text-neutral-400 mt-0.5">@${username}</p>
-                <p class="text-xs text-neutral-300 mt-2">${bio}</p>
+          <!-- BANNER / COVER IMAGE SECTION -->
+          <div class="relative w-full h-64 md:h-80 rounded-2xl overflow-hidden bg-slate-900 border border-white/10 shadow-2xl">
+            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80" class="w-full h-full object-cover">
+            <div class="absolute inset-0 cover-gradient flex items-center justify-between p-6">
+              
+              <div class="text-left space-y-1">
+                <p class="text-[10px] tracking-widest uppercase font-bold text-gray-300">S A M E</p>
+                <p class="text-[10px] tracking-widest uppercase font-bold text-gray-300">K I D</p>
+                <p class="text-[10px] tracking-widest uppercase font-bold text-gray-300">B I G G E R</p>
+                <p class="text-[10px] tracking-widest uppercase font-bold text-gray-300">V I S I O N</p>
+              </div>
+
+              <div class="hidden md:block text-right">
+                <h3 class="text-2xl font-black italic tracking-wide text-white">Good Content Better People</h3>
+              </div>
+
+              <button onclick="showToast('Edit cover updated')" class="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-lg text-xs font-bold text-white hover:bg-black/80 transition flex items-center space-x-1.5">
+                <i data-lucide="camera" class="w-3.5 h-3.5"></i>
+                <span>Edit Cover</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- PROFILE HEADER ROW -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 px-4">
+            
+            <!-- Left Profile Card -->
+            <div class="lg:col-span-2 flex flex-col md:flex-row items-start space-y-4 md:space-y-0 md:space-x-6">
+              
+              <!-- Avatar Circle -->
+              <div class="relative shrink-0">
+                <div class="w-32 h-32 md:w-40 md:h-40 rounded-full p-1 avatar-ring shadow-2xl">
+                  <div class="w-full h-full rounded-full bg-slate-950 p-1">
+                    ${avatarDisplay}
+                  </div>
+                </div>
+                <span class="absolute bottom-2 right-2 w-5 h-5 bg-emerald-500 border-2 border-slate-950 rounded-full"></span>
+              </div>
+
+              <!-- Profile Details -->
+              <div class="space-y-3 flex-1">
+                <div class="flex items-center space-x-2">
+                  <h1 class="text-2xl font-black text-white">@${username}</h1>
+                  <i data-lucide="check-circle-2" class="w-5 h-5 text-sky-400 fill-sky-400"></i>
+                </div>
+
+                <p class="text-xs text-gray-300 font-medium">Creator | Uganda 🇺🇬</p>
+                <p class="text-xs text-gray-400">Videos • Football • Lifestyle • Tech</p>
+                <p class="text-xs text-gray-200 font-semibold">${bio}</p>
+
+                <a href="https://linktr.ee/kdenis000" target="_blank" class="inline-flex items-center space-x-1.5 text-xs text-cyan-400 font-bold hover:underline">
+                  <i data-lucide="link" class="w-3.5 h-3.5"></i>
+                  <span>linktr.ee/kdenis000</span>
+                </a>
+
+                <!-- Action Buttons & Stats Row -->
+                <div class="flex items-center space-x-3 pt-2">
+                  ${currentUserId === userId ? `
+                    <button onclick="openEditProfileModal()" class="bg-[#FE2C55] hover:bg-red-600 px-6 py-2 rounded-xl text-xs font-bold text-white transition">Edit Profile</button>
+                  ` : `
+                    <button onclick="showToast('Followed creator')" class="bg-[#FE2C55] hover:bg-red-600 px-6 py-2 rounded-xl text-xs font-bold text-white transition">Follow</button>
+                  `}
+                  <button onclick="showToast('Messages opened')" class="bg-slate-900 border border-white/10 hover:bg-slate-800 px-4 py-2 rounded-xl text-xs font-bold text-white transition flex items-center space-x-1.5">
+                    <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+                    <span>Message</span>
+                  </button>
+                  <button onclick="showToast('Link copied')" class="bg-slate-900 border border-white/10 hover:bg-slate-800 p-2 rounded-xl text-white transition">
+                    <i data-lucide="share-2" class="w-4 h-4"></i>
+                  </button>
+                  <button onclick="showToast('Options')" class="bg-slate-900 border border-white/10 hover:bg-slate-800 p-2 rounded-xl text-white transition">
+                    <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+                  </button>
+                </div>
+
+                <!-- Posts/Followers Stats -->
+                <div class="flex items-center space-x-8 pt-3 text-center">
+                  <div>
+                    <p class="text-lg font-black text-white">${videos ? videos.length : 234}</p>
+                    <p class="text-[10px] text-gray-400 uppercase font-semibold">Posts</p>
+                  </div>
+                  <div>
+                    <p class="text-lg font-black text-white">18.2K</p>
+                    <p class="text-[10px] text-gray-400 uppercase font-semibold">Followers</p>
+                  </div>
+                  <div>
+                    <p class="text-lg font-black text-white">320K</p>
+                    <p class="text-[10px] text-gray-400 uppercase font-semibold">Likes</p>
+                  </div>
+                </div>
+
               </div>
             </div>
 
-            ${currentUserId === userId ? `
-              <button onclick="openEditProfileModal()" class="px-5 py-2 rounded-xl font-bold text-xs bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 transition">
-                Edit profile
-              </button>
-            ` : ''}
+            <!-- Right Engagement Box -->
+            <div class="bg-slate-900/60 border border-white/10 rounded-2xl p-5 h-fit space-y-4">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-gray-400 font-medium">Engagement Rate</span>
+                <span class="font-extrabold text-white">92%</span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-gray-400 font-medium">Following</span>
+                <span class="font-extrabold text-white">194</span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-gray-400 font-medium">Joined</span>
+                <span class="font-extrabold text-white">Jan 2024</span>
+              </div>
+            </div>
+
           </div>
 
-          <div class="grid grid-cols-3 gap-2">
+          <!-- HIGHLIGHTS STORY CIRCLES -->
+          <div class="flex items-center space-x-6 overflow-x-auto no-scrollbar py-4 px-4 border-t border-white/10">
+            <div class="flex flex-col items-center space-y-1.5 shrink-0 cursor-pointer" onclick="openUploadModal()">
+              <div class="w-14 h-14 rounded-full border-2 border-dashed border-white/30 flex items-center justify-center text-white hover:border-[#FE2C55] transition">
+                <i data-lucide="plus" class="w-5 h-5"></i>
+              </div>
+              <span class="text-[11px] font-semibold text-gray-300">New</span>
+            </div>
+
+            <div class="flex flex-col items-center space-y-1.5 shrink-0 cursor-pointer">
+              <div class="w-14 h-14 rounded-full border-2 border-white/20 p-0.5 overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=200&q=80" class="w-full h-full rounded-full object-cover">
+              </div>
+              <span class="text-[11px] font-semibold text-gray-300">Life</span>
+            </div>
+
+            <div class="flex flex-col items-center space-y-1.5 shrink-0 cursor-pointer">
+              <div class="w-14 h-14 rounded-full border-2 border-white/20 p-0.5 overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=200&q=80" class="w-full h-full rounded-full object-cover">
+              </div>
+              <span class="text-[11px] font-semibold text-gray-300">Football</span>
+            </div>
+
+            <div class="flex flex-col items-center space-y-1.5 shrink-0 cursor-pointer">
+              <div class="w-14 h-14 rounded-full border-2 border-white/20 p-0.5 overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=200&q=80" class="w-full h-full rounded-full object-cover">
+              </div>
+              <span class="text-[11px] font-semibold text-gray-300">Tech</span>
+            </div>
+
+            <div class="flex flex-col items-center space-y-1.5 shrink-0 cursor-pointer">
+              <div class="w-14 h-14 rounded-full border-2 border-white/20 p-0.5 overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=200&q=80" class="w-full h-full rounded-full object-cover">
+              </div>
+              <span class="text-[11px] font-semibold text-gray-300">Travel</span>
+            </div>
+
+            <div class="flex flex-col items-center space-y-1.5 shrink-0 cursor-pointer">
+              <div class="w-14 h-14 rounded-full border-2 border-white/20 p-0.5 overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=200&q=80" class="w-full h-full rounded-full object-cover">
+              </div>
+              <span class="text-[11px] font-semibold text-gray-300">Motivation</span>
+            </div>
+
+            <div class="flex flex-col items-center space-y-1.5 shrink-0 cursor-pointer">
+              <div class="w-14 h-14 rounded-full border-2 border-white/20 p-0.5 overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=200&q=80" class="w-full h-full rounded-full object-cover">
+              </div>
+              <span class="text-[11px] font-semibold text-gray-300">Moments</span>
+            </div>
+          </div>
+
+          <!-- TABS ROW -->
+          <div class="flex items-center justify-center space-x-12 border-t border-b border-white/10 text-xs font-bold text-gray-400 py-3">
+            <button class="text-white border-b-2 border-[#FE2C55] pb-1 flex items-center space-x-2">
+              <i data-lucide="grid" class="w-4 h-4"></i>
+              <span>Posts</span>
+            </button>
+            <button class="hover:text-white flex items-center space-x-2">
+              <i data-lucide="clapperboard" class="w-4 h-4"></i>
+              <span>Reels</span>
+            </button>
+            <button class="hover:text-white flex items-center space-x-2">
+              <i data-lucide="heart" class="w-4 h-4"></i>
+              <span>Liked</span>
+            </button>
+          </div>
+
+          <!-- PROFILE MEDIA GRID -->
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3 px-4">
             ${videos && videos.length > 0 ? videos.map(v => {
               const isVideo = v.video_url.match(/\.(mp4|webm|mov)$/i);
               return `
-                <div class="aspect-square bg-neutral-900 rounded-lg overflow-hidden relative cursor-pointer group" onclick="${isVideo ? "playProfileVideo(this.querySelector('video'))" : ""}">
+                <div class="aspect-[9/16] bg-slate-900 rounded-xl overflow-hidden relative cursor-pointer group shadow-xl border border-white/5" onclick="${isVideo ? "playProfileVideo(this.querySelector('video'))" : ""}">
                   ${isVideo ? `
                     <video src="${v.video_url}" class="w-full h-full object-cover" loop playsinline></video>
-                    <div class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                      <i data-lucide="play" class="w-6 h-6 text-white"></i>
-                    </div>
                   ` : `
                     <img src="${v.video_url}" class="w-full h-full object-cover">
                   `}
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-3">
+                    <span class="text-xs font-extrabold text-white flex items-center space-x-1">
+                      <i data-lucide="play" class="w-3.5 h-3.5 fill-white"></i>
+                      <span>1.2M</span>
+                    </span>
+                  </div>
                 </div>
               `;
-            }).join('') : '<p class="col-span-3 text-center py-12 text-xs text-neutral-500">No posts yet.</p>'}
+            }).join('') : `
+              <p class="col-span-full text-center py-12 text-xs text-gray-500">No posts published yet.</p>
+            `}
           </div>
+
         </div>
       `;
       lucide.createIcons();
