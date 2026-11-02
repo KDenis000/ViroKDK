@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ViroKDK - Social Experience</title>
+  <title>ViroKDK - Social Experience & Direct Messages</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Supabase JS Client -->
@@ -59,6 +59,12 @@
         <button onclick="clearSearchAndReload()" class="w-full flex items-center space-x-3.5 px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-white font-bold text-xs transition">
           <i data-lucide="home" class="w-4 h-4 text-[#25F4EE]"></i>
           <span>Home</span>
+        </button>
+
+        <button onclick="openChatModal()" class="w-full flex items-center space-x-3.5 px-3.5 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-slate-900/50 font-semibold text-xs transition relative">
+          <i data-lucide="message-square" class="w-4 h-4 text-[#FE2C55]"></i>
+          <span>Messages</span>
+          <span class="absolute right-3 w-2 h-2 rounded-full bg-[#25F4EE] animate-pulse"></span>
         </button>
 
         <button onclick="showToast('Explore')" class="w-full flex items-center space-x-3.5 px-3.5 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-slate-900/50 font-semibold text-xs transition">
@@ -132,8 +138,9 @@
           <i data-lucide="bell" class="w-4 h-4"></i>
           <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#FE2C55]"></span>
         </button>
-        <button onclick="showToast('Messages')" class="p-2 rounded-xl bg-slate-900 border border-white/10 text-gray-300 hover:text-white">
-          <i data-lucide="message-square" class="w-4 h-4"></i>
+        <button onclick="openChatModal()" class="p-2 rounded-xl bg-slate-900 border border-white/10 text-gray-300 hover:text-white relative">
+          <i data-lucide="message-square" class="w-4 h-4 text-[#25F4EE]"></i>
+          <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#25F4EE] animate-ping"></span>
         </button>
         <div id="header-avatar-btn">
           <button onclick="openAuthModal()" class="bg-[#FE2C55] px-4 py-1.5 rounded-xl text-xs font-bold text-white hover:bg-red-600 transition">Sign In</button>
@@ -155,7 +162,7 @@
             <span class="text-[10px] text-gray-400 font-medium">Your Story</span>
           </div>
 
-          <div class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer">
+          <div class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer" onclick="openChatModal('KDenis000')">
             <div class="w-14 h-14 rounded-full p-0.5 story-gradient relative">
               <div class="w-full h-full rounded-full bg-slate-950 p-0.5">
                 <div class="w-full h-full rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-bold text-black text-xs">K</div>
@@ -164,21 +171,21 @@
             <span class="text-[10px] text-gray-300 font-medium">@KDenis000</span>
           </div>
 
-          <div class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer">
+          <div class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer" onclick="openChatModal('travelwithjay')">
             <div class="w-14 h-14 rounded-full p-0.5 story-gradient">
               <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=150&q=80" class="w-full h-full rounded-full object-cover">
             </div>
             <span class="text-[10px] text-gray-300 font-medium">travelwithjay</span>
           </div>
 
-          <div class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer">
+          <div class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer" onclick="openChatModal('football.ug')">
             <div class="w-14 h-14 rounded-full p-0.5 story-gradient">
               <img src="https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=150&q=80" class="w-full h-full rounded-full object-cover">
             </div>
             <span class="text-[10px] text-gray-300 font-medium">football.ug</span>
           </div>
 
-          <div class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer">
+          <div class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer" onclick="openChatModal('techdaily')">
             <div class="w-14 h-14 rounded-full p-0.5 story-gradient">
               <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=150&q=80" class="w-full h-full rounded-full object-cover">
             </div>
@@ -212,6 +219,18 @@
       </div>
     </div>
 
+    <!-- Active Chat Preview Card -->
+    <div class="bg-slate-900/60 border border-white/10 rounded-2xl p-4 space-y-3 cursor-pointer hover:border-[#25F4EE] transition" onclick="openChatModal()">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="message-square" class="w-4 h-4 text-[#25F4EE]"></i>
+          <h4 class="font-bold text-xs text-white">Direct Messages</h4>
+        </div>
+        <span class="text-[10px] bg-[#FE2C55] px-2 py-0.5 rounded-full font-bold text-white">Live</span>
+      </div>
+      <p class="text-[11px] text-gray-400">Chat in real-time with creators and friends across ViroKDK.</p>
+    </div>
+
     <div class="bg-slate-900/50 border border-white/10 rounded-2xl p-4 space-y-3">
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-2">
@@ -237,6 +256,80 @@
       </div>
     </div>
   </aside>
+
+  <!-- DIRECT MESSAGES CHAT MODAL -->
+  <div id="chat-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-slate-950 border border-white/10 rounded-3xl w-full max-w-4xl h-[620px] flex overflow-hidden shadow-2xl relative">
+      
+      <button onclick="closeChatModal()" class="absolute top-4 right-4 z-20 text-gray-400 hover:text-white p-1">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <!-- CHAT CONVERSATIONS SIDEBAR -->
+      <div class="w-1/3 border-r border-white/10 flex flex-col bg-slate-900/50">
+        <div class="p-4 border-b border-white/10 flex items-center justify-between">
+          <h3 class="font-extrabold text-sm text-white">Messages</h3>
+          <i data-lucide="edit" class="w-4 h-4 text-cyan-400 cursor-pointer" onclick="showToast('New Message thread')"></i>
+        </div>
+
+        <div class="p-3">
+          <input type="text" placeholder="Search chats..." class="w-full bg-slate-800 text-xs text-white rounded-xl py-2 px-3 focus:outline-none border border-white/10">
+        </div>
+
+        <div id="chat-threads-list" class="flex-1 overflow-y-auto space-y-1 p-2 no-scrollbar">
+          <div onclick="selectChatThread('travelwithjay')" class="chat-thread-item flex items-center space-x-3 p-2.5 rounded-2xl cursor-pointer hover:bg-slate-800/60 transition bg-slate-800/80">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-bold text-black text-xs shrink-0">T</div>
+            <div class="flex-1 truncate">
+              <p class="text-xs font-bold text-white">@travelwithjay</p>
+              <p class="text-[10px] text-cyan-400 truncate mt-0.5">Hey, loved your video! 🔥</p>
+            </div>
+          </div>
+
+          <div onclick="selectChatThread('football.ug')" class="chat-thread-item flex items-center space-x-3 p-2.5 rounded-2xl cursor-pointer hover:bg-slate-800/60 transition">
+            <div class="w-10 h-10 rounded-full bg-slate-800 border border-white/10 flex items-center justify-center font-bold text-xs shrink-0">F</div>
+            <div class="flex-1 truncate">
+              <p class="text-xs font-bold text-white">@football.ug</p>
+              <p class="text-[10px] text-gray-400 truncate mt-0.5">Are you watching the match today?</p>
+            </div>
+          </div>
+
+          <div onclick="selectChatThread('techdaily')" class="chat-thread-item flex items-center space-x-3 p-2.5 rounded-2xl cursor-pointer hover:bg-slate-800/60 transition">
+            <div class="w-10 h-10 rounded-full bg-slate-800 border border-white/10 flex items-center justify-center font-bold text-xs shrink-0">T</div>
+            <div class="flex-1 truncate">
+              <p class="text-xs font-bold text-white">@techdaily</p>
+              <p class="text-[10px] text-gray-400 truncate mt-0.5">Check out the new update!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTIVE CHAT WINDOW -->
+      <div class="flex-1 flex flex-col bg-slate-950">
+        <!-- Active Chat Header -->
+        <div class="p-4 border-b border-white/10 flex items-center space-x-3 bg-slate-900/30">
+          <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-bold text-black text-xs" id="active-chat-avatar">T</div>
+          <div>
+            <h4 class="font-bold text-xs text-white" id="active-chat-user">@travelwithjay</h4>
+            <span class="text-[9px] text-emerald-400 font-semibold">Active now</span>
+          </div>
+        </div>
+
+        <!-- Chat Messages Scroll Container -->
+        <div id="chat-messages-container" class="flex-1 p-4 overflow-y-auto space-y-3 no-scrollbar">
+          <!-- Messages will render dynamically here -->
+        </div>
+
+        <!-- Message Input Bar -->
+        <form onsubmit="sendChatMessage(event)" class="p-3 border-t border-white/10 bg-slate-900/50 flex items-center space-x-2">
+          <input type="text" id="chat-input" placeholder="Write a message..." required class="flex-1 bg-slate-800 text-xs text-white rounded-full py-2.5 px-4 focus:outline-none border border-white/10">
+          <button type="submit" class="bg-[#FE2C55] hover:bg-red-600 text-white p-2.5 rounded-full transition flex items-center justify-center">
+            <i data-lucide="send" class="w-4 h-4"></i>
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
 
   <!-- UPLOAD MEDIA MODAL -->
   <div id="upload-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
@@ -367,6 +460,23 @@
     let allPostsCache = [];
     let currentProfileUserId = null;
     let selectedAvatarBase64 = null;
+    let activeChatUser = 'travelwithjay';
+
+    // Mock initial chat messages
+    let chatStore = {
+      'travelwithjay': [
+        { sender: 'travelwithjay', text: 'Hey! Loved your video edit! 🔥' },
+        { sender: 'me', text: 'Thanks man! Really appreciate it 🙏' },
+        { sender: 'travelwithjay', text: 'What camera/software did you use?' }
+      ],
+      'football.ug': [
+        { sender: 'football.ug', text: 'Are you watching the match today?' },
+        { sender: 'me', text: 'Definitely! Big game ahead!' }
+      ],
+      'techdaily': [
+        { sender: 'techdaily', text: 'Check out the new update on ViroKDK!' }
+      ]
+    };
 
     document.addEventListener("DOMContentLoaded", () => {
       lucide.createIcons();
@@ -387,6 +497,67 @@
     function closeProfilePage() { 
       document.getElementById('profile-container').classList.add('hidden'); 
       document.getElementById('home-feed-view').classList.remove('hidden');
+    }
+
+    // DIRECT MESSAGES CHAT LOGIC
+    function openChatModal(username = 'travelwithjay') {
+      db.auth.getSession().then(({ data: { session } }) => {
+        if (!session) { openAuthModal(); showToast("Please sign in to message creators"); return; }
+        document.getElementById('chat-modal').classList.remove('hidden');
+        selectChatThread(username);
+      });
+    }
+
+    function closeChatModal() {
+      document.getElementById('chat-modal').classList.add('hidden');
+    }
+
+    function selectChatThread(username) {
+      activeChatUser = username;
+      document.getElementById('active-chat-user').innerText = `@${username}`;
+      document.getElementById('active-chat-avatar').innerText = username.charAt(0).toUpperCase();
+      renderChatMessages();
+    }
+
+    function renderChatMessages() {
+      const container = document.getElementById('chat-messages-container');
+      const messages = chatStore[activeChatUser] || [];
+
+      if (messages.length === 0) {
+        container.innerHTML = `<p class="text-xs text-gray-500 text-center py-12">Start a conversation with @${activeChatUser}</p>`;
+        return;
+      }
+
+      container.innerHTML = messages.map(m => {
+        const isMe = m.sender === 'me';
+        return `
+          <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+            <div class="max-w-[75%] px-3.5 py-2 rounded-2xl text-xs font-medium ${isMe ? 'bg-[#FE2C55] text-white rounded-br-none' : 'bg-slate-800 text-gray-200 border border-white/10 rounded-bl-none'}">
+              ${m.text}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function sendChatMessage(e) {
+      e.preventDefault();
+      const input = document.getElementById('chat-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      if (!chatStore[activeChatUser]) chatStore[activeChatUser] = [];
+      chatStore[activeChatUser].push({ sender: 'me', text: text });
+      input.value = '';
+      renderChatMessages();
+
+      // Simulated auto reply
+      setTimeout(() => {
+        chatStore[activeChatUser].push({ sender: activeChatUser, text: 'Awesome! Let us stay in touch 🚀' });
+        renderChatMessages();
+      }, 1500);
     }
 
     function handleAvatarFileSelect(event) {
@@ -736,11 +907,11 @@
                   <span class="text-[10px] font-bold mt-1">320</span>
                 </button>
 
-                <button onclick="showToast('Link copied')" class="flex flex-col items-center text-white group">
+                <button onclick="openChatModal('${username}')" class="flex flex-col items-center text-white group">
                   <div class="w-10 h-10 rounded-full bg-slate-900/80 backdrop-blur-md border border-white/10 flex items-center justify-center group-hover:bg-white/20 transition">
-                    <i data-lucide="share-2" class="w-5 h-5"></i>
+                    <i data-lucide="send" class="w-5 h-5 text-cyan-400"></i>
                   </div>
-                  <span class="text-[10px] font-bold mt-1">1.1K</span>
+                  <span class="text-[10px] font-bold mt-1">Chat</span>
                 </button>
               </div>
             </div>
@@ -846,7 +1017,7 @@
                   ` : `
                     <button onclick="showToast('Followed creator')" class="bg-[#FE2C55] hover:bg-red-600 px-6 py-2 rounded-xl text-xs font-bold text-white transition">Follow</button>
                   `}
-                  <button onclick="showToast('Messages opened')" class="bg-slate-900 border border-white/10 hover:bg-slate-800 px-4 py-2 rounded-xl text-xs font-bold text-white transition">Message</button>
+                  <button onclick="openChatModal('${username}')" class="bg-slate-900 border border-white/10 hover:bg-slate-800 px-4 py-2 rounded-xl text-xs font-bold text-white transition">Message</button>
                 </div>
 
                 <div class="flex items-center space-x-8 pt-3 text-center">
