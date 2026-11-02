@@ -14,11 +14,35 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #030712; color: #ffffff; overflow: hidden; user-select: none; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #030712;
+      color: #ffffff;
+      overflow: hidden;
+      user-select: none;
+    }
+
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    .story-gradient { background: linear-gradient(135deg, #FE2C55 0%, #25F4EE 100%); }
-    .cover-gradient { background: linear-gradient(180deg, rgba(3,7,18,0.1) 0%, rgba(3,7,18,0.9) 85%, rgba(3,7,18,1) 100%); }
+
+    .story-gradient {
+      background: linear-gradient(135deg, #FE2C55 0%, #25F4EE 100%);
+    }
+
+    .avatar-ring {
+      background: linear-gradient(135deg, #FE2C55 0%, #25F4EE 100%);
+    }
+
+    .cover-gradient {
+      background: linear-gradient(180deg, rgba(3,7,18,0.1) 0%, rgba(3,7,18,0.9) 85%, rgba(3,7,18,1) 100%);
+    }
+
+    .chat-bg {
+      background-color: #0B0F19;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 0);
+      background-size: 24px 24px;
+    }
   </style>
 </head>
 <body class="h-screen w-screen flex bg-[#030712] text-white overflow-hidden">
@@ -26,38 +50,55 @@
   <!-- LEFT SIDEBAR -->
   <aside class="hidden xl:flex flex-col justify-between w-64 border-r border-white/10 p-5 bg-[#030712] shrink-0 h-full overflow-y-auto no-scrollbar">
     <div class="space-y-6">
+      
+      <!-- Brand Logo -->
       <div class="cursor-pointer" onclick="clearSearchAndReload()">
         <div class="flex items-center space-x-2">
-          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-black text-black text-xs">KDK</div>
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-black text-black text-xs">
+            KDK
+          </div>
           <span class="font-extrabold text-xl tracking-tight text-white">ViroKDK</span>
         </div>
         <p class="text-[11px] text-gray-400 italic mt-0.5 ml-1">More than moments...</p>
       </div>
 
+      <!-- Main Navigation -->
       <nav class="space-y-1">
         <button onclick="clearSearchAndReload()" class="w-full flex items-center space-x-3.5 px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-white font-bold text-xs transition">
-          <i data-lucide="home" class="w-4 h-4 text-[#25F4EE]"></i><span>Home</span>
+          <i data-lucide="home" class="w-4 h-4 text-[#25F4EE]"></i>
+          <span>Home Feed</span>
         </button>
-        <button onclick="openChatInterface()" class="w-full flex items-center space-x-3.5 px-3.5 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-slate-900/50 font-semibold text-xs transition">
-          <i data-lucide="message-square" class="w-4 h-4 text-[#FE2C55]"></i><span>Kchat Live</span>
+
+        <button onclick="openKchatInterface()" class="w-full flex items-center space-x-3.5 px-3.5 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-slate-900/50 font-semibold text-xs transition relative">
+          <i data-lucide="message-square" class="w-4 h-4 text-[#FE2C55]"></i>
+          <span>Kchat Live</span>
+          <span class="absolute right-3 w-2 h-2 rounded-full bg-[#FE2C55]"></span>
         </button>
+
         <button onclick="openUploadModal()" class="w-full flex items-center space-x-3.5 px-3.5 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-slate-900/50 font-semibold text-xs transition">
-          <i data-lucide="plus-square" class="w-4 h-4"></i><span>Create Post</span>
+          <i data-lucide="plus-square" class="w-4 h-4"></i>
+          <span>Create Post</span>
         </button>
+
         <button onclick="openProfileFromNav()" class="w-full flex items-center space-x-3.5 px-3.5 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-slate-900/50 font-semibold text-xs transition">
-          <i data-lucide="user" class="w-4 h-4"></i><span>Profile</span>
+          <i data-lucide="user" class="w-4 h-4"></i>
+          <span>Profile</span>
         </button>
       </nav>
 
-      <!-- Online Roster Card for Kchat -->
-      <div class="space-y-2 pt-2 border-t border-white/10">
-        <h4 class="text-[10px] font-extrabold uppercase text-gray-400 tracking-wider">Kchat Online Roster</h4>
-        <div id="roster-list" class="space-y-1 overflow-y-auto max-h-48 no-scrollbar">
-          <p class="text-[10px] text-gray-500">Connecting...</p>
+      <!-- Kchat Online Roster Section -->
+      <div class="space-y-2 pt-3 border-t border-white/10">
+        <div class="flex items-center justify-between">
+          <h4 class="text-[10px] font-extrabold uppercase text-gray-400 tracking-wider">Kchat Online</h4>
+          <span id="online-count-badge" class="px-1.5 py-0.5 bg-[#FE2C55] text-white text-[9px] font-bold rounded-full">0</span>
+        </div>
+        <div id="roster-list" class="space-y-1 overflow-y-auto max-h-40 no-scrollbar">
+          <p class="text-[10px] text-gray-500">Connecting to Kchat...</p>
         </div>
       </div>
     </div>
 
+    <!-- Bottom Promo Banner -->
     <div class="mt-6 p-4 rounded-2xl bg-gradient-to-br from-purple-900/50 via-indigo-900/50 to-rose-900/50 border border-white/10 relative overflow-hidden">
       <h4 class="font-extrabold text-sm text-white leading-tight">Create<br>Share<br>Inspire</h4>
       <p class="text-[10px] text-gray-300 mt-2">Turn your moments into a bigger story.</p>
@@ -66,25 +107,47 @@
 
   <!-- CENTER CONTENT AREA -->
   <main class="flex-1 h-full flex flex-col overflow-hidden bg-[#030712]">
+    
+    <!-- TOP HEADER SEARCH BAR -->
     <header class="h-16 border-b border-white/10 px-6 flex items-center justify-between shrink-0 bg-[#030712]">
       <div class="relative flex-1 max-w-xl">
         <i data-lucide="search" class="w-4 h-4 absolute left-4 top-3 text-gray-400"></i>
-        <input type="text" id="top-search-input" oninput="handleSearch(this.value)" placeholder="Search videos, users, or hashtags..." class="w-full bg-slate-900/80 border border-white/10 text-xs text-white rounded-xl py-2.5 pl-10 pr-4 focus:outline-none">
+        <input type="text" id="top-search-input" oninput="handleSearch(this.value)" placeholder="Search videos, users, or hashtags..." class="w-full bg-slate-900/80 border border-white/10 text-xs text-white rounded-xl py-2.5 pl-10 pr-4 focus:outline-none focus:ring-1 focus:ring-[#FE2C55]">
       </div>
-      <div class="flex items-center space-x-4 pl-4" id="header-avatar-btn">
-        <button onclick="openAuthModal()" class="bg-[#FE2C55] px-4 py-1.5 rounded-xl text-xs font-bold text-white hover:bg-red-600 transition">Sign In</button>
+
+      <div class="flex items-center space-x-4 pl-4" id="top-user-actions">
+        <button onclick="openKchatInterface()" class="p-2 rounded-xl bg-slate-900 border border-white/10 text-gray-300 hover:text-white relative" title="Open Kchat">
+          <i data-lucide="message-square" class="w-4 h-4 text-[#FE2C55]"></i>
+        </button>
+        <div id="header-avatar-btn">
+          <button onclick="openAuthModal()" class="bg-[#FE2C55] px-4 py-1.5 rounded-xl text-xs font-bold text-white hover:bg-red-600 transition">Sign In</button>
+        </div>
       </div>
     </header>
 
+    <!-- FEED & PROFILE & KCHAT CONTAINER -->
     <div class="flex-1 overflow-y-auto no-scrollbar p-6 space-y-6 relative">
+      
       <!-- HOME FEED VIEW -->
       <div id="home-feed-view" class="space-y-6">
+        <!-- STORIES BAR -->
         <div class="flex items-center space-x-4 overflow-x-auto no-scrollbar py-2 border-b border-white/10">
           <div class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer" onclick="openUploadModal()">
-            <div class="w-14 h-14 rounded-full border-2 border-dashed border-white/30 flex items-center justify-center text-white bg-slate-900"><i data-lucide="plus" class="w-5 h-5"></i></div>
+            <div class="w-14 h-14 rounded-full border-2 border-dashed border-white/30 flex items-center justify-center text-white bg-slate-900">
+              <i data-lucide="plus" class="w-5 h-5"></i>
+            </div>
             <span class="text-[10px] text-gray-400 font-medium">Your Story</span>
           </div>
+
+          <div class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer" onclick="openKchatInterface()">
+            <div class="w-14 h-14 rounded-full p-0.5 story-gradient relative">
+              <div class="w-full h-full rounded-full bg-slate-950 p-0.5 flex items-center justify-center font-bold text-[#25F4EE] text-xs">K</div>
+            </div>
+            <span class="text-[10px] text-gray-300 font-medium">Kchat Room</span>
+          </div>
         </div>
+
+        <!-- FEED POSTS CONTAINER -->
         <div id="posts-feed-container" class="space-y-6 max-w-2xl mx-auto">
           <div class="flex flex-col justify-center items-center py-12 text-gray-500">
             <i data-lucide="loader-2" class="w-8 h-8 animate-spin text-[#FE2C55] mb-2"></i>
@@ -93,56 +156,72 @@
         </div>
       </div>
 
-      <!-- KCHAT LIVE MESSAGING VIEW -->
-      <div id="kchat-view" class="hidden h-full flex flex-col bg-slate-950 rounded-2xl border border-white/10 overflow-hidden">
+      <!-- DESIGNER PROFILE VIEW CONTAINER -->
+      <div id="profile-container" class="hidden w-full pb-16"></div>
+
+      <!-- KCHAT LIVE MESSAGING & CALL VIEW -->
+      <div id="kchat-view" class="hidden h-full flex flex-col bg-slate-950 rounded-2xl border border-white/10 overflow-hidden relative">
         <div class="p-4 border-b border-white/10 flex items-center justify-between bg-slate-900">
           <div class="flex items-center space-x-3">
-            <h3 class="font-extrabold text-sm text-white">Kchat Live Room</h3>
-            <span id="typing-indicator" class="text-[10px] text-emerald-400 font-medium">Group chat active</span>
+            <div class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></div>
+            <h3 class="font-extrabold text-sm text-white" id="kchat-room-title">Kchat Public Room</h3>
+            <span id="typing-indicator" class="text-[10px] text-emerald-400 font-medium">Live group chat</span>
           </div>
           <div class="flex items-center space-x-2">
-            <button onclick="startCall('audio')" class="px-3 py-1.5 bg-slate-800 rounded-lg text-xs font-bold text-cyan-400 hover:bg-slate-700">Audio Call</button>
-            <button onclick="startCall('video')" class="px-3 py-1.5 bg-slate-800 rounded-lg text-xs font-bold text-[#FE2C55] hover:bg-slate-700">Video Call</button>
-            <button onclick="clearSearchAndReload()" class="px-3 py-1.5 bg-slate-800 rounded-lg text-xs font-bold text-white">Back to Feed</button>
+            <button onclick="startCall('audio')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-bold text-cyan-400 transition flex items-center space-x-1">
+              <i data-lucide="phone" class="w-3.5 h-3.5"></i><span>Audio</span>
+            </button>
+            <button onclick="startCall('video')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-bold text-[#FE2C55] transition flex items-center space-x-1">
+              <i data-lucide="video" class="w-3.5 h-3.5"></i><span>Video</span>
+            </button>
+            <button onclick="clearSearchAndReload()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-bold text-white transition">Back to Feed</button>
           </div>
         </div>
 
         <!-- CALL STAGE OVERLAY -->
-        <div id="call-stage" class="absolute inset-0 z-30 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-6 space-y-4">
-          <h3 id="call-status-text" class="text-lg font-bold text-white">Connecting Call...</h3>
+        <div id="call-stage" class="absolute inset-0 z-30 bg-black/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-6 space-y-4">
+          <h3 id="call-status-text" class="text-base font-bold text-white">Connecting Call...</h3>
           <div class="flex space-x-4">
-            <video id="remote-video" autoplay playsinline class="w-72 h-48 bg-slate-900 rounded-2xl object-cover border border-white/10"></video>
-            <video id="local-video" autoplay muted playsinline class="w-72 h-48 bg-slate-900 rounded-2xl object-cover border border-white/10"></video>
+            <video id="remote-video" autoplay playsinline class="w-80 h-52 bg-slate-900 rounded-2xl object-cover border border-white/10 shadow-2xl"></video>
+            <video id="local-video" autoplay muted playsinline class="w-80 h-52 bg-slate-900 rounded-2xl object-cover border border-white/10 shadow-2xl"></video>
           </div>
-          <button onclick="hangUpCall()" class="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition">End Call</button>
+          <button onclick="hangUpCall()" class="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl transition">End Call</button>
         </div>
 
-        <div id="chat-messages-container" class="flex-1 p-4 overflow-y-auto space-y-3 no-scrollbar"></div>
+        <!-- CHAT MESSAGES SCROLLER -->
+        <div id="chat-messages-container" class="flex-1 p-4 overflow-y-auto space-y-3 no-scrollbar">
+          <div class="text-center py-2">
+            <span class="px-3 py-1 bg-slate-900 border border-white/10 rounded-full text-[10px] text-gray-400 font-bold">Welcome to Kchat! Click anyone in the left roster to DM.</span>
+          </div>
+        </div>
 
-        <form onsubmit="sendKchatMessage(event)" class="p-4 border-t border-white/10 bg-slate-900 flex items-center space-x-3">
+        <!-- CHAT INPUT BAR -->
+        <form onsubmit="sendKchatMessage(event)" class="p-3 border-t border-white/10 bg-slate-900 flex items-center space-x-2">
           <input type="text" id="kchat-input" oninput="handleTyping()" placeholder="Message Kchat room..." required class="flex-1 bg-slate-800 text-xs text-white rounded-xl py-2.5 px-4 focus:outline-none border border-white/10">
-          <button type="submit" class="px-5 py-2.5 bg-[#FE2C55] text-white font-bold text-xs rounded-xl hover:bg-red-600">Send</button>
+          <button type="submit" class="px-5 py-2.5 bg-[#FE2C55] hover:bg-red-600 text-white font-bold text-xs rounded-xl transition">Send</button>
         </form>
       </div>
 
-      <!-- PROFILE CONTAINER -->
-      <div id="profile-container" class="hidden w-full pb-16"></div>
     </div>
   </main>
 
-  <!-- UPLOAD MODAL -->
+  <!-- UPLOAD MEDIA MODAL -->
   <div id="upload-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-white/10 rounded-2xl w-full max-w-lg p-6 relative shadow-2xl space-y-4">
       <button onclick="closeUploadModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
       <h3 class="text-base font-bold text-center border-b border-white/10 pb-3">Create New Post</h3>
-      <form onsubmit="handleMediaUpload(event)" class="space-y-4">
+      <form id="upload-form" onsubmit="handleMediaUpload(event)" class="space-y-4">
         <div class="border-2 border-dashed border-white/20 rounded-xl p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#FE2C55] transition bg-black/40" onclick="document.getElementById('upload-file').click()">
           <i data-lucide="image" class="w-10 h-10 text-gray-400 mb-2"></i>
-          <p class="text-sm font-bold text-white" id="file-label-text">Select Photo or Video</p>
+          <p class="text-sm font-bold text-white" id="file-label-text">Select Photo or Video to Upload</p>
           <input type="file" id="upload-file" accept="image/*,video/*" required class="hidden" onchange="document.getElementById('file-label-text').innerText = this.files[0]?.name">
         </div>
-        <input type="text" id="upload-caption" placeholder="Write a caption..." class="w-full bg-slate-800 text-sm text-white rounded-xl p-3 border border-white/10 focus:outline-none">
-        <button type="submit" class="w-full py-2.5 bg-[#FE2C55] text-white font-bold rounded-xl">Share Post</button>
+        <div>
+          <label class="text-xs font-semibold text-gray-400 mb-1 block">Caption</label>
+          <input type="text" id="upload-caption" placeholder="Write a caption..." class="w-full bg-slate-800 text-sm text-white rounded-xl p-3 border border-white/10 focus:outline-none">
+        </div>
+        <p id="upload-message" class="text-xs text-center font-semibold hidden"></p>
+        <button type="submit" id="upload-submit-btn" class="w-full py-2.5 bg-[#FE2C55] hover:bg-red-600 text-white font-bold rounded-xl transition">Share Post</button>
       </form>
     </div>
   </div>
@@ -151,16 +230,77 @@
   <div id="auth-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-white/10 rounded-2xl w-full max-w-md p-6 relative shadow-2xl">
       <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
-      <h2 class="text-xl font-bold mb-4 text-center">Log In to ViroKDK</h2>
-      <form onsubmit="handleAuth(event)" class="space-y-4">
-        <input type="email" id="auth-email" required placeholder="you@example.com" class="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-white text-sm focus:outline-none"/>
-        <input type="password" id="auth-password" required minlength="6" placeholder="••••••••" class="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-white text-sm focus:outline-none"/>
-        <button type="submit" class="w-full bg-[#FE2C55] font-bold py-2.5 rounded-xl text-white">Log In</button>
+      <h2 id="modal-title" class="text-xl font-bold mb-4 text-center">Log In to ViroKDK</h2>
+      <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4">
+        <div id="username-container" class="hidden">
+          <label class="text-xs font-semibold text-gray-400 block mb-1">USERNAME</label>
+          <input type="text" id="auth-username" class="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-white text-sm focus:outline-none" placeholder="e.g. KDenis000"/>
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-gray-400 block mb-1">EMAIL</label>
+          <input type="email" id="auth-email" required class="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-white text-sm focus:outline-none" placeholder="you@example.com"/>
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-gray-400 block mb-1">PASSWORD</label>
+          <input type="password" id="auth-password" required minlength="6" class="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-white text-sm focus:outline-none" placeholder="••••••••"/>
+        </div>
+        <p id="auth-message" class="text-sm text-center font-medium hidden"></p>
+        <button type="submit" id="auth-submit-btn" class="w-full bg-[#FE2C55] hover:bg-red-600 font-bold py-2.5 rounded-xl transition text-white">Log In</button>
+      </form>
+      <div class="mt-4 text-center text-xs text-gray-400">
+        <span id="toggle-text">Don't have an account?</span>
+        <button onclick="toggleAuthMode()" id="toggle-btn" class="text-[#25F4EE] font-semibold underline ml-1">Sign Up</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDIT PROFILE MODAL -->
+  <div id="edit-profile-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-white/10 rounded-2xl w-full max-w-md p-6 relative shadow-2xl space-y-4">
+      <button onclick="closeEditProfileModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <h3 class="text-lg font-bold text-center">Edit Profile</h3>
+      <form onsubmit="saveProfileChanges(event)" class="space-y-4">
+        <div class="flex flex-col items-center justify-center space-y-2">
+          <div class="relative w-20 h-20 rounded-full overflow-hidden border-2 border-[#25F4EE] group cursor-pointer" onclick="document.getElementById('edit-avatar-file').click()">
+            <img id="edit-avatar-preview" src="" class="w-full h-full object-cover hidden">
+            <div id="edit-avatar-placeholder" class="w-full h-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center text-2xl font-bold text-black">?</div>
+          </div>
+          <span class="text-xs text-cyan-400 font-semibold cursor-pointer" onclick="document.getElementById('edit-avatar-file').click()">Change Profile Photo</span>
+          <input type="file" id="edit-avatar-file" accept="image/*" class="hidden" onchange="handleAvatarFileSelect(event)">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-gray-400 block mb-1">Display Name</label>
+          <input type="text" id="edit-name-input" class="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-gray-400 block mb-1">Username (@)</label>
+          <input type="text" id="edit-username-input" class="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-gray-400 block mb-1">Bio</label>
+          <textarea id="edit-bio-input" rows="3" class="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none"></textarea>
+        </div>
+        <button type="submit" id="save-profile-btn" class="w-full py-3 bg-[#FE2C55] hover:bg-red-600 font-bold rounded-xl text-white transition">Save Changes</button>
       </form>
     </div>
   </div>
 
-  <!-- TOAST -->
+  <!-- COMMENTS DRAWER MODAL -->
+  <div id="comment-drawer" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-slate-900 border border-white/10 rounded-2xl h-[500px] flex flex-col overflow-hidden shadow-2xl">
+      <div class="p-4 border-b border-white/10 flex items-center justify-between">
+        <h3 class="font-bold text-sm">Comments</h3>
+        <button onclick="closeCommentDrawer()" class="text-gray-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div id="comment-list" class="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar"></div>
+      <form onsubmit="postComment(event)" class="p-3 border-t border-white/10 flex items-center space-x-2 bg-black">
+        <input type="text" id="comment-input" placeholder="Add a comment..." required class="flex-1 bg-slate-800 text-sm text-white rounded-full py-2 px-4 focus:outline-none border border-white/10">
+        <button type="submit" class="text-[#FE2C55] font-bold text-xs hover:text-white px-2">Post</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
   <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-slate-800 text-white text-xs font-semibold px-4 py-2.5 rounded-full border border-white/20 shadow-xl opacity-0 pointer-events-none transition-all duration-300">
     <span id="toast-message">Notification</span>
   </div>
@@ -172,7 +312,14 @@
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     const socket = io();
 
-    let myName = prompt("Enter your display name for Kchat:") || "Guest";
+    let isSignUp = false;
+    let activeVideoId = null;
+    let allPostsCache = [];
+    let currentProfileUserId = null;
+    let selectedAvatarBase64 = null;
+    
+    // Kchat live variables
+    let myName = "Guest";
     let activeDmTarget = null;
     let typingTimer = null;
     let currentCallId = null;
@@ -182,39 +329,42 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       lucide.createIcons();
+      checkUserSession();
       loadPosts();
-      
-      socket.emit("user:join", { name: myName }, (res) => {
-        if (res.ok) myName = res.user.name;
+
+      // Get initial session for Kchat display name
+      db.auth.getSession().then(({ data: { session } }) => {
+        if (session?.user) {
+          myName = session.user.user_metadata?.username || session.user.email.split('@')[0];
+        }
+        socket.emit("user:join", { name: myName }, (res) => {
+          if (res.ok) myName = res.user.name;
+        });
       });
     });
 
+    // --- KCHAT SOCKET LOGIC ---
     socket.on("roster", (users) => {
       const rosterList = document.getElementById("roster-list");
+      document.getElementById("online-count-badge").innerText = users.length;
       rosterList.innerHTML = users.map(u => `
-        <div onclick="setDmTarget('${u.id}', '${u.name}')" class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-900 cursor-pointer">
-          <span class="text-xs font-bold text-white">${u.name} ${u.id === socket.id ? '(You)' : ''}</span>
-          <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
+        <div onclick="setDmTarget('${u.id}', '${u.name}')" class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-900 cursor-pointer ${activeDmTarget === u.id ? 'bg-slate-900 border border-cyan-500/30' : ''}">
+          <span class="text-xs font-bold text-white truncate">@${u.name} ${u.id === socket.id ? '(You)' : ''}</span>
+          <span class="w-2 h-2 bg-emerald-500 rounded-full shrink-0"></span>
         </div>
       `).join('');
     });
 
-    function openChatInterface() {
+    function openKchatInterface() {
       document.getElementById("home-feed-view").classList.add("hidden");
       document.getElementById("profile-container").classList.add("hidden");
       document.getElementById("kchat-view").classList.remove("hidden");
     }
 
-    function clearSearchAndReload() {
-      document.getElementById("kchat-view").classList.add("hidden");
-      document.getElementById("profile-container").classList.add("hidden");
-      document.getElementById("home-feed-view").classList.remove("hidden");
-      loadPosts();
-    }
-
     function setDmTarget(id, name) {
       activeDmTarget = (id === socket.id) ? null : id;
-      showToast(activeDmTarget ? `Private chat with ${name}` : "Public Kchat room");
+      document.getElementById("kchat-room-title").innerText = activeDmTarget ? `Private DM with @${name}` : "Kchat Public Room";
+      showToast(activeDmTarget ? `Messaging @${name}` : "Switched to Public Room");
     }
 
     function sendKchatMessage(e) {
@@ -224,17 +374,19 @@
       if (!text) return;
       socket.emit("chat:message", { text, to: activeDmTarget }, (res) => {
         if (res.ok) input.value = "";
+        else showToast(res.error);
       });
     }
 
     socket.on("chat:message", (msg) => {
       const container = document.getElementById("chat-messages-container");
       const isMe = msg.from.id === socket.id;
+      const isDm = Boolean(msg.to);
       const bubble = document.createElement("div");
       bubble.className = `flex flex-col ${isMe ? 'items-end' : 'items-start'}`;
       bubble.innerHTML = `
-        <span class="text-[9px] text-gray-400">${msg.from.name}</span>
-        <div class="max-w-[75%] px-4 py-2 rounded-xl text-xs ${isMe ? 'bg-[#FE2C55] text-white' : 'bg-slate-900 border border-white/10 text-gray-200'}">${msg.text}</div>
+        <span class="text-[9px] text-gray-400 mb-0.5">${isDm ? '[DM] ' : ''}@${msg.from.name}</span>
+        <div class="max-w-[75%] px-4 py-2.5 rounded-2xl text-xs ${isMe ? 'bg-[#FE2C55] text-white rounded-br-none' : 'bg-slate-900 border border-white/10 text-gray-200 rounded-bl-none'}">${msg.text}</div>
       `;
       container.appendChild(bubble);
       container.scrollTop = container.scrollHeight;
@@ -247,21 +399,24 @@
     }
 
     socket.on("chat:typing", (data) => {
-      document.getElementById("typing-indicator").innerText = data.typing ? `${data.from.name} is typing...` : "Group chat active";
+      document.getElementById("typing-indicator").innerText = data.typing ? `@${data.from.name} is typing...` : "Live group chat";
     });
 
+    // --- WEBRTC CALLING ---
     async function startCall(mediaType) {
       const res = await new Promise(resolve => socket.emit("call:invite", { to: activeDmTarget, media: mediaType }, resolve));
-      if (!res.ok) { showToast(res.error || "Select someone in roster for 1-1 call or use public mode"); return; }
+      if (!res.ok) { showToast(res.error || "Select a user from the roster for 1-1 calls"); return; }
       currentCallId = res.callId;
       document.getElementById("call-stage").classList.remove("hidden");
+      document.getElementById("call-status-text").innerText = `Calling...`;
       await setupPeerConnection(true);
     }
 
     socket.on("call:incoming", async (data) => {
-      if (confirm(`Incoming ${data.media} call from ${data.from.name}. Accept?`)) {
+      if (confirm(`Incoming ${data.media} call from @${data.from.name}. Accept?`)) {
         currentCallId = data.callId;
         document.getElementById("call-stage").classList.remove("hidden");
+        document.getElementById("call-status-text").innerText = `Connected (${data.media})`;
         socket.emit("call:accept", { callId: currentCallId });
         await setupPeerConnection(false);
       } else {
@@ -271,6 +426,7 @@
 
     socket.on("call:accepted", async (data) => {
       currentCallId = data.callId;
+      document.getElementById("call-status-text").innerText = `Call connected`;
       const offer = await peerConnection.createOffer();
       await peerConnection.setLocalDescription(offer);
       socket.emit("webrtc:signal", { callId: currentCallId, data: { type: "offer", sdp: offer.sdp } });
@@ -284,7 +440,7 @@
         localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
         document.getElementById("local-video").srcObject = localStream;
         localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-      } catch (err) { console.warn("No camera/mic:", err); }
+      } catch (err) { console.warn("Camera/Mic access note:", err); }
 
       peerConnection.ontrack = (event) => { document.getElementById("remote-video").srcObject = event.streams[0]; };
       peerConnection.onicecandidate = (event) => {
@@ -315,31 +471,382 @@
       document.getElementById("call-stage").classList.add("hidden");
     }
 
-    async function loadPosts() {
-      const { data: posts } = await db.from('videos').select('*').order('created_at', { ascending: false });
-      const container = document.getElementById('posts-feed-container');
-      if (!posts || posts.length === 0) { container.innerHTML = `<p class="text-center text-gray-500 py-12">No posts yet.</p>`; return; }
-      container.innerHTML = posts.map(p => `
-        <div class="bg-slate-900 border border-white/10 rounded-2xl overflow-hidden shadow-2xl p-4 space-y-3">
-          <div class="flex items-center space-x-3"><span class="font-bold text-xs text-white">@${p.username || 'user'}</span></div>
-          <div class="w-full aspect-[4/3] bg-black rounded-xl overflow-hidden flex items-center justify-center">
-            ${p.video_url.match(/\.(mp4|webm)$/i) ? `<video src="${p.video_url}" class="w-full h-full object-cover" controls></video>` : `<img src="${p.video_url}" class="w-full h-full object-cover">`}
-          </div>
-          <p class="text-xs text-gray-200">${p.caption || ''}</p>
-        </div>
-      `).join('');
+    // --- SUPABASE AUTH & POSTS LOGIC ---
+    function openAuthModal() { document.getElementById('auth-modal').classList.remove('hidden'); }
+    function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
+    function openUploadModal() { 
+      db.auth.getSession().then(({ data: { session } }) => {
+        if (!session) { openAuthModal(); showToast("Please sign in to upload"); return; }
+        document.getElementById('upload-modal').classList.remove('hidden'); 
+      });
+    }
+    function closeUploadModal() { document.getElementById('upload-modal').classList.add('hidden'); }
+
+    function toggleAuthMode() {
+      isSignUp = !isSignUp;
+      document.getElementById('modal-title').innerText = isSignUp ? 'Create ViroKDK Account' : 'Log In to ViroKDK';
+      document.getElementById('auth-submit-btn').innerText = isSignUp ? 'Sign Up' : 'Log In';
+      document.getElementById('toggle-text').innerText = isSignUp ? 'Already have an account?' : "Don't have an account?";
+      document.getElementById('toggle-btn').innerText = isSignUp ? 'Log In' : 'Sign Up';
+      document.getElementById('username-container').classList.toggle('hidden', !isSignUp);
+    }
+
+    async function handleAuth(e) {
+      e.preventDefault();
+      const email = document.getElementById('auth-email').value;
+      const password = document.getElementById('auth-password').value;
+      const username = document.getElementById('auth-username').value;
+      const msg = document.getElementById('auth-message');
+
+      msg.classList.remove('hidden', 'text-green-400', 'text-red-400');
+      msg.innerText = 'Processing...';
+
+      let result = isSignUp 
+        ? await db.auth.signUp({ email, password, options: { data: { username, display_name: username, bio: "Turning moments into stories." } } })
+        : await db.auth.signInWithPassword({ email, password });
+
+      if (result.error) {
+        msg.classList.add('text-red-400');
+        msg.innerText = result.error.message;
+      } else {
+        msg.classList.add('text-green-400');
+        msg.innerText = isSignUp ? 'Account created! Log in.' : 'Logged in successfully!';
+        if (!isSignUp) {
+          setTimeout(() => { closeAuthModal(); checkUserSession(); loadPosts(); }, 1000);
+        }
+      }
+    }
+
+    async function checkUserSession() {
+      const { data: { session } } = await db.auth.getSession();
+      const headerAvatarBtn = document.getElementById('header-avatar-btn');
+
+      if (session?.user) {
+        const userMeta = session.user.user_metadata || {};
+        const username = userMeta.username || session.user.email.split('@')[0];
+        const avatarUrl = userMeta.avatar_url;
+
+        const avatarHTML = avatarUrl 
+          ? `<img src="${avatarUrl}" class="w-8 h-8 rounded-full object-cover border border-[#25F4EE]">`
+          : `<div class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-bold text-black text-xs">${username.charAt(0).toUpperCase()}</div>`;
+
+        headerAvatarBtn.innerHTML = `
+          <div class="flex items-center space-x-2 cursor-pointer" onclick="viewProfile('${session.user.id}', '${username}')">
+            ${avatarHTML}
+            <button onclick="handleLogout(event)" class="text-gray-400 hover:text-white p-1" title="Log Out"><i data-lucide="log-out" class="w-4 h-4"></i></button>
+          </div>`;
+      } else {
+        headerAvatarBtn.innerHTML = `<button onclick="openAuthModal()" class="bg-[#FE2C55] px-4 py-1.5 rounded-xl text-xs font-bold text-white hover:bg-red-600 transition">Sign In</button>`;
+      }
       lucide.createIcons();
     }
 
-    function openUploadModal() { document.getElementById('upload-modal').classList.remove('hidden'); }
-    function closeUploadModal() { document.getElementById('upload-modal').classList.add('hidden'); }
-    function openAuthModal() { document.getElementById('auth-modal').classList.remove('hidden'); }
-    function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
+    async function handleLogout(e) {
+      e.stopPropagation();
+      await db.auth.signOut();
+      checkUserSession();
+      loadPosts();
+      showToast("Logged out");
+    }
+
+    async function handleMediaUpload(e) {
+      e.preventDefault();
+      const fileInput = document.getElementById('upload-file');
+      const captionInput = document.getElementById('upload-caption');
+      const msg = document.getElementById('upload-message');
+      const btn = document.getElementById('upload-submit-btn');
+
+      const file = fileInput.files[0];
+      if (!file) return;
+
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) { openAuthModal(); return; }
+
+      msg.classList.remove('hidden', 'text-red-400', 'text-green-400');
+      msg.innerText = 'Uploading file...';
+      btn.disabled = true;
+
+      const fileExt = file.name.split('.').pop();
+      const filePath = `posts/${session.user.id}_${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await db.storage.from('videos').upload(filePath, file);
+      if (uploadError) {
+        msg.classList.add('text-red-400');
+        msg.innerText = uploadError.message;
+        btn.disabled = false;
+        return;
+      }
+
+      const { data: publicUrlData } = db.storage.from('videos').getPublicUrl(filePath);
+      const username = session.user.user_metadata?.username || session.user.email.split('@')[0];
+
+      const { error: dbError } = await db
+        .from('videos')
+        .insert([{ user_id: session.user.id, username: username, caption: captionInput.value, video_url: publicUrlData.publicUrl, likes_count: 0 }]);
+
+      btn.disabled = false;
+      if (dbError) {
+        msg.classList.add('text-red-400');
+        msg.innerText = dbError.message;
+      } else {
+        msg.classList.add('text-green-400');
+        msg.innerText = 'Published successfully!';
+        setTimeout(() => {
+          closeUploadModal();
+          fileInput.value = '';
+          captionInput.value = '';
+          msg.classList.add('hidden');
+          loadPosts();
+        }, 1200);
+      }
+    }
+
+    async function likeVideo(videoId, currentLikes) {
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) { openAuthModal(); return; }
+      const newLikes = currentLikes + 1;
+      const { error } = await db.from('videos').update({ likes_count: newLikes }).eq('id', videoId);
+      if (!error) loadPosts();
+    }
+
+    async function openComments(videoId) {
+      activeVideoId = videoId;
+      document.getElementById('comment-drawer').classList.remove('hidden');
+      loadComments(videoId);
+    }
+
+    function closeCommentDrawer() {
+      document.getElementById('comment-drawer').classList.add('hidden');
+      activeVideoId = null;
+    }
+
+    async function loadComments(videoId) {
+      const list = document.getElementById('comment-list');
+      list.innerHTML = `<p class="text-xs text-gray-500 text-center py-4">Loading comments...</p>`;
+      const { data: comments } = await db.from('comments').select('*').eq('video_id', videoId).order('created_at', { ascending: false });
+
+      if (!comments || comments.length === 0) {
+        list.innerHTML = `<p class="text-xs text-gray-500 text-center py-6">No comments yet.</p>`;
+        return;
+      }
+
+      list.innerHTML = comments.map(c => `
+        <div class="flex space-x-3 items-start bg-slate-800/40 p-2.5 rounded-xl text-xs">
+          <span class="font-bold text-[#25F4EE]">@${c.username}</span>
+          <p class="text-gray-200">${c.comment_text}</p>
+        </div>
+      `).join('');
+    }
+
+    async function postComment(e) {
+      e.preventDefault();
+      const input = document.getElementById('comment-input');
+      const text = input.value.trim();
+      if (!text || !activeVideoId) return;
+
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) { openAuthModal(); return; }
+
+      const username = session.user.user_metadata?.username || session.user.email.split('@')[0];
+      const { error } = await db.from('comments').insert([{ video_id: activeVideoId, user_id: session.user.id, username: username, comment_text: text }]);
+
+      if (!error) {
+        input.value = '';
+        loadComments(activeVideoId);
+      }
+    }
+
+    function handleSearch(query) {
+      const q = query.toLowerCase().trim();
+      if (!q) { renderFeed(allPostsCache); return; }
+      const filtered = allPostsCache.filter(p => 
+        (p.caption && p.caption.toLowerCase().includes(q)) || 
+        (p.username && p.username.toLowerCase().includes(q))
+      );
+      renderFeed(filtered);
+    }
+
+    function clearSearchAndReload() {
+      const input = document.getElementById('top-search-input');
+      if (input) input.value = '';
+      document.getElementById('kchat-view').classList.add('hidden');
+      document.getElementById('profile-container').classList.add('hidden');
+      document.getElementById('home-feed-view').classList.remove('hidden');
+      renderFeed(allPostsCache);
+    }
+
+    async function loadPosts() {
+      try {
+        const { data: posts, error } = await db.from('videos').select('*').order('created_at', { ascending: false });
+        if (error || !posts || posts.length === 0) {
+          document.getElementById('posts-feed-container').innerHTML = `<p class="text-center text-gray-500 py-12 text-sm">No posts yet. Click Create to post!</p>`;
+          return;
+        }
+        allPostsCache = posts;
+        renderFeed(allPostsCache);
+      } catch (err) {
+        document.getElementById('posts-feed-container').innerHTML = `<p class="text-center text-red-500 py-6 text-xs">Failed to load feed.</p>`;
+      }
+    }
+
+    function renderFeed(posts) {
+      const container = document.getElementById('posts-feed-container');
+      if (!posts || posts.length === 0) {
+        container.innerHTML = `<p class="text-center text-gray-500 py-12 text-sm">No matching posts found.</p>`;
+        return;
+      }
+
+      container.innerHTML = posts.map(post => {
+        const username = post.username || 'KDenis000';
+        const isVideo = post.video_url.match(/\.(mp4|webm|mov)$/i);
+
+        return `
+          <div class="bg-slate-900 border border-white/10 rounded-2xl overflow-hidden shadow-2xl relative">
+            <div class="flex items-center justify-between p-4 border-b border-white/10">
+              <div class="flex items-center space-x-3 cursor-pointer" onclick="viewProfile('${post.user_id}', '${username}')">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-bold text-black text-sm">
+                  ${username.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <h4 class="font-bold text-xs text-white">@${username}</h4>
+                  <p class="text-[10px] text-gray-400">Kampala, Uganda</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="relative w-full aspect-[4/3] bg-black flex items-center justify-center overflow-hidden">
+              ${isVideo ? `
+                <video src="${post.video_url}" class="w-full h-full object-cover" loop playsinline></video>
+                <button onclick="playProfileVideo(this.previousElementSibling)" class="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition">
+                  <div class="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white">
+                    <i data-lucide="play" class="w-6 h-6 fill-white"></i>
+                  </div>
+                </button>
+              ` : `
+                <img src="${post.video_url}" class="w-full h-full object-cover" alt="Post Image">
+              `}
+
+              <div class="absolute right-3 bottom-12 flex flex-col items-center space-y-4 z-20">
+                <button onclick="likeVideo('${post.id}', ${post.likes_count || 0})" class="flex flex-col items-center text-white group">
+                  <div class="w-10 h-10 rounded-full bg-slate-900/80 backdrop-blur-md border border-white/10 flex items-center justify-center group-hover:bg-white/20 transition">
+                    <i data-lucide="heart" class="w-5 h-5 text-white fill-white"></i>
+                  </div>
+                  <span class="text-[10px] font-bold mt-1">${post.likes_count || 0}</span>
+                </button>
+
+                <button onclick="openComments('${post.id}')" class="flex flex-col items-center text-white group">
+                  <div class="w-10 h-10 rounded-full bg-slate-900/80 backdrop-blur-md border border-white/10 flex items-center justify-center group-hover:bg-white/20 transition">
+                    <i data-lucide="message-circle" class="w-5 h-5"></i>
+                  </div>
+                  <span class="text-[10px] font-bold mt-1">Comments</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="p-4 space-y-1.5">
+              <p class="text-xs font-bold text-white">@${username} <span class="font-normal text-gray-300">${post.caption || ''}</span></p>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    function playProfileVideo(vEl) {
+      if (vEl.paused) { vEl.play(); } else { vEl.pause(); }
+    }
+
+    // DESIGNER PROFILE PAGE VIEW
+    async function viewProfile(userId, fallbackUsername = 'KDenis000') {
+      currentProfileUserId = userId;
+      document.getElementById('home-feed-view').classList.add('hidden');
+      document.getElementById('kchat-view').classList.add('hidden');
+      const container = document.getElementById('profile-container');
+      container.classList.remove('hidden');
+      container.innerHTML = `<p class="text-center py-20 text-gray-400">Loading Profile...</p>`;
+
+      const { data: sessionData } = await db.auth.getSession();
+      const currentUserId = sessionData?.session?.user?.id;
+      const { data: videos } = await db.from('videos').select('*').eq('user_id', userId).order('created_at', { ascending: false });
+
+      let username = fallbackUsername;
+      let bio = "Turning moments into stories.";
+      let avatarUrl = null;
+
+      if (currentUserId === userId && sessionData?.session?.user?.user_metadata) {
+        const meta = sessionData.session.user.user_metadata;
+        username = meta.username || fallbackUsername;
+        bio = meta.bio || "Turning moments into stories.";
+        avatarUrl = meta.avatar_url;
+      } else if (videos && videos.length > 0 && videos[0].username) {
+        username = videos[0].username;
+      }
+
+      const avatarDisplay = avatarUrl 
+        ? `<img src="${avatarUrl}" class="w-full h-full rounded-full object-cover">`
+        : `<div class="w-full h-full rounded-full bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center text-6xl font-black text-black">${username.charAt(0).toUpperCase()}</div>`;
+
+      container.innerHTML = `
+        <div class="max-w-5xl mx-auto space-y-6">
+          <button onclick="clearSearchAndReload()" class="px-4 py-2 bg-slate-900 rounded-xl text-xs font-bold text-white border border-white/10 hover:bg-slate-800 transition">← Back to Feed</button>
+          
+          <div class="relative w-full h-64 md:h-80 rounded-2xl overflow-hidden bg-slate-900 border border-white/10 shadow-2xl">
+            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80" class="w-full h-full object-cover">
+            <div class="absolute inset-0 cover-gradient flex items-center justify-between p-6">
+              <div class="text-left space-y-1">
+                <p class="text-[10px] tracking-widest uppercase font-bold text-gray-300">S A M E • K I D • B I G G E R • V I S I O N</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 flex flex-col md:flex-row items-start space-y-4 md:space-y-0 md:space-x-6">
+              <div class="relative shrink-0">
+                <div class="w-32 h-32 md:w-40 md:h-40 rounded-full p-1 avatar-ring shadow-2xl">
+                  <div class="w-full h-full rounded-full bg-slate-950 p-1">${avatarDisplay}</div>
+                </div>
+              </div>
+              <div class="space-y-3 flex-1">
+                <h1 class="text-2xl font-black text-white">@${username}</h1>
+                <p class="text-xs text-gray-200 font-semibold">${bio}</p>
+                <div class="flex items-center space-x-3 pt-2">
+                  ${currentUserId === userId ? `<button onclick="openEditProfileModal()" class="bg-[#FE2C55] hover:bg-red-600 px-6 py-2 rounded-xl text-xs font-bold text-white transition">Edit Profile</button>` : ``}
+                </div>
+                <div class="flex items-center space-x-8 pt-3 text-center">
+                  <div><p class="text-lg font-black text-white">${videos ? videos.length : 0}</p><p class="text-[10px] text-gray-400 uppercase font-semibold">Posts</p></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+            ${videos && videos.length > 0 ? videos.map(v => {
+              const isVideo = v.video_url.match(/\.(mp4|webm|mov)$/i);
+              return `
+                <div class="aspect-[9/16] bg-slate-900 rounded-xl overflow-hidden relative cursor-pointer shadow-xl border border-white/5" onclick="${isVideo ? "playProfileVideo(this.querySelector('video'))" : ""}">
+                  ${isVideo ? `<video src="${v.video_url}" class="w-full h-full object-cover" loop playsinline></video>` : `<img src="${v.video_url}" class="w-full h-full object-cover">`}
+                </div>
+              `;
+            }).join('') : `<p class="col-span-full text-center py-12 text-xs text-gray-500">No posts published yet.</p>`}
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    async function openProfileFromNav() {
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) { openAuthModal(); return; }
+      const username = session.user.user_metadata?.username || session.user.email.split('@')[0];
+      viewProfile(session.user.id, username);
+    }
+
     function showToast(msg) {
       const toast = document.getElementById("toast");
       document.getElementById("toast-message").textContent = msg;
       toast.classList.remove("opacity-0", "pointer-events-none");
-      setTimeout(() => toast.classList.add("opacity-0", "pointer-events-none"), 2500);
+      setTimeout(() => { toast.classList.add("opacity-0", "pointer-events-none"); }, 2500);
     }
   </script>
 </body>
