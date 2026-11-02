@@ -3,425 +3,164 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KChat - Talk. Share. Be Closer</title>
+  <title>ViroKDK & Kchat - Social Experience</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Supabase JS Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Socket.IO Client Script -->
+  <script src="/socket.io/socket.io.js"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background-color: #030712;
-      color: #ffffff;
-      overflow: hidden;
-      user-select: none;
-    }
-
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #030712; color: #ffffff; overflow: hidden; user-select: none; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-    .story-gradient {
-      background: linear-gradient(135deg, #FE2C55 0%, #25F4EE 100%);
-    }
-
-    .chat-bg {
-      background-color: #0B0F19;
-      background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 0);
-      background-size: 24px 24px;
-    }
+    .story-gradient { background: linear-gradient(135deg, #FE2C55 0%, #25F4EE 100%); }
+    .cover-gradient { background: linear-gradient(180deg, rgba(3,7,18,0.1) 0%, rgba(3,7,18,0.9) 85%, rgba(3,7,18,1) 100%); }
   </style>
 </head>
 <body class="h-screen w-screen flex bg-[#030712] text-white overflow-hidden">
 
-  <!-- LEFT SIDEBAR NAVIGATION -->
-  <aside class="w-64 border-r border-white/10 p-5 bg-[#030712] flex flex-col justify-between shrink-0 h-full overflow-y-auto no-scrollbar">
+  <!-- LEFT SIDEBAR -->
+  <aside class="hidden xl:flex flex-col justify-between w-64 border-r border-white/10 p-5 bg-[#030712] shrink-0 h-full overflow-y-auto no-scrollbar">
     <div class="space-y-6">
-      
-      <!-- Brand Logo -->
-      <div>
-        <h1 class="text-2xl font-black tracking-wider text-white">K<span class="text-[#FE2C55]">chat</span></h1>
-        <p class="text-[9px] tracking-widest uppercase font-bold text-gray-400 mt-0.5">Talk • Share • Be Closer</p>
+      <div class="cursor-pointer" onclick="clearSearchAndReload()">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] flex items-center justify-center font-black text-black text-xs">KDK</div>
+          <span class="font-extrabold text-xl tracking-tight text-white">ViroKDK</span>
+        </div>
+        <p class="text-[11px] text-gray-400 italic mt-0.5 ml-1">More than moments...</p>
       </div>
 
-      <!-- Navigation Tabs -->
       <nav class="space-y-1">
-        <button onclick="switchNavTab('chats')" id="nav-chats" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-white font-bold text-xs transition">
-          <div class="flex items-center space-x-3">
-            <i data-lucide="message-square" class="w-4 h-4 text-[#25F4EE]"></i>
-            <span>Chats</span>
-          </div>
-          <span class="w-5 h-5 rounded-full bg-[#FE2C55] text-white text-[10px] font-bold flex items-center justify-center">3</span>
+        <button onclick="clearSearchAndReload()" class="w-full flex items-center space-x-3.5 px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-white font-bold text-xs transition">
+          <i data-lucide="home" class="w-4 h-4 text-[#25F4EE]"></i><span>Home</span>
         </button>
-
-        <button onclick="switchNavTab('calls')" id="nav-calls" class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-slate-900/50 font-semibold text-xs transition">
-          <i data-lucide="phone" class="w-4 h-4"></i>
-          <span>Calls</span>
+        <button onclick="openChatInterface()" class="w-full flex items-center space-x-3.5 px-3.5 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-slate-900/50 font-semibold text-xs transition">
+          <i data-lucide="message-square" class="w-4 h-4 text-[#FE2C55]"></i><span>Kchat Live</span>
         </button>
-
-        <button onclick="switchNavTab('people')" id="nav-people" class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-slate-900/50 font-semibold text-xs transition">
-          <i data-lucide="users" class="w-4 h-4"></i>
-          <span>People</span>
+        <button onclick="openUploadModal()" class="w-full flex items-center space-x-3.5 px-3.5 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-slate-900/50 font-semibold text-xs transition">
+          <i data-lucide="plus-square" class="w-4 h-4"></i><span>Create Post</span>
         </button>
-
-        <button onclick="switchNavTab('stories')" id="nav-stories" class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-slate-900/50 font-semibold text-xs transition">
-          <i data-lucide="compass" class="w-4 h-4"></i>
-          <span>Stories</span>
-        </button>
-
-        <button onclick="switchNavTab('settings')" id="nav-settings" class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-slate-900/50 font-semibold text-xs transition">
-          <i data-lucide="settings" class="w-4 h-4"></i>
-          <span>Settings</span>
+        <button onclick="openProfileFromNav()" class="w-full flex items-center space-x-3.5 px-3.5 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-slate-900/50 font-semibold text-xs transition">
+          <i data-lucide="user" class="w-4 h-4"></i><span>Profile</span>
         </button>
       </nav>
 
-      <!-- New Chat Button -->
-      <button onclick="showToast('Starting new chat')" class="w-full py-2.5 bg-gradient-to-r from-[#FE2C55] to-[#25F4EE] hover:opacity-95 text-black font-extrabold rounded-xl text-xs shadow-lg transition flex items-center justify-center space-x-2">
-        <i data-lucide="plus" class="w-4 h-4"></i>
-        <span>New Chat</span>
-      </button>
-
-      <!-- Recent Chats List -->
-      <div class="space-y-2 pt-2">
-        <h4 class="text-[10px] font-extrabold uppercase text-gray-400 tracking-wider">Recent Chats</h4>
-        
-        <div class="space-y-1 overflow-y-auto max-h-[280px] no-scrollbar">
-          <div onclick="selectChatThread('Jay', 'jay256')" class="flex items-center justify-between p-2 rounded-xl bg-slate-900/80 cursor-pointer border border-white/5">
-            <div class="flex items-center space-x-2.5">
-              <div class="relative shrink-0">
-                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" class="w-9 h-9 rounded-full object-cover">
-                <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-black"></span>
-              </div>
-              <div class="truncate">
-                <p class="text-xs font-bold text-white">Jay</p>
-                <p class="text-[10px] text-gray-400 truncate">Bro the project looks fire! 🔥</p>
-              </div>
-            </div>
-            <div class="text-right shrink-0">
-              <span class="text-[9px] text-gray-500">10:24 AM</span>
-              <span class="w-4 h-4 rounded-full bg-[#FE2C55] text-[9px] font-bold text-white flex items-center justify-center mt-1 ml-auto">2</span>
-            </div>
-          </div>
-
-          <div onclick="selectChatThread('Amina', 'amina_live')" class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-900/40 cursor-pointer transition">
-            <div class="flex items-center space-x-2.5">
-              <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80" class="w-9 h-9 rounded-full object-cover">
-              <div class="truncate">
-                <p class="text-xs font-bold text-white">Amina</p>
-                <p class="text-[10px] text-gray-400 truncate">Let's catch up later 😌</p>
-              </div>
-            </div>
-            <span class="text-[9px] text-gray-500">9:18 AM</span>
-          </div>
-
-          <div onclick="selectChatThread('Tech Crew', 'techcrew')" class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-900/40 cursor-pointer transition">
-            <div class="flex items-center space-x-2.5">
-              <div class="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center font-bold text-xs text-cyan-400">TC</div>
-              <div class="truncate">
-                <p class="text-xs font-bold text-white">Tech Crew</p>
-                <p class="text-[10px] text-gray-400 truncate">You: sent a photo</p>
-              </div>
-            </div>
-            <span class="text-[9px] text-gray-500">Yesterday</span>
-          </div>
-
-          <div onclick="selectChatThread('Football UG', 'footballug')" class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-900/40 cursor-pointer transition">
-            <div class="flex items-center space-x-2.5">
-              <div class="w-9 h-9 rounded-full bg-emerald-950 flex items-center justify-center font-bold text-xs text-emerald-400">⚽</div>
-              <div class="truncate">
-                <p class="text-xs font-bold text-white">Football UG</p>
-                <p class="text-[10px] text-gray-400 truncate">Match this weekend? ⚽</p>
-              </div>
-            </div>
-            <span class="text-[9px] text-gray-500">Yesterday</span>
-          </div>
+      <!-- Online Roster Card for Kchat -->
+      <div class="space-y-2 pt-2 border-t border-white/10">
+        <h4 class="text-[10px] font-extrabold uppercase text-gray-400 tracking-wider">Kchat Online Roster</h4>
+        <div id="roster-list" class="space-y-1 overflow-y-auto max-h-48 no-scrollbar">
+          <p class="text-[10px] text-gray-500">Connecting...</p>
         </div>
       </div>
     </div>
 
-    <!-- Archived Chats Footer -->
-    <div class="pt-3 border-t border-white/10 flex items-center space-x-2 text-gray-400 hover:text-white cursor-pointer text-xs font-bold" onclick="showToast('Archived chats')">
-      <i data-lucide="archive" class="w-4 h-4"></i>
-      <span>Archived</span>
+    <div class="mt-6 p-4 rounded-2xl bg-gradient-to-br from-purple-900/50 via-indigo-900/50 to-rose-900/50 border border-white/10 relative overflow-hidden">
+      <h4 class="font-extrabold text-sm text-white leading-tight">Create<br>Share<br>Inspire</h4>
+      <p class="text-[10px] text-gray-300 mt-2">Turn your moments into a bigger story.</p>
     </div>
   </aside>
 
-  <!-- CENTER CHAT & FEED AREA -->
+  <!-- CENTER CONTENT AREA -->
   <main class="flex-1 h-full flex flex-col overflow-hidden bg-[#030712]">
-    
-    <!-- TOP HEADER -->
     <header class="h-16 border-b border-white/10 px-6 flex items-center justify-between shrink-0 bg-[#030712]">
-      <!-- Search Bar -->
-      <div class="relative flex-1 max-w-lg">
+      <div class="relative flex-1 max-w-xl">
         <i data-lucide="search" class="w-4 h-4 absolute left-4 top-3 text-gray-400"></i>
-        <input type="text" placeholder="Search chats, people, or messages..." class="w-full bg-slate-900/80 border border-white/10 text-xs text-white rounded-xl py-2.5 pl-10 pr-4 focus:outline-none">
+        <input type="text" id="top-search-input" oninput="handleSearch(this.value)" placeholder="Search videos, users, or hashtags..." class="w-full bg-slate-900/80 border border-white/10 text-xs text-white rounded-xl py-2.5 pl-10 pr-4 focus:outline-none">
       </div>
-
-      <!-- Top Icons & Profile -->
-      <div class="flex items-center space-x-4 pl-4">
-        <button onclick="showToast('Calls')" class="p-2 rounded-xl bg-slate-900 border border-white/10 text-gray-300 hover:text-white">
-          <i data-lucide="phone" class="w-4 h-4"></i>
-        </button>
-        <button onclick="showToast('Video Call')" class="p-2 rounded-xl bg-slate-900 border border-white/10 text-gray-300 hover:text-white">
-          <i data-lucide="video" class="w-4 h-4"></i>
-        </button>
-        <button onclick="showToast('Notifications')" class="p-2 rounded-xl bg-slate-900 border border-white/10 text-gray-300 hover:text-white relative">
-          <i data-lucide="bell" class="w-4 h-4"></i>
-          <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#FE2C55]"></span>
-        </button>
-        <div class="flex items-center space-x-2 cursor-pointer" onclick="openProfileFromNav()">
-          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" class="w-8 h-8 rounded-full object-cover border border-[#25F4EE]">
-        </div>
+      <div class="flex items-center space-x-4 pl-4" id="header-avatar-btn">
+        <button onclick="openAuthModal()" class="bg-[#FE2C55] px-4 py-1.5 rounded-xl text-xs font-bold text-white hover:bg-red-600 transition">Sign In</button>
       </div>
     </header>
 
-    <!-- MAIN VIEW CONTAINER -->
-    <div id="main-view-container" class="flex-1 flex overflow-hidden">
-      
-      <!-- CHAT INTERFACE WINDOW -->
-      <div id="chat-window-view" class="flex-1 flex flex-col chat-bg h-full">
-        
-        <!-- STORIES TRAY -->
-        <div class="flex items-center space-x-4 px-6 py-3 border-b border-white/10 overflow-x-auto no-scrollbar shrink-0 bg-slate-950/40">
+    <div class="flex-1 overflow-y-auto no-scrollbar p-6 space-y-6 relative">
+      <!-- HOME FEED VIEW -->
+      <div id="home-feed-view" class="space-y-6">
+        <div class="flex items-center space-x-4 overflow-x-auto no-scrollbar py-2 border-b border-white/10">
           <div class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer" onclick="openUploadModal()">
-            <div class="w-12 h-12 rounded-full border-2 border-dashed border-white/30 flex items-center justify-center text-white bg-slate-900">
-              <i data-lucide="plus" class="w-4 h-4"></i>
-            </div>
+            <div class="w-14 h-14 rounded-full border-2 border-dashed border-white/30 flex items-center justify-center text-white bg-slate-900"><i data-lucide="plus" class="w-5 h-5"></i></div>
             <span class="text-[10px] text-gray-400 font-medium">Your Story</span>
           </div>
-
-          <div class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer" onclick="selectChatThread('Jay', 'jay256')">
-            <div class="w-12 h-12 rounded-full p-0.5 story-gradient">
-              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" class="w-full h-full rounded-full object-cover">
-            </div>
-            <span class="text-[10px] text-gray-300 font-medium">Jay</span>
-          </div>
-
-          <div class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer" onclick="selectChatThread('Amina', 'amina_live')">
-            <div class="w-12 h-12 rounded-full p-0.5 story-gradient">
-              <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80" class="w-full h-full rounded-full object-cover">
-            </div>
-            <span class="text-[10px] text-gray-300 font-medium">Amina</span>
-          </div>
-
-          <div class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer" onclick="selectChatThread('Tech Crew', 'techcrew')">
-            <div class="w-12 h-12 rounded-full p-0.5 story-gradient">
-              <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=150&q=80" class="w-full h-full rounded-full object-cover">
-            </div>
-            <span class="text-[10px] text-gray-300 font-medium">Tech Crew</span>
-          </div>
-
-          <div class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer" onclick="selectChatThread('Football UG', 'footballug')">
-            <div class="w-12 h-12 rounded-full p-0.5 story-gradient">
-              <img src="https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=150&q=80" class="w-full h-full rounded-full object-cover">
-            </div>
-            <span class="text-[10px] text-gray-300 font-medium">Football UG</span>
+        </div>
+        <div id="posts-feed-container" class="space-y-6 max-w-2xl mx-auto">
+          <div class="flex flex-col justify-center items-center py-12 text-gray-500">
+            <i data-lucide="loader-2" class="w-8 h-8 animate-spin text-[#FE2C55] mb-2"></i>
+            <p class="text-xs font-semibold">Loading Feed...</p>
           </div>
         </div>
+      </div>
 
-        <!-- ACTIVE CHAT TOP BAR -->
-        <div class="px-6 py-3 border-b border-white/10 flex items-center justify-between bg-slate-900/40 shrink-0">
+      <!-- KCHAT LIVE MESSAGING VIEW -->
+      <div id="kchat-view" class="hidden h-full flex flex-col bg-slate-950 rounded-2xl border border-white/10 overflow-hidden">
+        <div class="p-4 border-b border-white/10 flex items-center justify-between bg-slate-900">
           <div class="flex items-center space-x-3">
-            <div class="relative">
-              <img id="active-user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" class="w-10 h-10 rounded-full object-cover">
-              <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-black"></span>
-            </div>
-            <div>
-              <h3 id="active-user-name" class="font-extrabold text-xs text-white">Jay</h3>
-              <p class="text-[10px] text-emerald-400 font-medium">Online now</p>
-            </div>
+            <h3 class="font-extrabold text-sm text-white">Kchat Live Room</h3>
+            <span id="typing-indicator" class="text-[10px] text-emerald-400 font-medium">Group chat active</span>
           </div>
-
-          <div class="flex items-center space-x-3 text-gray-300">
-            <button onclick="showToast('Calling...')" class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-800"><i data-lucide="phone" class="w-4 h-4"></i></button>
-            <button onclick="showToast('Starting video call...')" class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-800"><i data-lucide="video" class="w-4 h-4"></i></button>
-            <button onclick="showToast('Chat options')" class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-800"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button>
+          <div class="flex items-center space-x-2">
+            <button onclick="startCall('audio')" class="px-3 py-1.5 bg-slate-800 rounded-lg text-xs font-bold text-cyan-400 hover:bg-slate-700">Audio Call</button>
+            <button onclick="startCall('video')" class="px-3 py-1.5 bg-slate-800 rounded-lg text-xs font-bold text-[#FE2C55] hover:bg-slate-700">Video Call</button>
+            <button onclick="clearSearchAndReload()" class="px-3 py-1.5 bg-slate-800 rounded-lg text-xs font-bold text-white">Back to Feed</button>
           </div>
         </div>
 
-        <!-- CHAT MESSAGES SCROLLER -->
-        <div id="chat-messages-container" class="flex-1 p-6 overflow-y-auto space-y-4 no-scrollbar">
-          <div class="text-center">
-            <span class="px-3 py-1 bg-slate-900 border border-white/10 rounded-full text-[10px] text-gray-400 font-bold">Today</span>
+        <!-- CALL STAGE OVERLAY -->
+        <div id="call-stage" class="absolute inset-0 z-30 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-6 space-y-4">
+          <h3 id="call-status-text" class="text-lg font-bold text-white">Connecting Call...</h3>
+          <div class="flex space-x-4">
+            <video id="remote-video" autoplay playsinline class="w-72 h-48 bg-slate-900 rounded-2xl object-cover border border-white/10"></video>
+            <video id="local-video" autoplay muted playsinline class="w-72 h-48 bg-slate-900 rounded-2xl object-cover border border-white/10"></video>
           </div>
-
-          <!-- Message bubbles -->
-          <div class="flex items-end space-x-2">
-            <div class="max-w-[70%] bg-slate-900 border border-white/10 rounded-2xl rounded-bl-none px-4 py-2.5 text-xs text-gray-200">
-              Yo bro 👋 <span class="text-[9px] text-gray-500 ml-2">10:20 AM</span>
-            </div>
-          </div>
-
-          <div class="flex items-end justify-end space-x-2">
-            <div class="max-w-[70%] bg-[#FE2C55] rounded-2xl rounded-br-none px-4 py-2.5 text-xs text-white flex items-center space-x-2">
-              <span>Hey man! 👋</span>
-              <span class="text-[9px] text-white/70">10:20 AM ✓✓</span>
-            </div>
-          </div>
-
-          <div class="flex items-end space-x-2">
-            <div class="max-w-[70%] bg-slate-900 border border-white/10 rounded-2xl rounded-bl-none p-2 space-y-2 text-xs text-gray-200">
-              <p>Check this out! <span class="text-[9px] text-gray-500 ml-2">10:21 AM</span></p>
-              <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80" class="rounded-xl w-full h-40 object-cover">
-            </div>
-          </div>
-
-          <div class="flex items-end space-x-2">
-            <div class="max-w-[70%] bg-slate-900 border border-white/10 rounded-2xl rounded-bl-none px-4 py-2.5 text-xs text-gray-200">
-              This spot is crazy 😍 <span class="text-[9px] text-gray-500 ml-2">10:21 AM</span>
-            </div>
-          </div>
-
-          <div class="flex items-end justify-end space-x-2">
-            <div class="max-w-[70%] bg-[#FE2C55] rounded-2xl rounded-br-none px-4 py-2.5 text-xs text-white flex items-center space-x-2">
-              <span>Wow! Where is this?</span>
-              <span class="text-[9px] text-white/70">10:22 AM ✓✓</span>
-            </div>
-          </div>
-
-          <div class="flex items-end justify-end space-x-2">
-            <div class="max-w-[70%] bg-[#FE2C55] rounded-2xl rounded-br-none px-4 py-2.5 text-xs text-white flex items-center space-x-2">
-              <span>Looks insane 😍</span>
-              <span class="text-[9px] text-white/70">10:22 AM ✓✓</span>
-            </div>
-          </div>
-
-          <div class="flex items-end space-x-2">
-            <div class="max-w-[70%] bg-slate-900 border border-white/10 rounded-2xl rounded-bl-none px-4 py-2.5 text-xs text-gray-200">
-              Bro the project looks fire! 🔥 <span class="text-[9px] text-gray-500 ml-2">10:24 AM</span>
-            </div>
-          </div>
-
-          <div class="flex items-end justify-end space-x-2">
-            <div class="max-w-[70%] bg-[#FE2C55] rounded-2xl rounded-br-none px-4 py-2.5 text-xs text-white flex items-center space-x-2">
-              <span>Let's link up this weekend and go! 🚀</span>
-              <span class="text-[9px] text-white/70">10:24 AM ✓✓</span>
-            </div>
-          </div>
+          <button onclick="hangUpCall()" class="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition">End Call</button>
         </div>
 
-        <!-- CHAT INPUT BAR -->
-        <form onsubmit="sendChatMessage(event)" class="p-4 border-t border-white/10 bg-slate-900/60 flex items-center space-x-3 shrink-0">
-          <button type="button" onclick="showToast('Emoji picker')" class="text-gray-400 hover:text-white"><i data-lucide="smile" class="w-5 h-5"></i></button>
-          <input type="text" id="chat-input-field" placeholder="Type a message..." required class="flex-1 bg-slate-800/80 border border-white/10 text-xs text-white rounded-xl py-3 px-4 focus:outline-none">
-          <button type="button" onclick="showToast('Attach file')" class="text-gray-400 hover:text-white"><i data-lucide="paperclip" class="w-5 h-5"></i></button>
-          <button type="button" onclick="showToast('Send photo')" class="text-gray-400 hover:text-white"><i data-lucide="image" class="w-5 h-5"></i></button>
-          <button type="button" onclick="showToast('Voice note')" class="text-gray-400 hover:text-white"><i data-lucide="mic" class="w-5 h-5"></i></button>
-          <button type="submit" class="w-10 h-10 rounded-xl bg-[#FE2C55] hover:bg-red-600 flex items-center justify-center text-white transition"><i data-lucide="send" class="w-4 h-4"></i></button>
+        <div id="chat-messages-container" class="flex-1 p-4 overflow-y-auto space-y-3 no-scrollbar"></div>
+
+        <form onsubmit="sendKchatMessage(event)" class="p-4 border-t border-white/10 bg-slate-900 flex items-center space-x-3">
+          <input type="text" id="kchat-input" oninput="handleTyping()" placeholder="Message Kchat room..." required class="flex-1 bg-slate-800 text-xs text-white rounded-xl py-2.5 px-4 focus:outline-none border border-white/10">
+          <button type="submit" class="px-5 py-2.5 bg-[#FE2C55] text-white font-bold text-xs rounded-xl hover:bg-red-600">Send</button>
         </form>
       </div>
 
+      <!-- PROFILE CONTAINER -->
+      <div id="profile-container" class="hidden w-full pb-16"></div>
     </div>
   </main>
 
-  <!-- RIGHT INFO SIDEBAR -->
-  <aside class="hidden xl:flex flex-col w-80 border-l border-white/10 p-5 bg-[#030712] shrink-0 h-full overflow-y-auto no-scrollbar space-y-5">
-    
-    <!-- Profile Card Banner -->
-    <div class="relative h-32 rounded-2xl overflow-hidden border border-white/10 shadow-xl bg-slate-900">
-      <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover">
-      <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-4 flex flex-col justify-between">
-        <span class="text-[10px] font-bold text-gray-300">KChat</span>
-        <h3 class="text-sm font-black italic text-white">Same People Different Chats</h3>
-      </div>
-    </div>
-
-    <!-- Active User Card Details -->
-    <div class="flex flex-col items-center text-center space-y-2 pt-1">
-      <div class="relative">
-        <img id="right-panel-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80" class="w-20 h-20 rounded-full object-cover border-2 border-[#25F4EE]">
-        <span class="absolute bottom-1 right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-black"></span>
-      </div>
-      <div>
-        <h3 id="right-panel-name" class="font-extrabold text-sm text-white">Jay</h3>
-        <p id="right-panel-handle" class="text-[10px] text-cyan-400 font-semibold">@jay256</p>
-      </div>
-      <p class="text-[11px] text-gray-400 italic">"Good friends. Great conversations."</p>
-
-      <!-- Action Buttons Row -->
-      <div class="flex items-center space-x-3 pt-2">
-        <button onclick="showToast('Audio call')" class="flex flex-col items-center bg-slate-900 border border-white/10 hover:bg-slate-800 p-2.5 rounded-xl text-xs font-bold text-gray-300 transition">
-          <i data-lucide="phone" class="w-4 h-4 mb-1 text-[#25F4EE]"></i> Audio
-        </button>
-        <button onclick="showToast('Video call')" class="flex flex-col items-center bg-slate-900 border border-white/10 hover:bg-slate-800 p-2.5 rounded-xl text-xs font-bold text-gray-300 transition">
-          <i data-lucide="video" class="w-4 h-4 mb-1 text-[#FE2C55]"></i> Video
-        </button>
-        <button onclick="showToast('Search chat')" class="flex flex-col items-center bg-slate-900 border border-white/10 hover:bg-slate-800 p-2.5 rounded-xl text-xs font-bold text-gray-300 transition">
-          <i data-lucide="search" class="w-4 h-4 mb-1 text-gray-300"></i> Search
-        </button>
-        <button onclick="showToast('More options')" class="flex flex-col items-center bg-slate-900 border border-white/10 hover:bg-slate-800 p-2.5 rounded-xl text-xs font-bold text-gray-300 transition">
-          <i data-lucide="more-horizontal" class="w-4 h-4 mb-1 text-gray-300"></i> More
-        </button>
-      </div>
-    </div>
-
-    <!-- Quote Box -->
-    <div class="p-3 bg-slate-900/50 border border-white/10 rounded-2xl text-[11px] text-gray-300 italic border-l-2 border-l-[#25F4EE]">
-      "Better conversations lead to a brighter tomorrow."
-    </div>
-
-    <!-- Shared Media Section -->
-    <div class="space-y-2">
-      <div class="flex items-center justify-between text-xs font-bold">
-        <span class="text-gray-300">Shared Media</span>
-        <button onclick="showToast('All shared media')" class="text-[10px] text-cyan-400 hover:underline">See all</button>
-      </div>
-
-      <div class="grid grid-cols-3 gap-2">
-        <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=200&q=80" class="aspect-square rounded-xl object-cover border border-white/10">
-        <img src="https://images.unsplash.com/photo-1511884642898-4c92249e20b6?auto=format&fit=crop&w=200&q=80" class="aspect-square rounded-xl object-cover border border-white/10">
-        <img src="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=200&q=80" class="aspect-square rounded-xl object-cover border border-white/10">
-        <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=200&q=80" class="aspect-square rounded-xl object-cover border border-white/10">
-        <div class="aspect-square rounded-xl bg-slate-900 border border-white/10 relative overflow-hidden flex items-center justify-center cursor-pointer">
-          <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=200&q=80" class="absolute inset-0 w-full h-full object-cover opacity-60">
-          <i data-lucide="play" class="w-5 h-5 text-white z-10 fill-white"></i>
-          <span class="absolute bottom-1 right-1 text-[8px] bg-black/70 px-1 rounded font-bold">0:32</span>
-        </div>
-        <img src="https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=200&q=80" class="aspect-square rounded-xl object-cover border border-white/10">
-      </div>
-    </div>
-
-    <!-- Shared Files Section -->
-    <div class="space-y-2">
-      <div class="flex items-center justify-between text-xs font-bold">
-        <span class="text-gray-300">Shared Files</span>
-        <button onclick="showToast('All files')" class="text-[10px] text-cyan-400 hover:underline">See all</button>
-      </div>
-
-      <div class="bg-slate-900/60 border border-white/10 rounded-2xl p-2.5 flex items-center justify-between">
-        <div class="flex items-center space-x-2.5 truncate">
-          <div class="w-8 h-8 rounded-lg bg-rose-600/20 text-rose-500 font-bold text-xs flex items-center justify-center shrink-0">PDF</div>
-          <div class="truncate">
-            <p class="text-xs font-bold text-white truncate">Project_Plan.pdf</p>
-            <p class="text-[9px] text-gray-400">2.4 MB • Apr 12</p>
-          </div>
-        </div>
-        <button onclick="showToast('Downloading file...')" class="p-2 rounded-xl bg-slate-800 text-gray-300 hover:text-white"><i data-lucide="download" class="w-3.5 h-3.5"></i></button>
-      </div>
-    </div>
-
-  </aside>
-
-  <!-- UPLOAD MEDIA MODAL -->
+  <!-- UPLOAD MODAL -->
   <div id="upload-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-white/10 rounded-2xl w-full max-w-lg p-6 relative shadow-2xl space-y-4">
       <button onclick="closeUploadModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
-      <h3 class="text-base font-bold text-center border-b border-white/10 pb-3">Upload Story or Media</h3>
+      <h3 class="text-base font-bold text-center border-b border-white/10 pb-3">Create New Post</h3>
       <form onsubmit="handleMediaUpload(event)" class="space-y-4">
         <div class="border-2 border-dashed border-white/20 rounded-xl p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#FE2C55] transition bg-black/40" onclick="document.getElementById('upload-file').click()">
           <i data-lucide="image" class="w-10 h-10 text-gray-400 mb-2"></i>
           <p class="text-sm font-bold text-white" id="file-label-text">Select Photo or Video</p>
           <input type="file" id="upload-file" accept="image/*,video/*" required class="hidden" onchange="document.getElementById('file-label-text').innerText = this.files[0]?.name">
         </div>
-        <button type="submit" class="w-full py-2.5 bg-[#FE2C55] hover:bg-red-600 text-white font-bold rounded-xl transition">Share Now</button>
+        <input type="text" id="upload-caption" placeholder="Write a caption..." class="w-full bg-slate-800 text-sm text-white rounded-xl p-3 border border-white/10 focus:outline-none">
+        <button type="submit" class="w-full py-2.5 bg-[#FE2C55] text-white font-bold rounded-xl">Share Post</button>
       </form>
     </div>
   </div>
 
-  <!-- TOAST NOTIFICATION -->
+  <!-- AUTH MODAL -->
+  <div id="auth-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-white/10 rounded-2xl w-full max-w-md p-6 relative shadow-2xl">
+      <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <h2 class="text-xl font-bold mb-4 text-center">Log In to ViroKDK</h2>
+      <form onsubmit="handleAuth(event)" class="space-y-4">
+        <input type="email" id="auth-email" required placeholder="you@example.com" class="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-white text-sm focus:outline-none"/>
+        <input type="password" id="auth-password" required minlength="6" placeholder="••••••••" class="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-white text-sm focus:outline-none"/>
+        <button type="submit" class="w-full bg-[#FE2C55] font-bold py-2.5 rounded-xl text-white">Log In</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST -->
   <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-slate-800 text-white text-xs font-semibold px-4 py-2.5 rounded-full border border-white/20 shadow-xl opacity-0 pointer-events-none transition-all duration-300">
     <span id="toast-message">Notification</span>
   </div>
@@ -431,69 +170,176 @@
     const SUPABASE_URL = 'https://wjpvqoluqwghxujtyrch.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_y5WtvnM9PB0kIFWyztrJFw_CphEf0Vd';
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const socket = io();
+
+    let myName = prompt("Enter your display name for Kchat:") || "Guest";
+    let activeDmTarget = null;
+    let typingTimer = null;
+    let currentCallId = null;
+    let localStream = null;
+    let peerConnection = null;
+    const ICE_CONFIG = { iceServers: [{ urls: ["stun:stun.l.google.com:19302"] }] };
 
     document.addEventListener("DOMContentLoaded", () => {
       lucide.createIcons();
+      loadPosts();
+      
+      socket.emit("user:join", { name: myName }, (res) => {
+        if (res.ok) myName = res.user.name;
+      });
     });
 
-    function switchNavTab(tabName) {
-      ['chats', 'calls', 'people', 'stories', 'settings'].forEach(t => {
-        const btn = document.getElementById(`nav-${t}`);
-        if (btn) {
-          if (t === tabName) {
-            btn.className = "w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-white font-bold text-xs transition";
-          } else {
-            btn.className = "w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-slate-900/50 font-semibold text-xs transition";
-          }
-        }
-      });
-      if (tabName !== 'chats') {
-        showToast(`Switched to ${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
-      }
+    socket.on("roster", (users) => {
+      const rosterList = document.getElementById("roster-list");
+      rosterList.innerHTML = users.map(u => `
+        <div onclick="setDmTarget('${u.id}', '${u.name}')" class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-900 cursor-pointer">
+          <span class="text-xs font-bold text-white">${u.name} ${u.id === socket.id ? '(You)' : ''}</span>
+          <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
+        </div>
+      `).join('');
+    });
+
+    function openChatInterface() {
+      document.getElementById("home-feed-view").classList.add("hidden");
+      document.getElementById("profile-container").classList.add("hidden");
+      document.getElementById("kchat-view").classList.remove("hidden");
     }
 
-    function selectChatThread(name, handle) {
-      document.getElementById('active-user-name').innerText = name;
-      document.getElementById('right-panel-name').innerText = name;
-      document.getElementById('right-panel-handle').innerText = `@${handle || name.toLowerCase()}`;
-      showToast(`Opened chat with ${name}`);
+    function clearSearchAndReload() {
+      document.getElementById("kchat-view").classList.add("hidden");
+      document.getElementById("profile-container").classList.add("hidden");
+      document.getElementById("home-feed-view").classList.remove("hidden");
+      loadPosts();
     }
 
-    function sendChatMessage(e) {
+    function setDmTarget(id, name) {
+      activeDmTarget = (id === socket.id) ? null : id;
+      showToast(activeDmTarget ? `Private chat with ${name}` : "Public Kchat room");
+    }
+
+    function sendKchatMessage(e) {
       e.preventDefault();
-      const input = document.getElementById('chat-input-field');
+      const input = document.getElementById("kchat-input");
       const text = input.value.trim();
       if (!text) return;
+      socket.emit("chat:message", { text, to: activeDmTarget }, (res) => {
+        if (res.ok) input.value = "";
+      });
+    }
 
-      const container = document.getElementById('chat-messages-container');
-      const bubble = document.createElement('div');
-      bubble.className = "flex items-end justify-end space-x-2";
+    socket.on("chat:message", (msg) => {
+      const container = document.getElementById("chat-messages-container");
+      const isMe = msg.from.id === socket.id;
+      const bubble = document.createElement("div");
+      bubble.className = `flex flex-col ${isMe ? 'items-end' : 'items-start'}`;
       bubble.innerHTML = `
-        <div class="max-w-[70%] bg-[#FE2C55] rounded-2xl rounded-br-none px-4 py-2.5 text-xs text-white flex items-center space-x-2">
-          <span>${text}</span>
-          <span class="text-[9px] text-white/70">Just now ✓✓</span>
-        </div>
+        <span class="text-[9px] text-gray-400">${msg.from.name}</span>
+        <div class="max-w-[75%] px-4 py-2 rounded-xl text-xs ${isMe ? 'bg-[#FE2C55] text-white' : 'bg-slate-900 border border-white/10 text-gray-200'}">${msg.text}</div>
       `;
       container.appendChild(bubble);
-      input.value = '';
       container.scrollTop = container.scrollHeight;
+    });
+
+    function handleTyping() {
+      socket.emit("chat:typing", { typing: true });
+      clearTimeout(typingTimer);
+      typingTimer = setTimeout(() => socket.emit("chat:typing", { typing: false }), 1500);
+    }
+
+    socket.on("chat:typing", (data) => {
+      document.getElementById("typing-indicator").innerText = data.typing ? `${data.from.name} is typing...` : "Group chat active";
+    });
+
+    async function startCall(mediaType) {
+      const res = await new Promise(resolve => socket.emit("call:invite", { to: activeDmTarget, media: mediaType }, resolve));
+      if (!res.ok) { showToast(res.error || "Select someone in roster for 1-1 call or use public mode"); return; }
+      currentCallId = res.callId;
+      document.getElementById("call-stage").classList.remove("hidden");
+      await setupPeerConnection(true);
+    }
+
+    socket.on("call:incoming", async (data) => {
+      if (confirm(`Incoming ${data.media} call from ${data.from.name}. Accept?`)) {
+        currentCallId = data.callId;
+        document.getElementById("call-stage").classList.remove("hidden");
+        socket.emit("call:accept", { callId: currentCallId });
+        await setupPeerConnection(false);
+      } else {
+        socket.emit("call:decline", { callId: data.callId });
+      }
+    });
+
+    socket.on("call:accepted", async (data) => {
+      currentCallId = data.callId;
+      const offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(offer);
+      socket.emit("webrtc:signal", { callId: currentCallId, data: { type: "offer", sdp: offer.sdp } });
+    });
+
+    socket.on("call:over", () => { hangUpCall(false); showToast("Call ended"); });
+
+    async function setupPeerConnection(isCaller) {
+      peerConnection = new RTCPeerConnection(ICE_CONFIG);
+      try {
+        localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+        document.getElementById("local-video").srcObject = localStream;
+        localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+      } catch (err) { console.warn("No camera/mic:", err); }
+
+      peerConnection.ontrack = (event) => { document.getElementById("remote-video").srcObject = event.streams[0]; };
+      peerConnection.onicecandidate = (event) => {
+        if (event.candidate) socket.emit("webrtc:signal", { callId: currentCallId, data: { type: "candidate", candidate: event.candidate } });
+      };
+
+      socket.on("webrtc:signal", async (signal) => {
+        if (!peerConnection) return;
+        const d = signal.data;
+        if (d.type === "offer") {
+          await peerConnection.setRemoteDescription(new RTCSessionDescription(d));
+          const answer = await peerConnection.createAnswer();
+          await peerConnection.setLocalDescription(answer);
+          socket.emit("webrtc:signal", { callId: currentCallId, data: { type: "answer", sdp: answer.sdp } });
+        } else if (d.type === "answer") {
+          await peerConnection.setRemoteDescription(new RTCSessionDescription(d));
+        } else if (d.type === "candidate") {
+          await peerConnection.addIceCandidate(new RTCIceCandidate(d.candidate));
+        }
+      });
+    }
+
+    function hangUpCall(notifyServer = true) {
+      if (notifyServer && currentCallId) socket.emit("call:end", { callId: currentCallId });
+      if (localStream) localStream.getTracks().forEach(t => t.stop());
+      if (peerConnection) { peerConnection.close(); peerConnection = null; }
+      currentCallId = null;
+      document.getElementById("call-stage").classList.add("hidden");
+    }
+
+    async function loadPosts() {
+      const { data: posts } = await db.from('videos').select('*').order('created_at', { ascending: false });
+      const container = document.getElementById('posts-feed-container');
+      if (!posts || posts.length === 0) { container.innerHTML = `<p class="text-center text-gray-500 py-12">No posts yet.</p>`; return; }
+      container.innerHTML = posts.map(p => `
+        <div class="bg-slate-900 border border-white/10 rounded-2xl overflow-hidden shadow-2xl p-4 space-y-3">
+          <div class="flex items-center space-x-3"><span class="font-bold text-xs text-white">@${p.username || 'user'}</span></div>
+          <div class="w-full aspect-[4/3] bg-black rounded-xl overflow-hidden flex items-center justify-center">
+            ${p.video_url.match(/\.(mp4|webm)$/i) ? `<video src="${p.video_url}" class="w-full h-full object-cover" controls></video>` : `<img src="${p.video_url}" class="w-full h-full object-cover">`}
+          </div>
+          <p class="text-xs text-gray-200">${p.caption || ''}</p>
+        </div>
+      `).join('');
+      lucide.createIcons();
     }
 
     function openUploadModal() { document.getElementById('upload-modal').classList.remove('hidden'); }
     function closeUploadModal() { document.getElementById('upload-modal').classList.add('hidden'); }
-    function openProfileFromNav() { showToast('Profile settings'); }
-
-    function handleMediaUpload(e) {
-      e.preventDefault();
-      showToast('Media shared successfully!');
-      closeUploadModal();
-    }
-
+    function openAuthModal() { document.getElementById('auth-modal').classList.remove('hidden'); }
+    function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
     function showToast(msg) {
       const toast = document.getElementById("toast");
       document.getElementById("toast-message").textContent = msg;
       toast.classList.remove("opacity-0", "pointer-events-none");
-      setTimeout(() => { toast.classList.add("opacity-0", "pointer-events-none"); }, 2500);
+      setTimeout(() => toast.classList.add("opacity-0", "pointer-events-none"), 2500);
     }
   </script>
 </body>
